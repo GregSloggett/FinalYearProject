@@ -17,5 +17,10 @@ def response_url():
     return render_template("response_url.html")
 
 
+@app.route('/summary/')
+def summary():
+
+    return render_template("summary.html")
+
 if __name__ == '__main__':
     app.run()
