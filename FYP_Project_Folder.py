@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
-from stravalib.client import Client
+#from stravalib.client import Client
 
 
 app = Flask(__name__)
@@ -20,7 +20,7 @@ class AccessTokens(db.Model):
 MY_ACCESS_TOKEN = 'a6e5a504f806ed79c8a6e25f59da056b440faac5'
 MY_CLIENT_ID = 20518
 MY_CLIENT_SECRET = 'cf516a44b390c99b6777f771be0103314516931e'
-client = Client()
+#client = Client()
 
 # Home page of my application.
 @app.route('/', methods=['GET', 'POST'])
@@ -39,19 +39,19 @@ def response_url():
         return render_template("access_denied.html")
 
     code = request.args.get('code')
-    athlete_access_token = client.exchange_code_for_token(client_id=MY_CLIENT_ID,
-                                                          client_secret=MY_CLIENT_SECRET, code=code)
+    #athlete_access_token = client.exchange_code_for_token(client_id=MY_CLIENT_ID,
+     #                                                     client_secret=MY_CLIENT_SECRET, code=code)
 
-    # athlete_access_token = 'cc1a2bde123b3868d588fdee5ddec8f1da595903'  ##DELETE THIS LINE TO REMOVE IAN M ACCESS
+    athlete_access_token = 'cc1a2bde123b3868d588fdee5ddec8f1da595903'  ##DELETE THIS LINE TO REMOVE IAN M ACCESS
 
-    client.access_token = athlete_access_token
-    athlete = client.get_athlete()
+    #client.access_token = athlete_access_token
+    #athlete = client.get_athlete()
 
     check_code = athlete_access_token
     check_access_token = AccessTokens.query.filter_by(access_token=check_code).first()
     if not check_access_token:
         print('user does not exist already')
-        signature = AccessTokens(name=athlete.firstname, access_token=athlete_access_token)
+        signature = AccessTokens(name="greg", access_token=athlete_access_token)
         db.session.add(signature)
         db.session.commit()
     else:
