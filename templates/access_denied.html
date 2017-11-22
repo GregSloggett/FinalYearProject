@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Access Denied</title>
+</head>
+<body>
+
+The user denied access.
+
+<br>Click below to reauthorize the application.
+
+<form method="get" action="https://www.strava.com/oauth/authorize">
+
+    <input type="hidden" name="client_id" value="20518" />
+    <input type="hidden" name="response_type" value="code" />
+    <input type="hidden" name="redirect_uri" value="http://127.0.0.1:5000/response_url" />
+    <input type="hidden" name="approval_prompt" value="force" />
+
+    <button type="submit">Authorize Application</button>
+</form>
+
+<br><br>
+
+Otherwise return to the homepage
+
+<br>
+
+<form method="get" action="http://127.0.0.1:5000">
+
+    <button type="submit">Homepage</button>
+</form>
+
+</body>
+</html>

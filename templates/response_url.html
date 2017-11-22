@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Authorization</title>
+    <h1>Thank you for authorizing this app!</h1>
+</head>
+<body>
+
+Your access token is {{ athlete_access_token }}
+<br><br>
+
+<form method="get" action="http://127.0.0.1:5000/summary">
+    <button type="submit">View your Summary</button>
+</form>
+
+</body>
+</html>

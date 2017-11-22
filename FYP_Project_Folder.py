@@ -1,11 +1,20 @@
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
 
+# Home page of my application.
 @app.route('/')
-def hello_world():
-    return 'Hello Greg!'
+def homepage():
+
+    return render_template("homepage.html")
+
+
+# The response page that the user is presented with when they authorize the app for the first time.
+@app.route('/response_url/')
+def response_url():
+
+    return render_template("response_url.html")
 
 
 if __name__ == '__main__':
