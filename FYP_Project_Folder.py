@@ -6,18 +6,18 @@ import requests
 
 app = Flask(__name__)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="GregorySloggett",
-    password="Xavi6legend",
-    hostname="GregorySloggett.mysql.pythonanywhere-services.com",
-    databasename="GregorySloggett$access_tokens",
-)
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+#     username="GregorySloggett",
+#     password="Xavi6legend",
+#     hostname="GregorySloggett.mysql.pythonanywhere-services.com",
+#     databasename="GregorySloggett$access_tokens",
+# )
+# app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+# app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 
 db = SQLAlchemy(app)
@@ -47,11 +47,11 @@ def homepage():
 
 
 # The response page that the user is presented with when they authorize the app for the first time.
-@app.route('/response_url/')
+@app.route('/response_url/', methods=['GET', 'POST'])
 def response_url():
     error = request.args.get('error')
     if error == 'access_denied':
-        return render_template("access_denied.html")
+        return render_template("access_denied.html", methods=['GET', 'POST'])
 
     code = request.args.get('code')
     athlete_access_token = client.exchange_code_for_token(client_id=MY_CLIENT_ID,
@@ -75,7 +75,7 @@ def response_url():
     return render_template("response_url.html", athlete_access_token=athlete_access_token)
 
 
-@app.route('/summary/')
+@app.route('/summary/', methods=['GET', 'POST'])
 def summary():
 
     athlete = client.get_athlete()
@@ -88,7 +88,7 @@ def summary():
 
 
 # If the user has already authorized the application this is the page that will be returned (instead of response_url).
-@app.route('/return_user/')
+@app.route('/return_user/', methods=['GET', 'POST'])
 def return_user():
 
     return render_template("return_user.html")
