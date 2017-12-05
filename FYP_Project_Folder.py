@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request
+import random
+import string
+
+from flask import Flask, render_template, request, make_response
 from flask_sqlalchemy import SQLAlchemy
 from stravalib.client import Client
 import requests
-
 
 app = Flask(__name__)
 
@@ -19,14 +21,11 @@ app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-
 db = SQLAlchemy(app)
 
 
 class AccessTokens(db.Model):
-
     __tablename__ = "access_tokens"
-
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
     access_token = db.Column(db.String(40))
@@ -35,14 +34,13 @@ class AccessTokens(db.Model):
 MY_ACCESS_TOKEN = 'a6e5a504f806ed79c8a6e25f59da056b440faac5'
 MY_CLIENT_ID = 20518
 MY_CLIENT_SECRET = 'cf516a44b390c99b6777f771be0103314516931e'
+STR_LENGTH=6
 client = Client()
+
 
 # Home page of my application.
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
-
-
-
     return render_template("homepage.html")
 
 
@@ -58,10 +56,8 @@ def response_url():
                                                    client_secret=MY_CLIENT_SECRET, code=code)
 
 #    athlete_access_token = 'cc1a2bde123b3868d588fdee5ddec8f1da595903'  ##DELETE THIS LINE TO REMOVE IAN M ACCESS
-
     client.access_token = athlete_access_token
     athlete = client.get_athlete()
-
     check_code = athlete_access_token
     check_access_token = AccessTokens.query.filter_by(access_token=check_code).first()
     if not check_access_token:
@@ -69,6 +65,9 @@ def response_url():
         signature = AccessTokens(name="greg", access_token=athlete_access_token)
         db.session.add(signature)
         db.session.commit()
+
+
+
     else:
         print('user exists already')
 
