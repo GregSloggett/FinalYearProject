@@ -56,8 +56,8 @@ def response_url():
                                                    client_secret=MY_CLIENT_SECRET, code=code)
 
 #    athlete_access_token = 'cc1a2bde123b3868d588fdee5ddec8f1da595903'  ##DELETE THIS LINE TO REMOVE IAN M ACCESS
+
     client.access_token = athlete_access_token
-    athlete = client.get_athlete()
     check_code = athlete_access_token
     check_access_token = AccessTokens.query.filter_by(access_token=check_code).first()
     if not check_access_token:
@@ -65,13 +65,11 @@ def response_url():
         signature = AccessTokens(name="greg", access_token=athlete_access_token)
         db.session.add(signature)
         db.session.commit()
-
-
-
+        return render_template("response_url.html", athlete_access_token=athlete_access_token)
     else:
         print('user exists already')
+        return render_template("return_user.html", athlete_access_token=athlete_access_token)
 
-    return render_template("response_url.html", athlete_access_token=athlete_access_token)
 
 
 @app.route('/summary/', methods=['GET', 'POST'])
