@@ -68,14 +68,15 @@ def response_url():
         return render_template("response_url.html", athlete_access_token=athlete_access_token)
     else:
         print('user exists already')
-        return render_template("return_user.html", athlete_access_token=athlete_access_token)
+        athlete = client.get_athlete()
+        return render_template("return_user.html", athlete_access_token=athlete_access_token, athlete=athlete)
 
 
 
 @app.route('/summary/', methods=['GET', 'POST'])
 def summary():
-
     athlete = client.get_athlete()
+
     athlete_stats = client.get_athlete_stats()
     accessed_athlete_activities_list = requests.get('https://www.strava.com/api/v3/athlete/activities',
                                                     data={'access_token': client.access_token})
