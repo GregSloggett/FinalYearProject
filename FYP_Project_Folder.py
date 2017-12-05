@@ -89,7 +89,8 @@ def summary():
 @app.route('/return_user/', methods=['GET', 'POST'])
 def return_user():
 
-    return render_template("return_user.html")
+    athlete = client.get_athlete()
+    return render_template("return_user.html", athlete=athlete)
 
 
 if __name__ == '__main__':
