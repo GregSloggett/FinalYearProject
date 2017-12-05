@@ -4,8 +4,37 @@
     <meta charset="UTF-8">
     <title>Summary</title>
 
+    <h3>Here is a Summary of your data {{ athlete.firstname }}</h3>
 </head>
 <body>
 
-<h2> Athlete Data to be added </h2>
+<br>Athlete first name: {{ athlete.firstname }}
+<br>Athlete last name: {{ athlete.lastname }}
+<br>Athlete country: {{ athlete.country }}
+<br>Athlete id: {{ athlete.id }}
+<br>Athlete city: {{ athlete.city }}
+<br>Athlete friend count: {{ athlete.friend_count }}
+<br>Athlete follower count: {{ athlete.follower_count }}
+
+<br>Athlete furthest ride: {{ furthest_ride }}
+
+<br>Athlete Weight (if applicable): {{ athlete.weight}}
+<br>Athlete Type: {{ athlete.athlete_type }}
+<br>Athlete Sex: {{ athlete.sex }}
+
+<br> {{ activity_info }}
+
+<br>
+<br>Athlete Stats: {{ athlete_stats.biggest_ride_distance }}
+<br>Athlete Stats: {{ athlete_stats.ytd_ride_totals }}
+<br>Athlete : {{ athlete_stats.recent_ride_totals }}
+
+<br>Activity List: {{ activity_list }}
+<br>Activity List Biggest Distance: {{ athlete_stats.biggest_ride_distance }}
+
+
+<br> <br>
+  {% for each_ride in last_ten_rides %}
+      <p>{{ each_ride }} </p>
+  {% endfor %}
 </body>

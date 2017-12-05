@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from stravalib.client import Client
+import requests
 
 
 app = Flask(__name__)
@@ -77,7 +78,13 @@ def response_url():
 @app.route('/summary/')
 def summary():
 
-    return render_template("summary.html")
+    athlete = client.get_athlete()
+    athlete_stats = client.get_athlete_stats()
+    accessed_athlete_activities_list = requests.get('https://www.strava.com/api/v3/athlete/activities',
+                                                    data={'access_token': client.access_token})
+
+    return render_template("summary.html", accessed_athlete_activities_list=accessed_athlete_activities_list,
+                           athlete=athlete, athlete_stats=athlete_stats)
 
 
 # If the user has already authorized the application this is the page that will be returned (instead of response_url).
