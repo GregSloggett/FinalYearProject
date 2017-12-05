@@ -82,7 +82,7 @@ def summary():
                                                     data={'access_token': client.access_token})
 
     return render_template("summary.html", accessed_athlete_activities_list=accessed_athlete_activities_list,
-                           athlete=athlete, athlete_stats=athlete_stats)
+                           athlete=athlete, athlete_stats=athlete_stats, last_ten_rides=last_ten_rides())
 
 
 # If the user has already authorized the application this is the page that will be returned (instead of response_url).
@@ -91,6 +91,22 @@ def return_user():
 
     athlete = client.get_athlete()
     return render_template("return_user.html", athlete=athlete)
+
+
+# This displays some details on the summary page of the users last ten rides (ID, Name, Distance)
+def last_ten_rides():
+    activity_list = []
+
+    for activity in client.get_activities(limit=10):
+        activity_id = u'{0.id}'.format(activity), u'{0.name}'.format(activity), u'{0.distance}'.format(activity)
+        activity_list.append(activity_id)
+
+   # assert len(list(activity_list)) == 10
+
+    print(*activity_list, sep='\n')
+
+    return activity_list
+
 
 
 if __name__ == '__main__':
