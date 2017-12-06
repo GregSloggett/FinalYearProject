@@ -7,7 +7,7 @@ body
 	margin: 0;
 	padding: 0;
 	color: #333;
-	background-color: #A5D6D9;
+	background-color: #eee;
 	font: 1em/1.2 "Helvetica Neue", Helvetica, Arial, Geneva, sans-serif;
 }
 
@@ -44,7 +44,7 @@ hr
 	margin-top: 1em;
 	margin-bottom: 2em;
 	border: 0;
-	border-top: 1px solid #A5D6D9;
+	border-top: 1px solid #ddd;
 }
 
 table
@@ -81,8 +81,8 @@ Layout styles
 
 .header
 {
-	color: #3A7734;
-	background: #9C1A1C;
+	color: #fff;
+	background: #555;
 	padding: 1em 1.25em;
 }
 
@@ -90,7 +90,7 @@ Layout styles
 
 .nav-bar
 {
-	background: #30799B;
+	background: #000;
 	padding: 0;
 }
 
@@ -98,7 +98,7 @@ Layout styles
 {
 	overflow: hidden;
 	padding: 1em 1.25em;
-	background-color: #3A7734;
+	background-color: #fff;
 }
 
 .main, .aside
@@ -134,13 +134,13 @@ Nav
 {
 	display: block;
 	padding: .7em 1.25em;
-	color: #A5D6D9;
+	color: #fff;
 	text-decoration: none;
 	border-bottom: 1px solid gray;
 }
 
-.nav a:link { color: greenyellow; }
-.nav a:visited { color: rebeccapurple; }
+.nav a:link { color: white; }
+.nav a:visited { color: white; }
 
 .nav a:focus
 {
