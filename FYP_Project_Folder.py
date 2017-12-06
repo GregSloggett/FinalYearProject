@@ -55,14 +55,15 @@ def response_url():
     athlete_access_token = client.exchange_code_for_token(client_id=MY_CLIENT_ID,
                                                    client_secret=MY_CLIENT_SECRET, code=code)
 
-#    athlete_access_token = 'cc1a2bde123b3868d588fdee5ddec8f1da595903'  ##DELETE THIS LINE TO REMOVE IAN M ACCESS
+    #athlete_access_token = 'cc1a2bde123b3868d588fdee5ddec8f1da595903'  ##DELETE THIS LINE TO REMOVE IAN M ACCESS
 
     client.access_token = athlete_access_token
+    athlete = client.get_athlete()
     check_code = athlete_access_token
     check_access_token = AccessTokens.query.filter_by(access_token=check_code).first()
     if not check_access_token:
         print('user does not exist already')
-        signature = AccessTokens(name="greg", access_token=athlete_access_token)
+        signature = AccessTokens(name=athlete.firstname, access_token=athlete_access_token)
         db.session.add(signature)
         db.session.commit()
         return render_template("response_url.html", athlete_access_token=athlete_access_token)
