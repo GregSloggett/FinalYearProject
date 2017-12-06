@@ -72,7 +72,6 @@ a:active { color: red; }
 /* -----------------------
 Layout styles
 ------------------------*/
-
 .container
 {
 	max-width: 70em;
@@ -269,4 +268,6 @@ Wide styles
 		padding: 0;
 		border-bottom: 0;
 	}
+
+
 }

@@ -77,12 +77,13 @@ def response_url():
 def summary():
     athlete = client.get_athlete()
 
+    photo = athlete.profile
     athlete_stats = client.get_athlete_stats()
     accessed_athlete_activities_list = requests.get('https://www.strava.com/api/v3/athlete/activities',
                                                     data={'access_token': client.access_token})
 
     return render_template("summary.html", accessed_athlete_activities_list=accessed_athlete_activities_list,
-                           athlete=athlete, athlete_stats=athlete_stats, last_ten_rides=last_ten_rides())
+                           athlete=athlete, athlete_stats=athlete_stats, last_ten_rides=last_ten_rides(), photo=photo)
 
 
 # If the user has already authorized the application this is the page that will be returned (instead of response_url).
@@ -96,9 +97,10 @@ def return_user():
 # This displays some details on the summary page of the users last ten rides (ID, Name, Distance)
 def last_ten_rides():
     activity_list = []
-
+    i = 0
     for activity in client.get_activities(limit=10):
-        activity_id = u'{0.id}'.format(activity), u'{0.name}'.format(activity), u'{0.distance}'.format(activity)
+        i += 1
+        activity_id = i, u'{0.id}'.format(activity), u'{0.name}'.format(activity), u'{0.distance}'.format(activity)
         activity_list.append(activity_id)
 
    # assert len(list(activity_list)) == 10

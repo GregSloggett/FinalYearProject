@@ -37,38 +37,34 @@
 					<h1>Strava Companion App</h1>
 					<hr>
 
-                    <h3>Welcome!</h3>
-
-                    <br>Athlete first name: {{ athlete.firstname }}
-                    <br>Athlete last name: {{ athlete.lastname }}
-                    <br>Athlete country: {{ athlete.country }}
-                    <br>Athlete id: {{ athlete.id }}
-                    <br>Athlete city: {{ athlete.city }}
-                    <br>Athlete friend count: {{ athlete.friend_count }}
-                    <br>Athlete follower count: {{ athlete.follower_count }}
-
-                    <br>Athlete furthest ride: {{ furthest_ride }}
-
-                    <br>Athlete Weight (if applicable): {{ athlete.weight}}
-                    <br>Athlete Type: {{ athlete.athlete_type }}
-                    <br>Athlete Sex: {{ athlete.sex }}
-
-                    <br> {{ activity_info }}
-
-                    <br>
-                    <br>Athlete Stats: {{ athlete_stats.biggest_ride_distance }}
-                    <br>Athlete Stats: {{ athlete_stats.ytd_ride_totals }}
-                    <br>Athlete : {{ athlete_stats.recent_ride_totals }}
-
-                    <br>Activity List: {{ activity_list }}
-                    <br>Activity List Biggest Distance: {{ athlete_stats.biggest_ride_distance }}
 
 
-                    <br> <br>
-                      {% for each_ride in last_ten_rides %}
-                          <p>{{ each_ride }} </p>
-                      {% endfor %}
+                    <h3>Activity Table</h3>
+					<p>The table below displays your last 10 <code>activities</code>.</p>
+					<table class="table table-striped">
+                        <caption>Activitiy Table</caption>
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Ride ID</th>
+								<th>Ride Name</th>
+								<th>Distance</th>
+							</tr>
+						</thead>
+						<tbody>
+                        {% for each_ride in last_ten_rides %}
 
+							<tr>
+								<th scope="row">{{ each_ride[0] }}</th>
+								<td>{{ each_ride[1] }}</td>
+								<td>{{ each_ride[2] }}</td>
+								<td>{{ each_ride[3] }}</td>
+							</tr>
+
+                            {% endfor %}
+
+						</tbody>
+					</table>
 
 
                     <br><br><br><br><br><br>
@@ -196,9 +192,25 @@
 					</table>
 				</div>
 				<div class="aside">
-					<h3>Sidebar</h3>
-					<p>Ut wisi enim ad minim veniam, <a href="#">quis nostrud exerci tation ullamcorper</a> suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.</p>
-				</div>
+                    <br><br><br>
+					                    <!-- Add icon library -->
+                    <link rel="stylesheet" href="/static/personal_card.css">
+
+                    <div class="card">
+                      <img src="{{ photo }}" style="width:100%">
+                      <h1>{{ athlete.firstname}}  {{athlete.lastname }}</h1>
+                      <p class="title">Athlete ID: {{ athlete.id }}</p>
+                      <p>{{ athlete.city }}, {{ athlete.country }}</p>
+                      <p>Strava friends:{{ athlete.friend_count }}</p>
+                      <p>Strava followers: {{ athlete.follower_count }}</p>
+                        <p>Longest Distance: {{ athlete_stats.biggest_ride_distance }}</p>
+                      <a href="#"><i class="fa fa-dribbble"></i></a>
+                      <a href="#"><i class="fa fa-twitter"></i></a>
+                      <a href="#"><i class="fa fa-linkedin"></i></a>
+                      <a href="#"><i class="fa fa-facebook"></i></a>
+                      <p><button>Contact</button></p>
+                    </div>
+                </div>
 			</div>
 		</div>
 		<div class="footer">
