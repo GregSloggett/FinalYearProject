@@ -55,7 +55,7 @@ def response_url():
     athlete_access_token = client.exchange_code_for_token(client_id=MY_CLIENT_ID,
                                                    client_secret=MY_CLIENT_SECRET, code=code)
 
-    athlete_access_token = 'cc1a2bde123b3868d588fdee5ddec8f1da595903'  ##DELETE THIS LINE TO REMOVE IAN M ACCESS
+    # athlete_access_token = 'cc1a2bde123b3868d588fdee5ddec8f1da595903'  ##DELETE THIS LINE TO REMOVE IAN M ACCESS
 
     client.access_token = athlete_access_token
     athlete = client.get_athlete()
