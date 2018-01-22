@@ -8,18 +8,18 @@ import requests
 
 app = Flask(__name__)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="GregorySloggett",
-    password="Xavi6legend",
-    hostname="GregorySloggett.mysql.pythonanywhere-services.com",
-    databasename="GregorySloggett$access_tokens",
-)
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+#     username="GregorySloggett",
+#     password="Xavi6legend",
+#     hostname="GregorySloggett.mysql.pythonanywhere-services.com",
+#     databasename="GregorySloggett$access_tokens",
+# )
+# app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+# app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
@@ -37,12 +37,20 @@ MY_CLIENT_SECRET = 'cf516a44b390c99b6777f771be0103314516931e'
 STR_LENGTH=6
 client = Client()
 
-
 # Home page of my application.
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
-    return render_template("homepage.html")
-
+    check = request.cookies.get('username')
+    if 'username' in request.cookies:
+        check_access_tokens_database = AccessTokens.query.filter_by(name=check).first()
+        if not check_access_tokens_database:
+            return render_template("homepage.html")
+        else:
+            client.access_token = check_access_tokens_database.access_token
+            return render_template("return_user.html", athlete=client.get_athlete(),
+                               athlete_stats=client.get_athlete_stats())
+    else:
+        return render_template("homepage.html")
 
 # The response page that the user is presented with when they authorize the app for the first time.
 @app.route('/response_url/', methods=['GET', 'POST'])
@@ -63,19 +71,22 @@ def response_url():
     check_access_token = AccessTokens.query.filter_by(access_token=check_code).first()
     if not check_access_token:
         print('user does not exist already')
-        signature = AccessTokens(name=athlete.firstname, access_token=athlete_access_token)
+        signature = AccessTokens(name=athlete.username, access_token=athlete_access_token)
         db.session.add(signature)
         db.session.commit()
         photo = athlete.profile
 
-        return render_template("response_url.html", athlete_access_token=athlete_access_token, athlete=athlete,
-                               athlete_stats=client.get_athlete_stats(), photo=photo)
+        resp = make_response(render_template("response_url.html", athlete_access_token=athlete_access_token, athlete=athlete,
+                               athlete_stats=client.get_athlete_stats(), photo=photo))
+        resp.set_cookie('username', client.get_athlete().username)
+        return resp
     else:
         print('user exists already')
         photo = athlete.profile
-        return render_template("return_user.html", athlete_access_token=athlete_access_token, athlete=athlete,
-                               athlete_stats=client.get_athlete_stats(), photo=photo)
-
+        resp = make_response(render_template("return_user.html", athlete_access_token=athlete_access_token, athlete=athlete,
+                               athlete_stats=client.get_athlete_stats(), photo=photo))
+        resp.set_cookie('username', client.get_athlete().username)
+        return resp
 
 
 @app.route('/summary/', methods=['GET', 'POST'])
@@ -83,20 +94,19 @@ def summary():
     athlete = client.get_athlete()
 
     athlete_profiler = athlete.profile
-    athlete_stats = client.get_athlete_stats()
-    accessed_athlete_activities_list = requests.get('https://www.strava.com/api/v3/athlete/activities',
-                                                    data={'access_token': client.access_token})
+    # accessed_athlete_activities_list = requests.get('https://www.strava.com/api/v3/athlete/activities',
+    #                                                 data={'access_token': client.access_token})
 
-    return render_template("summary.html", accessed_athlete_activities_list=accessed_athlete_activities_list,
-                           athlete=athlete, athlete_stats=athlete_stats, last_ten_rides=last_ten_rides(), athlete_profiler=athlete_profiler)
+    return render_template("summary.html", athlete=athlete, athlete_stats=client.get_athlete_stats(),
+                           last_ten_rides=last_ten_rides(), athlete_profiler=athlete_profiler)
 
 
 # If the user has already authorized the application this is the page that will be returned (instead of response_url).
 @app.route('/return_user/', methods=['GET', 'POST'])
 def return_user():
+    username = request.cookies.get('username')
 
-    athlete = client.get_athlete()
-    return render_template("return_user.html", athlete=athlete)
+    return render_template("return_user.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats())
 
 
 @app.route('/activity/<activity_id>', methods=['GET', 'POST'])
@@ -108,7 +118,7 @@ def activity(activity_id):
 
     athlete_profiler = athlete.profile
     return render_template("activity.html", activity_id_number=activity_id, activity_photos=activity_photos,
-                           athlete=athlete, athlete_profiler=athlete_profiler, activity_data=activity_data)
+                           athlete=athlete, athlete_profiler=athlete_profiler, activity_data=activity_data, athlete_stats=client.get_athlete_stats())
 
 
 # This displays some details on the summary page of the users last ten rides (ID, Name, Distance)
