@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title> {{ activity_id_number }}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="Description" lang="en" content="ADD SITE DESCRIPTION">
+		<meta name="author" content="ADD AUTHOR INFORMATION">
+		<meta name="robots" content="index, follow">
+
+		<!-- icons -->
+		<link rel="apple-touch-icon" href="static/img/apple-touch-icon.png">
+		<link rel="shortcut icon" href="favicon.ico">
+
+		<!-- Override CSS file - add your own CSS rules -->
+		<link rel="stylesheet" href="/static/styles.css">
+	</head>
+	<body>
+		<div class="header">
+			<div class="container">
+				<h1 class="header-heading">Strava Companion App</h1>
+			</div>
+		</div>
+		<div class="nav-bar">
+			<div class="container">
+				<ul class="nav">
+					<li><a href="/">Homepage</a></li>
+					<li><a href="/return_user">Return User</a></li>
+					<li><a href="#">Contact</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="content">
+			<div class="container">
+				<div class="main">
+					<h1>Strava Companion App</h1>
+					<hr>
+
+                    <table class="table table-striped">
+                        <br><h3>Data Table - Activity: {{ activity_id_number }} - Athlete: {{ athlete.username }}</h3><br>
+                        <thead>
+                            <tr>
+                                <th>Ride ID</th>
+                                <td scope="row">{{ activity_id_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Ride Name</th>
+                                <td>{{ activity_data.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Ride Description</th>
+                                <td> {{ activity_data.description }}</td>
+                            </tr>
+                            <tr>
+                                <th>Distance Covered</th>
+                                <td>{{ activity_data.distance }}</td>
+                            </tr>
+                            <tr>
+                                <th>Moving Time</th>
+                                <td>{{ activity_data.moving_time }}</td>
+                            </tr>
+                            <tr>
+                                <th>Elapsed Time</th>
+                                <td>{{ activity_data.elapsed_time }}</td>
+                            </tr>
+                                <th>Total Elavation Gain</th>
+                                <td>{{ activity_data.total_elevation_gain }}</td>
+                            </tr>
+                            <tr>
+                                <th>Highest Elevation</th>
+                                <td>{{ activity_data.elev_high }}</td>
+                            </tr>
+                            <tr>
+                                <th>Lowest Elevation</th>
+                                <td>{{ activity_data.elev_low }}</td>
+                            </tr>
+                            <tr>
+                                <th>Start Latitude/Longitude</th>
+                                <td>{{ activity_data.start_latlng }}</td>
+                            </tr>
+                            <tr>
+                                <th>End Latitude/Longitude</th>
+                                <td>{{ activity_data.end_latlng }}</td>
+                            </tr>
+                            <tr>
+                                <th>Achievement Count</th>
+                                <td>{{  activity_data.achievement_count }}</td>
+                            </tr>
+                            <tr>
+                                <th>Personal Records Count</th>
+                                <td>{{  activity_data.pr_count }}</td>
+                            </tr>
+                            <tr>
+                                <th>Average Speed</th>
+                                <td>{{ activity_data.average_speed }}</td>
+                            </tr>
+                            <tr>
+                                <th>Max Speed</th>
+                                <td>{{ activity_data.max_speed }}</td>
+                            </tr>
+                            <tr>
+                                <th>Average Cadence</th>
+                                <td>{{ activity_data.average_cadence }}</td>
+                            </tr>
+                            <tr>
+                                <th>Average Temp</th>
+                                <td>{{ activity_data.average_temp }}</td>
+                            </tr>
+                            <tr>
+                                <th>Average Watts</th>
+                                <td>{{ activity_data.average_watts }}</td>
+                            </tr>
+                            <tr>
+                                <th>Max Watts</th>
+                                <td>{{ activity_data.max_watts }}</td>
+                            </tr>
+                            <tr>
+                                <th>Weighted Average Watts</th>
+                                <td>{{ activity_data.weighted_average_watts }}</td>
+                            </tr>
+                            <tr>
+                                <th>Average Heartrate</th>
+                                <td>{{ activity_data.average_heartrate }}</td>
+                            </tr>
+                            <tr>
+                                <th>Max Heartrate</th>
+                                <td>{{ activity_data.max_heartrate }}</td>
+                            </tr>
+                            <tr>
+                                <th>Calories</th>
+                                <td>{{ activity_data.calories }}</td>
+                            </tr>
+
+
+                        </thead>
+                        <tbody>
+
+                            <tr>
+                            </tr>
+
+                        </tbody>
+                    </table>
+
+
+
+                    <br><br><br><br><br><br>
+					                    <h3>UCD Final Year Project</h3>
+					<p>This web application was set up for a final year project. The objective is to design
+                        a companion application to interact with the Strava API and add some additional
+                        functionality. The author of this project is Gregory Sloggett. See some of the
+                        <a href="https://medium.com/@gregory.sloggett"> documentation related to this project</a>
+					<hr>
+
+
+					<h1>Heading level 1</h1>
+					<h2>Heading level 2</h2>
+					<h3>Heading level 3</h3>
+					<h4>Heading level 4</h4>
+					<h5>Heading level 5</h5>
+					<h6>Heading level 6</h6>
+					<hr>
+
+					<!-- Responsive images -->
+					<h3>Responsive images</h3>
+					<p>For images to be responsive (so that they will rescale to suit the width of the parent, use the <code>.img-responsive</code> class.</p>
+					<p><img class="img-responsive" src="{{ activity_photos }}" alt=""></p>
+				</div>
+				<div class="aside">
+                    <br><br><br>
+					                    <!-- Add icon library -->
+                    <link rel="stylesheet" href="/static/personal_card.css">
+
+                    <div class="card">
+                      <img src="{{ athlete_profiler }}" style="width:100%">
+                      <h1>{{ athlete.firstname}}  {{athlete.lastname }}</h1>
+                      <p class="title">Athlete ID: {{ athlete.id }}</p>
+                      <p>{{ athlete.city }}, {{ athlete.country }}</p>
+                      <p>Strava friends:{{ athlete.friend_count }}</p>
+                      <p>Strava followers: {{ athlete.follower_count }}</p>
+{#                        <p>Longest Distance: {{ athlete_stats.biggest_ride_distance }}</p>#}
+                      <a href="#"><i class="fa fa-dribbble"></i></a>
+                      <a href="#"><i class="fa fa-twitter"></i></a>
+                      <a href="#"><i class="fa fa-linkedin"></i></a>
+                      <a href="#"><i class="fa fa-facebook"></i></a>
+                      <p><button>Contact</button></p>
+                    </div>
+                </div>
+			</div>
+		</div>
+		<div class="footer">
+			<div class="container">
+				&copy; Copyright 2015
+			</div>
+		</div>
+	</body>
+</html>
