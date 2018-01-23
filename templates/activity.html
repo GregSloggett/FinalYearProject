@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<title> {{ activity_id_number }}</title>
@@ -27,6 +28,7 @@
 				<ul class="nav">
 					<li><a href="/">Homepage</a></li>
 					<li><a href="/return_user">Return User</a></li>
+                    <li><a href="/summary">Summary</a></li>
 					<li><a href="#">Contact</a></li>
 				</ul>
 			</div>
@@ -144,7 +146,7 @@
 
 
 
-                    <br><br><br><br><br><br>
+                    <br><br>
 					                    <h3>UCD Final Year Project</h3>
 					<p>This web application was set up for a final year project. The objective is to design
                         a companion application to interact with the Strava API and add some additional
@@ -152,22 +154,17 @@
                         <a href="https://medium.com/@gregory.sloggett"> documentation related to this project</a>
 					<hr>
 
+{#                    <p>{{ streams['latlng'].data }}</p>#}
 
-					<h1>Heading level 1</h1>
-					<h2>Heading level 2</h2>
-					<h3>Heading level 3</h3>
-					<h4>Heading level 4</h4>
-					<h5>Heading level 5</h5>
-					<h6>Heading level 6</h6>
-					<hr>
+                    <button type="submit">
+                        <a href="/activity/{{ activity_data.id }}/{{ activity_data.start_latlng }}">See map for activity: "{{ activity_data.name }}"</a>
+                    </button>
 
-					<!-- Responsive images -->
-					<h3>Responsive images</h3>
-					<p>For images to be responsive (so that they will rescale to suit the width of the parent, use the <code>.img-responsive</code> class.</p>
-					<p><img class="img-responsive" src="{{ activity_photos }}" alt=""></p>
+
+
 				</div>
 				<div class="aside">
-                    <br><br><br>
+                    <br><br>
 					                    <!-- Add icon library -->
                     <link rel="stylesheet" href="/static/personal_card.css">
 
@@ -195,3 +192,4 @@
 		</div>
 	</body>
 </html>
+

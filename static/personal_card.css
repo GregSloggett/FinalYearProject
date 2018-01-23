@@ -9,7 +9,7 @@
 
 .title {
     color: grey;
-    font-size: 18px;
+	font: 1em/1.6 "Helvetica Neue", Helvetica, Arial, Geneva, sans-serif;
 }
 
 button {
@@ -22,12 +22,12 @@ button {
     text-align: center;
     cursor: pointer;
     width: 100%;
-    font-size: 18px;
+	font: 1em/1.6 "Helvetica Neue", Helvetica, Arial, Geneva, sans-serif;
 }
 
 a {
     text-decoration: none;
-    font-size: 22px;
+	font: 1em/1.6 "Helvetica Neue", Helvetica, Arial, Geneva, sans-serif;
     color: black;
 }
 
