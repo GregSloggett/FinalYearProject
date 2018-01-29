@@ -1,10 +1,11 @@
-import random
-import string
-
-from flask import Flask, render_template, request, make_response
+from flask import Flask, render_template, request, make_response, redirect
 from flask_sqlalchemy import SQLAlchemy
 from stravalib.client import Client
 from flask_googlemaps import GoogleMaps, Map
+from flask_wtf import FlaskForm
+from wtforms import StringField
+from wtforms.validators import DataRequired
+
 
 app = Flask(__name__)
 # app.config['GOOGLEMAPS_KEY'] = "AIzaSyBUV6YEpG7xjxJ8s9ZjIZP8A56L4TxAK7k"
@@ -12,20 +13,30 @@ app.config['GOOGLEMAPS_KEY'] = "AIzaSyCiforLtPDvDY3WzkKeWc2ykgR_Aw9rYk0"
 GoogleMaps(app)
 
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="GregorySloggett",
-    password="Xavi6legend",
-    hostname="GregorySloggett.mysql.pythonanywhere-services.com",
-    databasename="GregorySloggett$access_tokens",
-)
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+#     username="GregorySloggett",
+#     password="Xavi6legend",
+#     hostname="GregorySloggett.mysql.pythonanywhere-services.com",
+#     databasename="GregorySloggett$access_tokens",
+# )
+# app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+# app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+
+app.config.update(dict(
+    SECRET_KEY="powerful secretkey",
+    WTF_CSRF_SECRET_KEY="a csrf secret key"
+))
 
 db = SQLAlchemy(app)
+
+
+class MyForm(FlaskForm):
+    name = StringField('name', validators=[DataRequired()])
 
 
 class AccessTokens(db.Model):
@@ -45,17 +56,36 @@ client = Client()
 # Home page of my application.
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
+    # check = request.cookies.get('username')
+    # if 'username' in request.cookies:
+    #     check_access_tokens_database = AccessTokens.query.filter_by(name=check).first()
+    #     if not check_access_tokens_database:
+    #         return render_template("homepage.html")
+    #     else:
+    #         client.access_token = check_access_tokens_database.access_token
+    #         return render_template("return_user.html", athlete=client.get_athlete(),
+    #                     athlete_stats=client.get_athlete_stats(), athlete_profiler=client.get_athlete().profile)
+    # else:
+    #     return render_template("homepage.html")
+
+    if check_for_cookie() is False:
+        return render_template("homepage.html")
+    else:
+        return render_template("return_user.html", athlete=client.get_athlete(),
+                               athlete_stats=client.get_athlete_stats(), athlete_profiler=client.get_athlete().profile)
+
+
+def check_for_cookie():
     check = request.cookies.get('username')
     if 'username' in request.cookies:
         check_access_tokens_database = AccessTokens.query.filter_by(name=check).first()
         if not check_access_tokens_database:
-            return render_template("homepage.html")
+            return False
         else:
             client.access_token = check_access_tokens_database.access_token
-            return render_template("return_user.html", athlete=client.get_athlete(),
-                        athlete_stats=client.get_athlete_stats(), athlete_profiler=client.get_athlete().profile)
+            return True
     else:
-        return render_template("homepage.html")
+        return False
 
 # The response page that the user is presented with when they authorize the app for the first time.
 @app.route('/response_url/', methods=['GET', 'POST'])
@@ -93,39 +123,44 @@ def response_url():
 
 @app.route('/summary/', methods=['GET', 'POST'])
 def summary():
-    athlete = client.get_athlete()
     # accessed_athlete_activities_list = requests.get('https://www.strava.com/api/v3/athlete/activities',
     #                                                 data={'access_token': client.access_token})
-    return render_template("summary.html", athlete=athlete, athlete_stats=client.get_athlete_stats(),
-                           last_ten_rides=last_ten_rides(), athlete_profiler=athlete.profile)
+    if check_for_cookie() is False:
+        return render_template("homepage.html")
+    else:
+        return render_template("summary.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats(),
+                               last_ten_rides=last_ten_rides(), athlete_profiler=client.get_athlete().profile)
 
 
 # If the user has already authorized the application this is the page that will be returned (instead of response_url).
 @app.route('/return_user/', methods=['GET', 'POST'])
 def return_user():
-    username = request.cookies.get('username')
-    return render_template("return_user.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats())
+    if check_for_cookie() is False:
+        return render_template("homepage.html")
+    else:
+        return render_template("return_user.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats())
 
 
 @app.route('/activity/<activity_id>', methods=['GET', 'POST'])
 def activity(activity_id):
-    athlete = client.get_athlete()
-    activity_data = client.get_activity(activity_id=activity_id)
     # activity_photos = client.get_activity(activity_id=1341714581).full_photos
-    activity_photos = client.get_activity_photos(activity_id=activity_id, only_instagram=False)
+    #activity_photos = client.get_activity_photos(activity_id=activity_id, only_instagram=False)
 
     types = ['time', 'latlng', 'altitude', 'heartrate', 'temp', ]
-    streams = client.get_activity_streams(activity_id=activity_id, types=types, resolution='medium')
-    athlete_profiler = athlete.profile
 
-    return render_template("activity.html", activity_id_number=activity_id, activity_photos=activity_photos,
-                           athlete=athlete, athlete_profiler=athlete_profiler, activity_data=activity_data,
-                           athlete_stats=client.get_athlete_stats(), streams=streams)
+    if check_for_cookie() is False:
+        return render_template("homepage.html")
+    else:
+        return render_template("activity.html", athlete=client.get_athlete(),
+                               athlete_profiler=client.get_athlete().profile,
+                               activity_data=client.get_activity(activity_id=activity_id, include_all_efforts=True),
+                               athlete_stats=client.get_athlete_stats(),
+                               streams=client.get_activity_streams(activity_id=activity_id, types=types, resolution='medium'))
 
 
 @app.route('/activity/<activity_id>/<activity_map>', methods=['GET', 'POST'])
 def map(activity_id, activity_map):
-    activity_data = client.get_activity(activity_id=activity_id)
+    types = ['time', 'latlng', 'altitude', 'heartrate', 'temp', ]
 
     # creating a map in the view
     mymap = Map(
@@ -153,8 +188,23 @@ def map(activity_id, activity_map):
             }
         ]
     )
+    if check_for_cookie() is False:
+        return render_template("homepage.html")
+    else:
+        print(client.get_activity(activity_id).start_latitude)
+        print(client.get_activity(activity_id).start_longitude)
+        return render_template("map.html", activity_data=client.get_activity(activity_id=activity_id),
+                               mymap=mymap, sndmap=sndmap,
+                               streams=client.get_activity_streams(activity_id=activity_id, types=types, resolution='medium'))
 
-    return render_template("map.html", activity_data=activity_data, mymap=mymap, sndmap=sndmap)
+
+@app.route('/marathon/', methods=['GET', 'POST'])
+def marathon():
+    form = MyForm()
+
+    if form.validate_on_submit():
+        return redirect('/marathon')
+    return render_template('marathon.html', form=form)
 
 
 # This displays some details on the summary page of the users last ten rides (ID, Name, Distance)
