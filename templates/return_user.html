@@ -55,71 +55,67 @@
         </div>
     </div>
 
-		<div class="content">
-			<div class="container">
-				<div class="main">
-					<h1>Strava Companion App</h1>
-					<hr>
+    <div class="content">
+        <div class="container">
+            <div class="main">
+                <h1>Strava Companion App</h1>
+                <hr>
+            </div>
+        </div>
+    </div>
 
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-8">
+                <h3> Welcome Back {{ athlete.firstname }}! </h3>
+                <br> <br>
+                <form method="get" action="/summary">
+                    <button type="submit">View your summary here</button>
+                </form>
+            </div>
 
-                    <h3> Welcome Back {{ athlete.firstname }}! </h3>
-                    <br> <br>
-                    <form method="get" action="/summary">
-                        <button type="submit">View your summary here</button>
-                    </form>
+            <div class="col-sm-4">
+                <br><br><br>
+                                    <!-- Add icon library -->
+                <link rel="stylesheet" href="/static/personal_card.css">
 
-
-
-                    <br><br><br><br><br><br>
-					                    <h3>UCD Final Year Project</h3>
-					<p>This web application was set up for a final year project. The objective is to design
-                        a companion application to interact with the Strava API and add some additional
-                        functionality. The author of this project is Gregory Sloggett. See some of the
-                        <a href="https://medium.com/@gregory.sloggett"> documentation related to this project</a>
-					<hr>
-
-
-					<h1>Heading level 1</h1>
-					<h2>Heading level 2</h2>
-					<h3>Heading level 3</h3>
-					<h4>Heading level 4</h4>
-					<h5>Heading level 5</h5>
-					<h6>Heading level 6</h6>
-					<hr>
-
-					<!-- Responsive images -->
-					<h3>Responsive images</h3>
-					<p>For images to be responsive (so that they will rescale to suit the width of the parent, use the <code>.img-responsive</code> class.</p>
-					<p><img class="img-responsive" src="http://placehold.it/800x350" alt=""></p>
-
-				</div>
-				<div class="aside">
-                    <br><br><br>
-					                    <!-- Add icon library -->
-                    <link rel="stylesheet" href="/static/personal_card.css">
-
-                    <div class="card">
-                      <img src="{{ athlete_profiler }}" style="width:100%">
-                      <h1>{{ athlete.firstname}}  {{athlete.lastname }}</h1>
-                      <p class="title">Athlete ID: {{ athlete.id }}</p>
-                      <p>{{ athlete.city }}, {{ athlete.country }}</p>
-                      <p>Strava friends:{{ athlete.friend_count }}</p>
-                      <p>Strava followers: {{ athlete.follower_count }}</p>
-                      <p>Longest Distance: {{ athlete_stats.biggest_ride_distance }}</p>
-                      <a href="#"><i class="fa fa-dribbble"></i></a>
-                      <a href="#"><i class="fa fa-twitter"></i></a>
-                      <a href="#"><i class="fa fa-linkedin"></i></a>
-                      <a href="#"><i class="fa fa-facebook"></i></a>
-                      <p><button>Contact</button></p>
-                    </div>
+                <div class="card">
+                  <img src="{{ athlete_profiler }}" style="width:100%">
+                  <h1>{{ athlete.firstname}}  {{athlete.lastname }}</h1>
+                  <p class="title">Athlete ID: {{ athlete.id }}</p>
+                  <p>{{ athlete.city }}, {{ athlete.country }}</p>
+                  <p>Strava friends:{{ athlete.friend_count }}</p>
+                  <p>Strava followers: {{ athlete.follower_count }}</p>
+                  <p>Longest Distance: {{ athlete_stats.biggest_ride_distance }}</p>
+                  <a href="#"><i class="fa fa-dribbble"></i></a>
+                  <a href="#"><i class="fa fa-twitter"></i></a>
+                  <a href="#"><i class="fa fa-linkedin"></i></a>
+                  <a href="#"><i class="fa fa-facebook"></i></a>
+                  <p><button>Contact</button></p>
                 </div>
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-sm-8">
+                <!-- Responsive images -->
+				<h3>Responsive images</h3>
+				<p>For images to be responsive (so that they will rescale to suit the width of the parent, use the <code>.img-responsive</code> class.</p>
+				<p><img class="img-responsive" src="http://placehold.it/800x350" alt=""></p>
 			</div>
+            <div class="col-sm-4">
+                <h3>UCD Final Year Project</h3>
+				<p>This web application was set up for a final year project. The objective is to design
+                a companion application to interact with the Strava API and add some additional
+                functionality. The author of this project is Gregory Sloggett. See some of the
+                    <a href="https://medium.com/@gregory.sloggett"><u>documentation related to this project</u></a>
+                </p>
+            </div>
+
+
+
 		</div>
-		<div class="footer">
-			<div class="container">
-				&copy; Copyright 2015
-			</div>
-		</div>
+    </div>
 	</body>
 </html>
 

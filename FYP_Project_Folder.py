@@ -5,6 +5,9 @@ from flask_googlemaps import GoogleMaps, Map
 from flask_wtf import FlaskForm
 from wtforms import StringField
 from wtforms.validators import DataRequired
+from measurement.measures import Speed, Time
+from decimal import getcontext, Decimal
+import pygal
 
 
 app = Flask(__name__)
@@ -96,7 +99,7 @@ def response_url():
 
     code = request.args.get('code')
     athlete_access_token = client.exchange_code_for_token(client_id=MY_CLIENT_ID,
-                                                   client_secret=MY_CLIENT_SECRET, code=code)
+                                                          client_secret=MY_CLIENT_SECRET, code=code)
 
     # athlete_access_token = 'cc1a2bde123b3868d588fdee5ddec8f1da595903'  ##DELETE THIS LINE TO REMOVE IAN M ACCESS
 
@@ -110,13 +113,13 @@ def response_url():
         db.session.add(signature)
         db.session.commit()
         resp = make_response(render_template("response_url.html", athlete_access_token=athlete_access_token, athlete=athlete,
-                               athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile))
+                                             athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile))
         resp.set_cookie('username', client.get_athlete().username)
         return resp
     else:
         print('user exists already')
         resp = make_response(render_template("return_user.html", athlete_access_token=athlete_access_token, athlete=athlete,
-                               athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile))
+                                             athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile))
         resp.set_cookie('username', client.get_athlete().username)
         return resp
 
@@ -198,13 +201,83 @@ def map(activity_id, activity_map):
                                streams=client.get_activity_streams(activity_id=activity_id, types=types, resolution='medium'))
 
 
-@app.route('/marathon/', methods=['GET', 'POST'])
+@app.route('/marathon/')
 def marathon():
     form = MyForm()
+    line_chart = pygal.Line()  # Then create a bar graph object
+    line_chart.add('Fibonacci', [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55])  # Add some values
+    line_chart.x_labels = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2']
+    line_chart.y_labels = '0', '2', '4', '6', '8', '10'
+    line_chart = line_chart.render_data_uri()
 
-    if form.validate_on_submit():
-        return redirect('/marathon')
-    return render_template('marathon.html', form=form)
+    bar_chart = pygal.Bar()
+    bar_chart.add('Fibonacci', [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55])  # Add some values
+    bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
+    bar_chart.y_labels = '0', '2', '4', '6', '8', '10'
+    bar_chart = bar_chart.render_data_uri()
+    return render_template('marathon.html', form=form, line_chart=line_chart, bar_chart=bar_chart)
+
+
+@app.route('/marathon/', methods=['POST'])
+def marathon_time_retrieval():
+
+    marathon_time = request.form['marathon-time']
+    getcontext().prec = 3
+
+    line_chart = pygal.Line()  # Then create a bar graph object
+    line_chart.x_labels = ('0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2')
+    bar_chart = pygal.Bar()
+    bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
+
+    count = marathon_time.count(':')
+
+    if True:
+        try:
+            if count == 2:
+                hours, minutes, seconds = marathon_time.split(':')
+                hours = int(hours)
+                minutes = int(minutes)
+                seconds = int(seconds)
+            else:
+                hours, minutes = marathon_time.split(':')
+                hours = int(hours)
+                minutes = int(minutes)
+
+            total_minutes = int(hours * 60 + minutes)
+            kilometer__minute = (Decimal(42.195) / Decimal(total_minutes))
+            try:
+                pace = Speed(kilometer__minute = (Decimal(42.195) / Decimal(total_minutes)))
+            except ZeroDivisionError:
+                pace = 0
+
+            kilometres_per_minute = Decimal(1)/Decimal(kilometer__minute)
+            line_chart.add("pace line chart", [kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
+                           kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
+                           kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
+            line_chart = line_chart.render_data_uri()
+
+            bar_chart.add("pace bar chart", [kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
+                           kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
+                           kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
+            bar_chart = bar_chart.render_data_uri()
+
+            if count == 2:
+                return render_template('marathon.html', marathon_time=marathon_time, hours=hours, minutes=minutes,
+                                       seconds=seconds, total_minutes=total_minutes, pace=pace, line_chart=line_chart,
+                                       kilometres=kilometres_per_minute, bar_chart=bar_chart)
+            else:
+                return render_template('marathon.html', marathon_time=marathon_time, hours=hours, minutes=minutes,
+                                       seconds="0", total_minutes=total_minutes, pace=pace, line_chart=line_chart,
+                                       kilometres=kilometres_per_minute, bar_chart=bar_chart)
+        except ValueError:
+            print("problem")
+            this = False
+
+
+def calculate_pace():
+    pace = 0
+
+    return pace
 
 
 # This displays some details on the summary page of the users last ten rides (ID, Name, Distance)
@@ -216,7 +289,7 @@ def last_ten_rides():
         activity_id = i, u'{0.id}'.format(activity), u'{0.name}'.format(activity), u'{0.distance}'.format(activity)
         activity_list.append(activity_id)
 
-   # assert len(list(activity_list)) == 10
+        # assert len(list(activity_list)) == 10
 
     print(*activity_list, sep='\n')
 
