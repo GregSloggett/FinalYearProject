@@ -56,21 +56,10 @@ MY_CLIENT_SECRET = 'cf516a44b390c99b6777f771be0103314516931e'
 STR_LENGTH=6
 client = Client()
 
+
 # Home page of my application.
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
-    # check = request.cookies.get('username')
-    # if 'username' in request.cookies:
-    #     check_access_tokens_database = AccessTokens.query.filter_by(name=check).first()
-    #     if not check_access_tokens_database:
-    #         return render_template("homepage.html")
-    #     else:
-    #         client.access_token = check_access_tokens_database.access_token
-    #         return render_template("return_user.html", athlete=client.get_athlete(),
-    #                     athlete_stats=client.get_athlete_stats(), athlete_profiler=client.get_athlete().profile)
-    # else:
-    #     return render_template("homepage.html")
-
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
@@ -90,6 +79,7 @@ def check_for_cookie():
     else:
         return False
 
+
 # The response page that the user is presented with when they authorize the app for the first time.
 @app.route('/response_url/', methods=['GET', 'POST'])
 def response_url():
@@ -100,8 +90,6 @@ def response_url():
     code = request.args.get('code')
     athlete_access_token = client.exchange_code_for_token(client_id=MY_CLIENT_ID,
                                                           client_secret=MY_CLIENT_SECRET, code=code)
-
-    # athlete_access_token = 'cc1a2bde123b3868d588fdee5ddec8f1da595903'  ##DELETE THIS LINE TO REMOVE IAN M ACCESS
 
     client.access_token = athlete_access_token
     athlete = client.get_athlete()
@@ -117,7 +105,6 @@ def response_url():
         resp.set_cookie('username', client.get_athlete().username)
         return resp
     else:
-        print('user exists already')
         resp = make_response(render_template("return_user.html", athlete_access_token=athlete_access_token, athlete=athlete,
                                              athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile))
         resp.set_cookie('username', client.get_athlete().username)
@@ -141,7 +128,8 @@ def return_user():
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
-        return render_template("return_user.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats())
+        return render_template("return_user.html", athlete=client.get_athlete(),
+                               athlete_profiler=client.get_athlete().profile, athlete_stats=client.get_athlete_stats())
 
 
 @app.route('/activity/<activity_id>', methods=['GET', 'POST'])
