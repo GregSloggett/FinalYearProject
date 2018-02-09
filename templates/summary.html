@@ -47,8 +47,8 @@
     </div>
 </div>
 
-<div class="container-fluid">
-<div class="row">
+<div class="container">
+    <div class="row">
         <div class="col-sm-8">
             <br>
 
@@ -57,7 +57,7 @@
             <br>
 
 
-             <table class="table table-striped">
+            <table class="table table-striped">
                 <caption>Your First Activity</caption>
                 <thead>
                 <tr>
@@ -68,12 +68,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th scope="row"><u><a href="/activity/{{ first_activity.id }}"> {{ first_activity.id }} </a></u></th>
-                        <td>{{ first_activity.name }}</td>
-                        <td>{{ first_activity.distance }}</td>
-                        <td>{{ first_activity.moving_time }}</td>
-                    </tr>
+                <tr>
+                    <th scope="row"><u><a href="/activity/{{ first_activity.id }}"> {{ first_activity.id }} </a></u></th>
+                    <td>{{ first_activity.name }}</td>
+                    <td>{{ first_activity.distance }}</td>
+                    <td>{{ first_activity.moving_time }}</td>
+                </tr>
 
 
                 </tbody>
@@ -125,15 +125,14 @@
     <div class="row">
         <div class="col-sm-12">
 
-            <h3>Activity Table</h3>
-            <p>The table below displays your last 10 <code>activities</code>.</p>
-            <table class="table table-striped">
-                <caption>Activitiy Table</caption>
+            <table class="table table-striped table-bordered table-hover">
+                <caption><h3>Activitiy Table</h3></caption>
+                <p>The table below displays your last 10 <code>activities</code>.</p>
                 <thead>
                 <tr>
                     <th>#</th>
-                    <th>Ride ID</th>
-                    <th>Ride Name</th>
+                    <th>Activity ID</th>
+                    <th>Activity Name</th>
                     <th>Distance</th>
                 </tr>
                 </thead>
@@ -153,7 +152,61 @@
             </table>
         </div>
     </div>
+    <div>
+        <div class="col-sm-6">
+            <table class="table table-striped table-bordered table-hover">
+                <caption><h3>2017 activities</h3></caption>
+                <thead>
+                <tr>
+                    <th>Activity ID</th>
+                    <th>Activity Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for key, value in activities_2017.items() %}
 
+                    <tr>
+                        <th>{{ key }}</th>
+                        <th>{{ value }}</th>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+            </table>
+            <br> <br>
+            <form method="get" action="/summary">
+                <button type="submit">View your summary here</button>
+            </form>
+        </div>
+
+        <div class="col-sm-6">
+            <table class="table table-striped table-bordered table-hover">
+                <caption><h3>2018 activities</h3></caption>
+                <thead>
+                <tr>
+                    <th>Activity ID</th>
+                    <th>Activity Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for key, value in activities_2017.items() %}
+
+                    <tr>
+                        <th>{{ key }}</th>
+                        <th>{{ value }}</th>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+            </table>
+            <br> <br>
+            <form method="get" action="/summary">
+                <button type="submit">Marathon</button>
+            </form>
+        </div>
+    </div>
 </div>
 </body>
 </html>

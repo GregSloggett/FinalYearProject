@@ -64,7 +64,9 @@ def homepage():
         return render_template("homepage.html")
     else:
         return render_template("return_user.html", athlete=client.get_athlete(),
-                               athlete_stats=client.get_athlete_stats(), athlete_profiler=client.get_athlete().profile)
+                               athlete_stats=client.get_athlete_stats(), athlete_profiler=client.get_athlete().profile,
+                               activities_2018=activities_2018(), activities_2017=activities_2017(),
+                               last_activity_id=last_activity())
 
 
 def check_for_cookie():
@@ -100,12 +102,16 @@ def response_url():
         db.session.add(signature)
         db.session.commit()
         resp = make_response(render_template("response_url.html", athlete_access_token=athlete_access_token, athlete=athlete,
-                                             athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile))
+                                             athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile,
+                                             activities_2018=activities_2018(), activities_2017=activities_2017(),
+                                             last_activity_id=last_activity()))
         resp.set_cookie('athlete_id', str(athlete.id))
         return resp
     else:
         resp = make_response(render_template("return_user.html", athlete_access_token=athlete_access_token, athlete=athlete,
-                                             athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile))
+                                             athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile,
+                                             activities_2018=activities_2018(), activities_2017=activities_2017(),
+                                             last_activity_id=last_activity()))
         resp.set_cookie('athlete_id', str(athlete.id))
         return resp
 
@@ -137,17 +143,21 @@ def summary():
         pie_chart = pie_chart.render_data_uri()
         return render_template("summary.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats(),
                                last_ten_rides=last_ten_rides(), athlete_profiler=client.get_athlete().profile,
-                               pie_chart=pie_chart, first_activity=first_activity)
+                               pie_chart=pie_chart, first_activity=first_activity, activities_2017=activities_2017(),
+                               activities_2018=activities_2018())
 
 
 # If the user has already authorized the application this is the page that will be returned (instead of response_url).
 @app.route('/return_user/', methods=['GET', 'POST'])
 def return_user():
+
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
         return render_template("return_user.html", athlete=client.get_athlete(),
-                               athlete_profiler=client.get_athlete().profile, athlete_stats=client.get_athlete_stats())
+                               athlete_profiler=client.get_athlete().profile, athlete_stats=client.get_athlete_stats(),
+                               activities_2018=activities_2018(), activities_2017=activities_2017(),
+                               last_activity_id=last_activity())
 
 
 @app.route('/activity/<activity_id>', methods=['GET', 'POST'])
@@ -233,13 +243,13 @@ def marathon_time_retrieval():
 
             kilometres_per_minute = Decimal(1)/Decimal(kilometer__minute)
             line_chart.add("pace line chart", [kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-                           kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-                           kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
+                                               kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
+                                               kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
             line_chart = line_chart.render_data_uri()
 
             bar_chart.add("pace bar chart", [kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-                           kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-                           kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
+                                             kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
+                                             kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
             bar_chart = bar_chart.render_data_uri()
 
             if count == 2:
@@ -254,10 +264,36 @@ def marathon_time_retrieval():
             this = False
 
 
-def calculate_pace():
-    pace = 0
+def activities_2018():
+    activities_from_2018 = {}
+    for activity in client.get_activities(before="2018-02-06T00:00:00Z",
+                                          after="2018-01-01T00:00:00Z", limit=None):
 
-    return pace
+        if activity.type == 'Ride':
+            activities_from_2018['Ride'] = activity.id
+        elif activity.type == 'Run':
+            activities_from_2018['Run'] = activity.id
+
+    print(activities_from_2018)
+
+    return activities_from_2018;
+
+
+def activities_2017():
+    activities_from_2017 = {}
+    i = 0
+    for activity in client.get_activities(before="2018-01-01T00:00:00Z",
+                                          after="2017-01-01T00:00:00Z", limit=None):
+
+        if activity.type == 'Ride':
+            activities_from_2017[activity.id] = activity.type
+
+        elif activity.type == 'Run':
+            activities_from_2017[activity.id] = activity.type
+
+    print(activities_from_2017)
+
+    return activities_from_2017;
 
 
 # This displays some details on the summary page of the users last ten rides (ID, Name, Distance)
@@ -272,6 +308,13 @@ def last_ten_rides():
         # assert len(list(activity_list)) == 10
 
     return activity_list
+
+
+# This displays some details on the summary page of the users last ten rides (ID, Name, Distance)
+def last_activity():
+    for activity in client.get_activities(before="2018-02-09T00:00:00Z",
+                                          after="2017-01-01T00:00:00Z", limit=1):
+        return activity.id
 
 
 if __name__ == '__main__':
