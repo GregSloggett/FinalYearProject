@@ -58,9 +58,9 @@ class UserBestTimes(db.Model):
 
 class ReusableForm(Form):
     race_length = TextField('Race Length:', validators=[validators.required()])
-    hours = IntegerField('Hours:')
-    minutes = IntegerField('Minutes:')
-    seconds = IntegerField('Seconds:')
+    hours = IntegerField('Hours:', validators=[validators.number_range(0, 10, "Please enter a number in the range 0-10")])
+    minutes = IntegerField('Minutes:', validators=[validators.required()])
+    seconds = IntegerField('Seconds:', validators=[validators.required()])
     email = TextField('Email:')
     password = TextField('Password:')
 
@@ -265,17 +265,11 @@ def marathon():
         hours = request.form['race_time_hours']
         minutes = request.form['race_time_minutes']
         seconds = request.form['race_time_seconds']
-        # if hours == 'hours':
-        #     hours = 0
-        # if minutes == 'minutes':
-        #     minutes = 0
-        # if seconds == 'seconds':
-        #     seconds = 0
-
         print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
 
         if form.validate():
             # Save the comment here.
+
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
             distance_run = race_distances(race_type)
             time_run = get_sec(hours, minutes, seconds)
