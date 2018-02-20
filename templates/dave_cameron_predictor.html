@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Dave Cameron Predictor</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+
+    {#        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>#}
+
+    <!-- Demo Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js" type="text/javascript"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.3.2/holder.min.js" type="text/javascript"></script>
+
+    <script>
+        Holder.add_theme("white", { background:"#fff", foreground:"#a7a7a7", size:10 });
+    </script>
+
+</head>
+
+<body style="padding-top: 80px;">
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a class="navbar-brand" href="/">Strava Companion</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a href="/">Home</a></li>
+                <li><a href="/summary/">Your Summary</a></li>
+                <li class="dropdown">
+                    <a href="/marathon/" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Marathon <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li class="dropdown-header" style="font-size: smaller"><b>Marathon Predictions</b></li>
+                        <li><a href="/marathon/peter_reigel_predictor/">Peter Riegel Predictor</a></li>
+                        <li><a href="/marathon/andrew_vickers_half_marathon/">Andrew Vickers Half Marathon</a></li>
+                        <li><a href="/marathon/dave_cameron_predictor/">Dave Cameron Predictor</a></li>
+                        <li><a href="/marathon/daniels_gilbert_vo2_max/">Daniel's & Gilbert's VO2 Max Estimate</a></li>
+                        <li><a href="/marathon/">Estimate Your Time</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header" style="font-size: smaller"><b>Pacing Planners</b></li>
+                        <li><a href="/marathon/hansons_marathon_method/">Hansons Marathon Method</a></li>
+                    </ul>
+                </li>
+                <li><a href="https://www.strava.com">Strava</a></li>
+                <li><a href="/contact/">Contact</a></li>
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>Dave Cameron Marathon Predictor</h2>
+        </div>
+    </div>
+    <br>
+    <form  action="{{ url_for('dave_cameron_predictor') }}" method="post" role="form">
+        {{ form.csrf }}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label for="race_length">What's a race that you've recently run?</label>
+
+                    <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
+                        <option value="" disabled selected hidden>Select your distance.</option>
+                        <option value="Marathon" onclick="getRace()">Marathon</option>
+                        <option value="Half Marathon" onclick="getRace()">Half Marathon</option>
+                        <option value="10 Miler" onclick="getRace()">10 Miles</option>
+                        <option value="10 Kilometre" onclick="getRace()">10K</option>
+                        <option value="5 Miler" onclick="getRace()">5 Miles</option>
+                        <option value="5 Kilometre" onclick="getRace()">5K</option>
+                        <option value="3 Kilometre" onclick="getRace()">3K</option>
+                        <option value="Miler" onclick="getRace()">1 Mile</option>
+                        <option value="1500 Metre" onclick="getRace()">1500 Meters</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <script>
+            function getRace() {
+                var race_length = document.getElementById("race_length").value;
+                document.getElementById("id1").innerHTML = "What time did you complete that " + race_length + " in?";
+            }
+        </script>
+
+        <div id="race_length_head1" class="row">
+            <div id="race_length_head2" class="col-sm-12">
+                <label id="id1">
+                    Duration:
+                </label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 form-group has-success has-feedback">
+                <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+            </div>
+            <div class="col-sm-4 form-group has-warning has-feedback">
+                <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+            </div>
+            <div class="col-sm-4 form-group has-error has-feedback">
+                <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-sm-12">
+                <button type="submit" class="btn btn-success">Get Your Time!</button>
+            </div>
+        </div>
+    </form>
+
+    <br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+
+            {% for message in messages %}
+                {% if "Error" not in message[1] %}
+                    <div class="alert alert-info">
+                        <strong>Success! </strong> {{ message[1] }}
+                    </div>
+                {% endif %}
+
+                {% if "Error" in message[1] %}
+                    <div class="alert alert-warning">
+                        {{ message[1] }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <br>
+
+    {% if predicted_marathon_time != 0 %}
+        <div class="row">
+            <div class="col-sm-12">
+                Your expected marathon finishing time is {{ predicted_marathon_time }}
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-sm-12">
+                <i>Your expected marathon finishing time will be displayed here.</i>
+            </div>
+        </div>
+    {% endif %}
+
+    <br>
+
+
+
+</div>
+
+</body>
+</html>

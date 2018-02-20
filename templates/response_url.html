@@ -37,10 +37,21 @@
             <ul class="nav navbar-nav navbar-left">
                 <li><a href="/">Home</a></li>
                 <li><a href="/summary/">Your Summary</a></li>
-                <li><a href="/return_user/">Return User</a></li>
-                <li><a href="/marathon/">Marathon</a></li>
-                <li><a href="https://www.strava.com">Strava</a></li>
-                <li><a href="/">Contact</a></li>
+                <li class="dropdown">
+                    <a href="/marathon/" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Marathon <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li class="dropdown-header" style="font-size: smaller"><b>Marathon Predictions</b></li>
+                        <li><a href="/marathon/peter_reigel_predictor/">Peter Riegel Predictor</a></li>
+                        <li><a href="/marathon/andrew_vickers_half_marathon/">Andrew Vickers Half Marathon</a></li>
+                        <li><a href="/marathon/dave_cameron_predictor/">Dave Cameron Predictor</a></li>
+                        <li><a href="/marathon/daniels_gilbert_vo2_max/">Daniel's & Gilbert's VO2 Max Estimate</a></li>
+                        <li><a href="/marathon/">Estimate Your Time</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header" style="font-size: smaller"><b>Pacing Planners</b></li>
+                        <li><a href="/marathon/hansons_marathon_method/">Hansons Marathon Method</a></li>
+                    </ul>
+                </li>                <li><a href="https://www.strava.com">Strava</a></li>
+                <li><a href="/contact/">Contact</a></li>
             </ul>
         </div>
     </div>
