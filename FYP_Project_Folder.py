@@ -241,8 +241,13 @@ def map(activity_id, activity_map):
                                line_chart=line_chart)
 
 
-@app.route('/marathon/')
+@app.route('/marathon/', methods=['GET', 'POST'])
 def marathon():
+    form = ReusableForm(request.form)
+    predicted_marathon_time = 0
+    # print(form.errors)
+    getcontext().prec = 3
+
     line_chart = pygal.Line()  # Then create a bar graph object
     line_chart.add('Fibonacci', [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55])  # Add some values
     line_chart.x_labels = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2']
@@ -254,62 +259,83 @@ def marathon():
     bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
     bar_chart.y_labels = '0', '2', '4', '6', '8', '10'
     bar_chart = bar_chart.render_data_uri()
-    return render_template('marathon.html', line_chart=line_chart, bar_chart=bar_chart)
+
+    if request.method == 'POST':
+        race_type = request.form['race_length']
+        hours = request.form['race_time_hours']
+        minutes = request.form['race_time_minutes']
+        seconds = request.form['race_time_seconds']
+        # if hours == 'hours':
+        #     hours = 0
+        # if minutes == 'minutes':
+        #     minutes = 0
+        # if seconds == 'seconds':
+        #     seconds = 0
+
+        print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
+
+        if form.validate():
+            # Save the comment here.
+            flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
+            distance_run = race_distances(race_type)
+            time_run = get_sec(hours, minutes, seconds)
+            pace = get_pace(distance_run, time_run)
+            predicted_marathon_time = sec_to_time(time_run * (42.195 / distance_run)**1.06)
+            kilometer__minute = (42195/time_run)
+
+        else:
+            flash('Error: All the form fields are required. ')
+
+        return render_template("marathon.html", bar_chart=bar_chart, line_chart=line_chart,
+                               form=form, predicted_marathon_time=predicted_marathon_time,
+                               hours=hours, minutes=minutes, seconds=seconds, pace=pace,
+                               kilometer__minute=kilometer__minute)
+    else:
+        return render_template("marathon.html", bar_chart=bar_chart, line_chart=line_chart,
+                               form=form, predicted_marathon_time=predicted_marathon_time)
 
 
-@app.route('/marathon/', methods=['POST'])
-def marathon_time_retrieval():
-
-    marathon_time = request.form['marathon-time']
-    getcontext().prec = 3
-
-    line_chart = pygal.Line()  # Then create a bar graph object
-    line_chart.x_labels = ('0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2')
-    bar_chart = pygal.Bar()
-    bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
-
-    count = marathon_time.count(':')
-
-    if True:
-        try:
-            if count == 2:
-                hours, minutes, seconds = marathon_time.split(':')
-                hours = int(hours)
-                minutes = int(minutes)
-                seconds = int(seconds)
-            else:
-                hours, minutes = marathon_time.split(':')
-                hours = int(hours)
-                minutes = int(minutes)
-
-            total_minutes = int(hours * 60 + minutes)
-            kilometer__minute = (Decimal(42.195) / Decimal(total_minutes))
-            try:
-                pace = Speed(kilometer__minute = (Decimal(42.195) / Decimal(total_minutes)))
-            except ZeroDivisionError:
-                pace = 0
-
-            kilometres_per_minute = Decimal(1)/Decimal(kilometer__minute)
-            line_chart.add("pace line chart", [kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-                                               kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-                                               kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
-            line_chart = line_chart.render_data_uri()
-
-            bar_chart.add("pace bar chart", [kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-                                             kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-                                             kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
-            bar_chart = bar_chart.render_data_uri()
-
-            if count == 2:
-                return render_template('marathon.html', marathon_time=marathon_time, hours=hours, minutes=minutes,
-                                       seconds=seconds, total_minutes=total_minutes, pace=pace, line_chart=line_chart,
-                                       kilometres=kilometres_per_minute, bar_chart=bar_chart)
-            else:
-                return render_template('marathon.html', marathon_time=marathon_time, hours=hours, minutes=minutes,
-                                       seconds="0", total_minutes=total_minutes, pace=pace, line_chart=line_chart,
-                                       kilometres=kilometres_per_minute, bar_chart=bar_chart)
-        except ValueError:
-            this = False
+def get_pace(distance, time):
+    pace = time/(distance*1000)
+    return pace
+    # marathon_time = request.form['marathon-time']
+    #
+    # line_chart = pygal.Line()  # Then create a bar graph object
+    # line_chart.x_labels = ('0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2')
+    # bar_chart = pygal.Bar()
+    # bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
+    #
+    # count = marathon_time.count(':')
+    #
+    # if True:
+    #         total_minutes = int(hours * 60 + minutes)
+    #         kilometer__minute = (Decimal(42.195) / Decimal(total_minutes))
+    #         try:
+    #             pace = Speed(kilometer__minute = (Decimal(42.195) / Decimal(total_minutes)))
+    #         except ZeroDivisionError:
+    #             pace = 0
+    #
+    #         kilometres_per_minute = Decimal(1)/Decimal(kilometer__minute)
+    #         line_chart.add("pace line chart", [kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
+    #                                            kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
+    #                                            kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
+    #         line_chart = line_chart.render_data_uri()
+    #
+    #         bar_chart.add("pace bar chart", [kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
+    #                                          kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
+    #                                          kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
+    #         bar_chart = bar_chart.render_data_uri()
+    #
+    #         if count == 2:
+    #             return render_template('marathon.html', marathon_time=marathon_time, hours=hours, minutes=minutes,
+    #                                    seconds=seconds, total_minutes=total_minutes, pace=pace, line_chart=line_chart,
+    #                                    kilometres=kilometres_per_minute, bar_chart=bar_chart)
+    #         else:
+    #             return render_template('marathon.html', marathon_time=marathon_time, hours=hours, minutes=minutes,
+    #                                    seconds="0", total_minutes=total_minutes, pace=pace, line_chart=line_chart,
+    #                                    kilometres=kilometres_per_minute, bar_chart=bar_chart)
+    #     except ValueError:
+    #         this = False
 
 
 @app.route('/marathon/peter_reigel_predictor/', methods=['GET', 'POST'])
