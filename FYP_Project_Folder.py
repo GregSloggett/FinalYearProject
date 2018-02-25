@@ -143,8 +143,8 @@ def summary():
                                               after="2000-05-10T00:00:00Z", limit=None):
             signature = UserActivities(athlete_id=client.get_athlete().id, activity_id=activity.id,
                                        activity_type=activity.type, date='test', distance='test2',
-                                       activity_moving_time=activity.moving_time, average_speed=activity.average_speed,
-                                       max_speed=activity.max_speed)
+                                       activity_moving_time=activity.moving_time, average_speed='test3',
+                                       max_speed='test4')
             db.session.add(signature)
             db.session.commit()
 
