@@ -142,8 +142,8 @@ def summary():
                                               after=client.get_athlete().created_at, limit=None):
             signature = UserActivities(athlete_id=client.get_athlete().id, activity_id=activity.id,
                                        activity_type=activity.type, date=activity.start_date, distance=activity.distance.__str__(),
-                                       activity_moving_time=activity.moving_time, average_speed='test3',
-                                       max_speed='test4')
+                                       activity_moving_time=activity.moving_time, average_speed=activity.average_speed.__str__(),
+                                       max_speed=activity.max_speed.__str__())
             db.session.add(signature)
             db.session.commit()
 
