@@ -4,29 +4,29 @@ from sqlalchemy.testing.pickleable import User
 from stravalib.client import Client
 from flask_googlemaps import GoogleMaps, Map
 from wtforms import Form, StringField, PasswordField, BooleanField, SubmitField, IntegerField, TextField, validators
-from wtforms.validators import DataRequired
 from measurement.measures import Speed, Time
 from decimal import getcontext, Decimal
 import pygal
 import math
+import matplotlib
 
 app = Flask(__name__)
 # app.config['GOOGLEMAPS_KEY'] = "AIzaSyBUV6YEpG7xjxJ8s9ZjIZP8A56L4TxAK7k"
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyCiforLtPDvDY3WzkKeWc2ykgR_Aw9rYk0"
 GoogleMaps(app)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="GregorySloggett",
-    password="Xavi6legend",
-    hostname="GregorySloggett.mysql.pythonanywhere-services.com",
-    databasename="GregorySloggett$access_tokens",
-)
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+#     username="GregorySloggett",
+#     password="Xavi6legend",
+#     hostname="GregorySloggett.mysql.pythonanywhere-services.com",
+#     databasename="GregorySloggett$access_tokens",
+# )
+# app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+# app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.config.update(dict(
     SECRET_KEY="powerful secretkey",
@@ -34,6 +34,7 @@ app.config.update(dict(
 ))
 
 db = SQLAlchemy(app)
+
 
 class AccessTokens(db.Model):
     __tablename__ = "access_tokens"
@@ -57,27 +58,16 @@ class UserBestTimes(db.Model):
 
 
 class ReusableForm(Form):
-    race_length = TextField('Race Length:', validators=[validators.required()])
-    hours = IntegerField('Hours:', validators=[validators.number_range(0, 10, "Please enter a number in the range 0-10")])
-    minutes = IntegerField('Minutes:', validators=[validators.required()])
-    seconds = IntegerField('Seconds:', validators=[validators.required()])
+    race_length = TextField('Race Length:', validators=[validators.InputRequired()])
+    hours = IntegerField('Hours:')
+    minutes = IntegerField('Minutes:')
+    seconds = IntegerField('Seconds:')
+
+
+class AboutForm(Form):
+    name = TextField('Name:')
     email = TextField('Email:')
     password = TextField('Password:')
-
-
-#
-# class EstimateMarathon(FlaskForm):
-#     estimate_time = IntegerField('Estimate', [validators.Required()])
-
-
-# class PredictMarathon(FlaskForm):
-#     athlete_id = StringField('Athlete_ID', [validators.Length(min=1, max = 12)])
-#     password = PasswordField('Password', [
-#         validators.Required(),
-#         validators.EqualTo('confirm_password', message='Passwords do not match')
-#     ])
-#     confirm_password = PasswordField('Confirm Password')
-#     email = TextField('Email', [validators.Length(min=6, max=35)])
 
 
 MY_ACCESS_TOKEN = 'a6e5a504f806ed79c8a6e25f59da056b440faac5'
@@ -225,20 +215,15 @@ def activity(activity_id):
 
 @app.route('/activity/<activity_id>/<activity_map>', methods=['GET', 'POST'])
 def map(activity_id, activity_map):
-    types = ['time', 'latlng', 'altitude', 'heartrate', 'temp', ]
+    types = ['time', 'latlng', 'altitude', 'heartrate', 'temp']
 
-    line_chart = pygal.Line()  # Then create a bar graph object
-    line_chart.add('Fibonacci', [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55])  # Add some values
-    line_chart.x_labels = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2']
-    line_chart.y_labels = '0', '2', '4', '6', '8', '10'
-    line_chart = line_chart.render_data_uri()
 
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
         return render_template("map.html", activity_data=client.get_activity(activity_id=activity_id),
-                               streams=client.get_activity_streams(activity_id=activity_id, types=types, resolution='medium'),
-                               line_chart=line_chart)
+                               streams=client.get_activity_streams(activity_id=activity_id,
+                                                                   types=types, resolution='medium'))
 
 
 @app.route('/marathon/', methods=['GET', 'POST'])
@@ -251,85 +236,65 @@ def marathon():
     line_chart = pygal.Line()  # Then create a bar graph object
     line_chart.add('Fibonacci', [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55])  # Add some values
     line_chart.x_labels = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2']
-    line_chart.y_labels = '0', '2', '4', '6', '8', '10'
     line_chart = line_chart.render_data_uri()
 
     bar_chart = pygal.Bar()
     bar_chart.add('Fibonacci', [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55])  # Add some values
     bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
-    bar_chart.y_labels = '0', '2', '4', '6', '8', '10'
     bar_chart = bar_chart.render_data_uri()
 
     if request.method == 'POST':
-        race_type = request.form['race_length']
-        hours = request.form['race_time_hours']
-        minutes = request.form['race_time_minutes']
-        seconds = request.form['race_time_seconds']
-        print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
-
         if form.validate():
-            # Save the comment here.
+            race_type = request.form['race_length']
+            hours = request.form['race_time_hours']
+            if hours == '':
+                hours = 0
+            minutes = request.form['race_time_minutes']
+            if minutes == '':
+                minutes = 0
+            seconds = request.form['race_time_seconds']
+            if seconds == '':
+                seconds = 0
+
+            print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
 
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
             distance_run = race_distances(race_type)
             time_run = get_sec(hours, minutes, seconds)
-            pace = get_pace(distance_run, time_run)
-            predicted_marathon_time = sec_to_time(time_run * (42.195 / distance_run)**1.06)
-            kilometer__minute = (42195/time_run)
+
+            kilometer__minute = (distance_run / (time_run/60))
+            try:
+                pace = Speed(kilometer__minute=(distance_run / (time_run/60)))
+            except ZeroDivisionError:
+                pace = 0
+            kilometer = Decimal(1)/Decimal(kilometer__minute)
+            kilometres_per_minute = sec_to_time(get_sec(0, Decimal(1)/Decimal(kilometer__minute), 0))
+
+            line_chart = pygal.Line()  # Then create a bar graph object
+            line_chart.add('Fibonacci', [kilometer, kilometer, kilometer, kilometer, kilometer, kilometer, kilometer,
+                                         kilometer, kilometer, kilometer, kilometer])  # Add some values
+            line_chart.x_labels = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2']
+            line_chart = line_chart.render_data_uri()
+
+            bar_chart = pygal.Bar()
+            bar_chart.add('Fibonacci', [kilometer, kilometer, kilometer, kilometer, kilometer, kilometer, kilometer,
+                                        kilometer, kilometer, kilometer, kilometer])  # Add some values
+            bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
+            bar_chart = bar_chart.render_data_uri()
 
         else:
-            flash('Error: All the form fields are required. ')
+            flash('Error: You are required to enter a distance. ')
 
-        return render_template("marathon.html", bar_chart=bar_chart, line_chart=line_chart,
-                               form=form, predicted_marathon_time=predicted_marathon_time,
-                               hours=hours, minutes=minutes, seconds=seconds, pace=pace,
-                               kilometer__minute=kilometer__minute)
+        return render_template("marathon.html", bar_chart=bar_chart, line_chart=line_chart, form=form, hours=hours,
+                               minutes=minutes, seconds=seconds, pace=pace, kilometres_per_minute=kilometres_per_minute,
+                               kilometer=kilometer)
     else:
-        return render_template("marathon.html", bar_chart=bar_chart, line_chart=line_chart,
-                               form=form, predicted_marathon_time=predicted_marathon_time)
+        return render_template("marathon.html", bar_chart=bar_chart, line_chart=line_chart, form=form)
 
 
 def get_pace(distance, time):
     pace = time/(distance*1000)
     return pace
-    # marathon_time = request.form['marathon-time']
-    #
-    # line_chart = pygal.Line()  # Then create a bar graph object
-    # line_chart.x_labels = ('0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2')
-    # bar_chart = pygal.Bar()
-    # bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
-    #
-    # count = marathon_time.count(':')
-    #
-    # if True:
-    #         total_minutes = int(hours * 60 + minutes)
-    #         kilometer__minute = (Decimal(42.195) / Decimal(total_minutes))
-    #         try:
-    #             pace = Speed(kilometer__minute = (Decimal(42.195) / Decimal(total_minutes)))
-    #         except ZeroDivisionError:
-    #             pace = 0
-    #
-    #         kilometres_per_minute = Decimal(1)/Decimal(kilometer__minute)
-    #         line_chart.add("pace line chart", [kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-    #                                            kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-    #                                            kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
-    #         line_chart = line_chart.render_data_uri()
-    #
-    #         bar_chart.add("pace bar chart", [kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-    #                                          kilometres_per_minute, kilometres_per_minute, kilometres_per_minute, kilometres_per_minute,
-    #                                          kilometres_per_minute, kilometres_per_minute, kilometres_per_minute])
-    #         bar_chart = bar_chart.render_data_uri()
-    #
-    #         if count == 2:
-    #             return render_template('marathon.html', marathon_time=marathon_time, hours=hours, minutes=minutes,
-    #                                    seconds=seconds, total_minutes=total_minutes, pace=pace, line_chart=line_chart,
-    #                                    kilometres=kilometres_per_minute, bar_chart=bar_chart)
-    #         else:
-    #             return render_template('marathon.html', marathon_time=marathon_time, hours=hours, minutes=minutes,
-    #                                    seconds="0", total_minutes=total_minutes, pace=pace, line_chart=line_chart,
-    #                                    kilometres=kilometres_per_minute, bar_chart=bar_chart)
-    #     except ValueError:
-    #         this = False
 
 
 @app.route('/marathon/peter_reigel_predictor/', methods=['GET', 'POST'])
@@ -339,20 +304,27 @@ def peter_reigel_predictor():
     # print(form.errors)
 
     if request.method == 'POST':
-        race_type = request.form['race_length']
-        hours = request.form['race_time_hours']
-        minutes = request.form['race_time_minutes']
-        seconds = request.form['race_time_seconds']
-        print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
-
         if form.validate():
+            race_type = request.form['race_length']
+            hours = request.form['race_time_hours']
+            if hours == '':
+                hours = 0
+            minutes = request.form['race_time_minutes']
+            if minutes == '':
+                minutes = 0
+            seconds = request.form['race_time_seconds']
+            if seconds == '':
+                seconds = 0
+
+            print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
+
             # Save the comment here.
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
             distance_run = race_distances(race_type)
             time_run = get_sec(hours, minutes, seconds)
             predicted_marathon_time = sec_to_time(time_run * (42.195 / distance_run)**1.06)
         else:
-            flash('Error: All the form fields are required. ')
+            flash('Error: You are required to enter a distance. ')
 
     return render_template("peter_reigel_predictor.html", form=form, predicted_marathon_time= predicted_marathon_time)
 
@@ -398,20 +370,26 @@ def andrew_vickers_half_marathon():
     # print(form.errors)
 
     if request.method == 'POST':
-        race_type = request.form['race_length']
-        hours = request.form['race_time_hours']
-        minutes = request.form['race_time_minutes']
-        seconds = request.form['race_time_seconds']
-        print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
-
         if form.validate():
-            # Save the comment here.
+            race_type = request.form['race_length']
+            hours = request.form['race_time_hours']
+            if hours == '':
+                hours = 0
+            minutes = request.form['race_time_minutes']
+            if minutes == '':
+                minutes = 0
+            seconds = request.form['race_time_seconds']
+            if seconds == '':
+                seconds = 0
+
+            print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
+
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
             distance_run = race_distances(race_type)
             time_run = get_sec(hours, minutes, seconds)
             predicted_marathon_time = sec_to_time(time_run * 2.19)
         else:
-            flash('Error: All the form fields are required. ')
+            flash('Error: You are required to enter a distance. ')
 
     return render_template("andrew_vickers_half_marathon.html", form=form,
                            predicted_marathon_time=predicted_marathon_time)
@@ -423,14 +401,13 @@ def hansons_marathon_method():
     return render_template("hansons_marathon_method.html")
 
 
-@app.route('/contact/', methods=['GET', 'POST'])
-def contact():
-    form = ReusableForm(request.form)
+@app.route('/about/', methods=['GET', 'POST'])
+def about():
+    form = AboutForm(request.form)
     # print(form.errors)
 
     if request.method == 'POST':
         name = request.form['name']
-
         password = request.form['password']
         email = request.form['email']
         print(name, " ", email, " ", password, " ")
@@ -441,7 +418,7 @@ def contact():
         else:
             flash('Error: All the form fields are required. ')
 
-    return render_template("contact.html", form=form)
+    return render_template("about.html", form=form)
 
 
 @app.route('/marathon/dave_cameron_predictor/', methods=['GET', 'POST'])
@@ -451,14 +428,21 @@ def dave_cameron_predictor():
     # print(form.errors)
 
     if request.method == 'POST':
-        race_type = request.form['race_length']
-        hours = request.form['race_time_hours']
-        minutes = request.form['race_time_minutes']
-        seconds = request.form['race_time_seconds']
-        print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
-
         if form.validate():
-            # Save the comment here.
+            race_type = request.form['race_length']
+
+            hours = request.form['race_time_hours']
+            if hours == '':
+                hours = 0
+            minutes = request.form['race_time_minutes']
+            if minutes == '':
+                minutes = 0
+            seconds = request.form['race_time_seconds']
+            if seconds == '':
+                seconds = 0
+
+            print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
+
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
             distance_run = race_distances(race_type)
             distance_run = distance_run * 1000
@@ -468,7 +452,7 @@ def dave_cameron_predictor():
             predicted_marathon_time = sec_to_time((time_run / distance_run) * (a / b) * (42.195*1000))
 
         else:
-            flash('Error: All the form fields are required. ')
+            flash('Error: You are required to enter a distance. ')
 
     return render_template("dave_cameron_predictor.html", form=form, predicted_marathon_time= predicted_marathon_time)
 
@@ -480,14 +464,20 @@ def daniels_gilbert_vo2_max():
     # print(form.errors)
 
     if request.method == 'POST':
-        race_type = request.form['race_length']
-        hours = request.form['race_time_hours']
-        minutes = request.form['race_time_minutes']
-        seconds = request.form['race_time_seconds']
-        print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
-
         if form.validate():
-            # Save the comment here.
+            race_type = request.form['race_length']
+            hours = request.form['race_time_hours']
+            if hours == '':
+                hours = 0
+            minutes = request.form['race_time_minutes']
+            if minutes == '':
+                minutes = 0
+            seconds = request.form['race_time_seconds']
+            if seconds == '':
+                seconds = 0
+
+            print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
+
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
             distance_run = race_distances(race_type)
             distance_run = distance_run*1000
@@ -498,8 +488,9 @@ def daniels_gilbert_vo2_max():
             bottom_fraction = 0.2989558 * math.exp(-0.1932605 * time_run) + 0.1894393 * math.exp(-0.012778 * time_run) + 0.8
             vo2max = top_fraction/bottom_fraction
 
+
         else:
-            flash('Error: All the form fields are required. ')
+            flash('Error: You are required to enter a distance. ')
 
     return render_template("daniels_gilbert_vo2_max.html", form=form, vo2max=vo2max)
 

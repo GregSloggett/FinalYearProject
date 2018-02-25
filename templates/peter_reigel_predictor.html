@@ -6,18 +6,13 @@
     <title>Two-column full width responsive layout</title>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 
-    {#        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>#}
-
-    <!-- Demo Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js" type="text/javascript"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.3.2/holder.min.js" type="text/javascript"></script>
     <link href="/static/styles.css" rel="stylesheet">
 
-    <script>
-        Holder.add_theme("white", { background:"#fff", foreground:"#a7a7a7", size:10 });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 </head>
 
@@ -56,7 +51,7 @@
                     </ul>
                 </li>
                 <li><a href="https://www.strava.com">Strava</a></li>
-                <li><a href="/contact/">Contact</a></li>
+                <li><a href="/about/">About</a></li>
             </ul>
 
         </div>
@@ -79,112 +74,136 @@
         </div>
     </div>
     <br>
-    <form  action="{{ url_for('peter_reigel_predictor') }}" method="post" role="form">
-        {{ form.csrf }}
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="form-group">
-                    <label for="race_length">What's a race that you've recently run?</label>
+    <div class="row">
+        <div class="col-sm-6">
+            <form  action="{{ url_for('peter_reigel_predictor') }}" method="post" role="form">
+                {{ form.csrf }}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group has-success has-feedback">
+                            <label for="race_length">What's a race that you've recently run?</label>
 
-                    <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
-                        <option value="" disabled selected hidden>Select your distance.</option>
-                        <option value="Marathon" onclick="getRace()">Marathon</option>
-                        <option value="Half Marathon" onclick="getRace()">Half Marathon</option>
-                        <option value="10 Miler" onclick="getRace()">10 Miles</option>
-                        <option value="10 Kilometre" onclick="getRace()">10K</option>
-                        <option value="5 Miler" onclick="getRace()">5 Miles</option>
-                        <option value="5 Kilometre" onclick="getRace()">5K</option>
-                        <option value="3 Kilometre" onclick="getRace()">3K</option>
-                        <option value="Miler" onclick="getRace()">1 Mile</option>
-                        <option value="1500 Metre" onclick="getRace()">1500 Meters</option>
-                    </select>
+                            <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
+                                <option value="" disabled selected hidden>Select your distance.</option>
+                                <option value="Marathon" onclick="getRace()">Marathon</option>
+                                <option value="Half Marathon" onclick="getRace()">Half Marathon</option>
+                                <option value="10 Miler" onclick="getRace()">10 Miles</option>
+                                <option value="10 Kilometre" onclick="getRace()">10K</option>
+                                <option value="5 Miler" onclick="getRace()">5 Miles</option>
+                                <option value="5 Kilometre" onclick="getRace()">5K</option>
+                                <option value="3 Kilometre" onclick="getRace()">3K</option>
+                                <option value="Miler" onclick="getRace()">1 Mile</option>
+                                <option value="1500 Metre" onclick="getRace()">1500 Meters</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    function getRace() {
+                        var race_length = document.getElementById("race_length").value;
+                        document.getElementById("id1").innerHTML = "What time did you complete that " + race_length + " in?";
+                    }
+                </script>
+
+                <div id="race_length_head1" class="row">
+                    <div id="race_length_head2" class="col-sm-12">
+                        <label id="id1">
+                            Duration:
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 form-group has-success has-feedback">
+                        <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    </div>
+                    <div class="col-sm-4 form-group has-warning has-feedback">
+                        <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    </div>
+                    <div class="col-sm-4 form-group has-error has-feedback">
+                        <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button type="submit" class="btn btn-success">Get Your Time!</button>
+                    </div>
+                </div>
+            </form>
+
+
+            <br>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+
+                    {% for message in messages %}
+                        {% if "Error" not in message[1] %}
+                            <div class="alert alert-info">
+                                <strong>Success! </strong> {{ message[1] }}
+                            </div>
+                        {% endif %}
+
+                        {% if "Error" in message[1] %}
+                            <div class="alert alert-warning">
+                                {{ message[1] }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <br>
+
+            {% if predicted_marathon_time != 0 %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        Your expected marathon finishing time is {{ predicted_marathon_time }}
+                    </div>
+                </div>
+            {% else %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <i>Your expected marathon finishing time will be displayed here.</i>
+                    </div>
+                </div>
+            {% endif %}
+
+            <br><br>
+
+        </div>
+        <div class="col-sm-6">
+
+            <div class="panel panel-info">
+                <div class="panel-heading">Peter Reigel Marathon Prediction Algorithm</div>
+                <div class="panel-body">
+                    <p>
+                        This formula was devised by Pete Riegel, a research engineer and marathoner,
+                        and became an established prediction formula many moons ago by Owen Anderson in 1997.
+                        It has stood the test of time since then and has been widely used.
+                    </p>
+                    <p>
+                        The formula is..
+                    </p>
+
+                    <div style="font-size: medium; font-family: 'Cambria Math'; text-align: center" >
+                        <p>
+                            \[ T2 = T1(\frac{D2}{D1})⋅1.06 \]
+                        </p>
+                    </div>
+
+                    <p>
+                        Where..
+                    </p>
+                    <p style="padding-left: 5em">
+                        D1 = Distance of any previous race run, from the selected list.<br>
+                        T1 = Time of that previous race run, in hours, minutes and seconds.<br>
+                        D2 = Distance of the race to be predicted, a marathon in this case.<br>
+                        T2 = Time of the predicted race, a marathon in this case.<br>
+                    </p>
                 </div>
             </div>
         </div>
-        <script>
-            function getRace() {
-                var race_length = document.getElementById("race_length").value;
-                document.getElementById("id1").innerHTML = "What time did you complete that " + race_length + " in?";
-            }
-        </script>
-
-        <div id="race_length_head1" class="row">
-            <div id="race_length_head2" class="col-sm-12">
-                <label id="id1">
-                    Duration:
-                </label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-4 form-group has-success has-feedback">
-                <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
-            </div>
-            <div class="col-sm-4 form-group has-warning has-feedback">
-                <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
-            </div>
-            <div class="col-sm-4 form-group has-error has-feedback">
-                <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-sm-12">
-                <button type="submit" class="btn btn-success">Get Your Time!</button>
-            </div>
-        </div>
-    </form>
-
-    <br>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-
-            {% for message in messages %}
-                {% if "Error" not in message[1] %}
-                    <div class="alert alert-info">
-                        <strong>Success! </strong> {{ message[1] }}
-                    </div>
-                {% endif %}
-
-                {% if "Error" in message[1] %}
-                    <div class="alert alert-warning">
-                        {{ message[1] }}
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <br>
-
-    {% if predicted_marathon_time != 0 %}
-        <div class="row">
-            <div class="col-sm-12">
-                Your expected marathon finishing time is {{ predicted_marathon_time }}
-            </div>
-        </div>
-    {% else %}
-        <div class="row">
-            <div class="col-sm-12">
-                <i>Your expected marathon finishing time will be displayed here.</i>
-            </div>
-        </div>
-    {% endif %}
-
-    <br>
-    <div class="row">
-        <div class="col-sm-12">
-            <p>
-                The formula was originally devised by Pete Riegel, a research engineer and marathoner,
-                and published in Runner's World many moons ago by Owen Anderson in 1997.
-                It has stood the test of time since then and has been widely used.
-            </p>
-            <p>
-                The formula is T2 = T1 x (D2/D1)1.06 where T1 is the given time, D1 is the given distance,
-                D2 is the distance to predict a time for, and T2 is the calculated time for D2.
-            </p>
-        </div>
     </div>
-
 
 </div>
 

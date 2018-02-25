@@ -56,7 +56,7 @@
                     </ul>
                 </li>
                 <li><a href="https://www.strava.com">Strava</a></li>
-                <li><a href="/contact/">Contact</a></li>
+                <li><a href="/about/">About</a></li>
             </ul>
 
         </div>
@@ -81,7 +81,6 @@
         <div class="col-xs-12">
             <div class="chart-wrapper">
                 <div class="chart-title">
-
 
                     <form  action="{{ url_for('marathon') }}" method="post" role="form">
                         {{ form.csrf }}
@@ -132,24 +131,36 @@
                     </form>
 
 
-
-                    Expected marathon time: {{ hours }} hours, {{ minutes }} minutes & {{ seconds }} seconds. <br>
-                    Pace: {{ pace }}, taking {{ kilometer__minute }} minutes to complete each kilometre.
-
-                    <br><br>
-                    <div class="col-sm-6">
-
-                        <div id="chart">
-                            <embed type="image/svg+xml" src= {{ line_chart|safe }} />
+                    {% if request.method == 'POST' %}
+                        <br><br>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                Expected marathon time: {{ hours }} hours, {{ minutes }} minutes & {{ seconds }} seconds. <br>
+                                Pace: {{ pace }}, taking {{ kilometres_per_minute }} minutes to complete each kilometre.
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-sm-6">
-                        <div id="chart">
-                            <embed type="image/svg+xml" src= {{ bar_chart|safe }} />
+                        <br><br>
+                        <div class="col-sm-6">
+                            <div id="chart">
+                                <embed type="image/svg+xml" src= {{ line_chart|safe }} />
+                            </div>
                         </div>
-                    </div>
 
+                        <div class="col-sm-6">
+                            <div id="chart">
+                                <embed type="image/svg+xml" src= {{ bar_chart|safe }} />
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <br><br>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <i>Your predicted marathon finishing time will be displayed here.</i>
+                            </div>
+                        </div>
+                    {% endif %}
 
                 </div>
             </div>
