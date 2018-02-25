@@ -8,7 +8,7 @@ from measurement.measures import Speed, Time
 from decimal import getcontext, Decimal
 import pygal
 import math
-import matplotlib
+import datetime
 
 app = Flask(__name__)
 # app.config['GOOGLEMAPS_KEY'] = "AIzaSyBUV6YEpG7xjxJ8s9ZjIZP8A56L4TxAK7k"
@@ -138,11 +138,10 @@ def summary():
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
-
-        for activity in client.get_activities(before="2018-02-25T00:00:00Z",
-                                              after="2000-05-10T00:00:00Z", limit=None):
+        for activity in client.get_activities(before=datetime.datetime.now(),
+                                              after=client.get_athlete().created_at, limit=None):
             signature = UserActivities(athlete_id=client.get_athlete().id, activity_id=activity.id,
-                                       activity_type=activity.type, date=activity.start_date, distance='test2',
+                                       activity_type=activity.type, date=activity.start_date, distance=activity.distance.__str__(),
                                        activity_moving_time=activity.moving_time, average_speed='test3',
                                        max_speed='test4')
             db.session.add(signature)
@@ -496,7 +495,7 @@ def daniels_gilbert_vo2_max():
 
 def activities_2018():
     activities_from_2018 = {}
-    for activity in client.get_activities(before="2018-02-06T00:00:00Z",
+    for activity in client.get_activities(before="2019-01-01T00:00:00Z",
                                           after="2018-01-01T00:00:00Z", limit=None):
 
         if activity.type == 'Ride':
