@@ -43,18 +43,17 @@ class AccessTokens(db.Model):
     email_address = db.column(db.String(40))
 
 
-class UserBestTimes(db.Model):
-    __tablename__ = "user_best_times"
+class UserActivities(db.Model):
+    __tablename__ = "user_activities"
     athlete_id = db.Column(db.String(11), primary_key=True)
-    fifteenHundred = db.Column(db.Time)
-    oneMile = db.Column(db.Time)
-    threeKilometre = db.Column(db.Time)
-    fiveKilometre = db.Column(db.Time)
-    fiveMile = db.Column(db.Time)
-    tenKilometre = db.Column(db.Time)
-    tenMile = db.Column(db.Time)
-    halfMarathon = db.Column(db.Time)
-    marathon = db.Column(db.Time)
+    activity_id = db.Column(db.Integer)
+    activity_type = db.Column(db.String(32))
+    date = db.Column(db.String(64))
+    distance = db.Column(db.String(32))
+    activity_moving_time = db.Column(db.String(32))
+    average_speed = db.Column(db.String(32))
+    max_speed = db.Column(db.String(32))
+
 
 
 class ReusableForm(Form):
@@ -117,7 +116,8 @@ def response_url():
     check_code = athlete_access_token
     check_access_token = AccessTokens.query.filter_by(access_token=check_code).first()
     if not check_access_token:
-        signature = AccessTokens(athlete_id=str(athlete.id), access_token=athlete_access_token)
+        signature = AccessTokens(athlete_id=str(athlete.id), access_token=athlete_access_token,
+                                 email_address=client.get_athlete().email)
         db.session.add(signature)
         db.session.commit()
         resp = make_response(render_template("response_url.html", athlete_access_token=athlete_access_token, athlete=athlete,
@@ -138,21 +138,20 @@ def summary():
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
-        total_rides = 0
-        total_runs = 0
 
-        first_activity = ''
-
-        for activity in client.get_activities(before="2018-02-03T00:00:00Z",
+        for activity in client.get_activities(before="2018-02-25T00:00:00Z",
                                               after="2000-05-10T00:00:00Z", limit=None):
-            first_activity_id = activity.id
+            signature = UserActivities(athlete_id=client.get_athlete().id, activity_id=activity.id,
+                                       activity_type=activity.type, date=activity.start_date, distance=activity.distance,
+                                       activity_moving_time=activity.moving_time, average_speed=activity.average_speed,
+                                       max_speed=activity.max_speed)
+            db.session.add(signature)
+            db.session.commit()
 
-            if activity.type == 'Ride':
-                total_rides = total_rides + 1
-            elif activity.type == 'Run':
-                total_runs = total_runs + 1
-
-            first_activity = client.get_activity(activity_id=first_activity_id)
+        first_activity = UserActivities.query.order_by(UserActivities.date).first()
+        print(first_activity)
+        total_rides = UserActivities.query.filter_by(activity_type='ride').count()
+        total_runs = UserActivities.query.filter_by(activity_type='run').count()
 
         pie_chart = pygal.Pie()  # Then create a bar graph object
         pie_chart.add('Rides', total_rides)  # Add some values
