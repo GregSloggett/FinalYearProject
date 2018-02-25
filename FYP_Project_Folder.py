@@ -142,7 +142,7 @@ def summary():
         for activity in client.get_activities(before="2018-02-25T00:00:00Z",
                                               after="2000-05-10T00:00:00Z", limit=None):
             signature = UserActivities(athlete_id=client.get_athlete().id, activity_id=activity.id,
-                                       activity_type=activity.type, date=activity.start_date_local, distance=activity.distance,
+                                       activity_type=activity.type, date='test', distance=activity.distance,
                                        activity_moving_time=activity.moving_time, average_speed=activity.average_speed,
                                        max_speed=activity.max_speed)
             db.session.add(signature)
