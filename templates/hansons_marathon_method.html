@@ -6,20 +6,32 @@
     <title>Two-column full width responsive layout</title>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 
-    {#        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>#}
 
     <!-- Demo Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js" type="text/javascript"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.3.2/holder.min.js" type="text/javascript"></script>
+{#    <link rel="stylesheet" href="/static/d3.slider.css" />#}
+{#    <script src="/static/d3.slider.js"></script>#}
+    <style>
+        .bar {
+            fill: steelblue;
+        }
 
-    <script>
-        Holder.add_theme("white", { background:"#fff", foreground:"#a7a7a7", size:10 });
-    </script>
+        .bar:hover {
+            fill: brown;
+        }
+
+        .axis--x path {
+            display: none;
+        }
+
+    </style>
+
 </head>
 
-<body style="padding-top: 80px;">
+<body style="padding-top: 50px;">
 
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
@@ -60,8 +72,199 @@
         </div>
     </div>
 </div>
-jnknkjn
-b  b
+
+<div class="runner" style="background-image: url('/static/EveningRunFemale.jpeg')">
+    <div class="jumbotron" style="background-color: transparent">
+        <br><br><br><br>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header">
+                <h2>Marathon Prediction - Multiple Formula</h2>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-sm-6">
+            <form  action="{{ url_for('hansons_marathon_method') }}" method="post" role="form">
+                {{ form.csrf }}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group has-success has-feedback">
+                            <label for="race_length">What's a race that you've recently run?</label>
+
+                            <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
+                                <option value="" disabled selected hidden>Select your distance.</option>
+                                <option value="Marathon" onclick="getRace()">Marathon</option>
+                                <option value="Half Marathon" onclick="getRace()">Half Marathon</option>
+                                <option value="10 Miler" onclick="getRace()">10 Miles</option>
+                                <option value="10 Kilometre" onclick="getRace()">10K</option>
+                                <option value="5 Miler" onclick="getRace()">5 Miles</option>
+                                <option value="5 Kilometre" onclick="getRace()">5K</option>
+                                <option value="3 Kilometre" onclick="getRace()">3K</option>
+                                <option value="Miler" onclick="getRace()">1 Mile</option>
+                                <option value="1500 Metre" onclick="getRace()">1500 Meters</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    function getRace() {
+                        var race_length = document.getElementById("race_length").value;
+                        document.getElementById("id1").innerHTML = "What time did you complete that " + race_length + " in?";
+                    }
+                </script>
+
+                <div id="race_length_head1" class="row">
+                    <div id="race_length_head2" class="col-sm-12">
+                        <label id="id1">
+                            Duration:
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 form-group has-success has-feedback">
+                        <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    </div>
+                    <div class="col-sm-4 form-group has-warning has-feedback">
+                        <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    </div>
+                    <div class="col-sm-4 form-group has-error has-feedback">
+                        <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button type="submit" class="btn btn-success">Get Your Time!</button>
+                    </div>
+                </div>
+            </form>
+
+
+            <br>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+
+                    {% for message in messages %}
+                        {% if "Error" not in message[1] %}
+                            <div class="alert alert-info">
+                                <strong>Success! </strong> {{ message[1] }}
+                            </div>
+                        {% endif %}
+
+                        {% if "Error" in message[1] %}
+                            <div class="alert alert-warning">
+                                {{ message[1] }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <br>
+
+        </div>
+        <div class="col-sm-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">Peter Reigel Marathon Prediction Algorithm</div>
+                <div class="panel-body">
+                    <p>
+                        The formulas and their predicted times are shown below
+                    </p>
+                    <p>
+                        {% if peter_reigel != 0 %}
+                            Peter Reigel Prediction: {{ peter_reigel }} <br>
+                        {% endif %}
+                        {% if andrew_vickers != 0 %}
+                            Andrew Vickers Prediction: {{ andrew_vickers }} <br>
+                        {% endif %}
+                        {% if dave_cameron != 0 %}
+                            Dave Cameron Prediction: {{ dave_cameron }} <br>
+                        {% endif %}
+                    </p>
+                    <p>
+                        {% if average != 0%}
+                            Average Prediction: {{ average }}
+                        {% endif %}
+                    </p>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <svg width="1100" height="600"></svg>
+            <script src="https://d3js.org/d3.v4.min.js"></script>
+            <script>
+
+                var svg = d3.select("svg"),
+                    margin = {top: 20, right: 20, bottom: 30, left: 40},
+                    width = +svg.attr("width") - margin.left - margin.right,
+                    height = +svg.attr("height") - margin.top - margin.bottom;
+
+                var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+                    y = d3.scaleLinear().rangeRound([height, 0]);
+
+                var g = svg.append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                d3.tsv("/static/data.tsv", function(d) {
+                    d.pace = +d.pace;
+                    d.kilometre = +d.kilometre;
+                    return d;
+                }, function(error, data) {
+                    if (error) throw error;
+
+                    x.domain(data.map(function(d) { return d.kilometre; }));
+                    y.domain([0, d3.max(data, function(d) { return d.pace; })]);
+
+                    g.append("g")
+                        .attr("class", "axis axis--x")
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(d3.axisBottom(x));
+
+                    g.append("g")
+                        .attr("class", "axis axis--y")
+                        .call(d3.axisLeft(y))
+                        .append("text")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 6)
+                        .attr("dy", "0.71em")
+                        .attr("text-anchor", "end")
+                        .text("Pace");
+
+                    g.selectAll(".bar")
+                        .data(data)
+                        .enter().append("rect")
+                        .attr("class", "bar")
+                        .attr("height", 0)
+                        .attr("y", height)
+                        .transition().duration(1000)
+                        .delay(function(d, i) {return i * 50;})
+                        .attr("x", function(d) { return x(d.kilometre); })
+                        .attr("y", function(d) { return y(d.pace); })
+
+                        .attr("width", x.bandwidth())
+                        .attr("height", function(d) { return height - y(d.pace); })
+
+                });
+
+            </script>
+
+
+        </div>
+    </div>
+    <br><br>
+</div>
 
 </body>
 </html>

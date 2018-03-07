@@ -9,8 +9,11 @@ from decimal import getcontext, Decimal
 import pygal
 import math
 import datetime
+import csv
+import tsv
 
 app = Flask(__name__)
+#app.static_url_path='/static'
 # app.config['GOOGLEMAPS_KEY'] = "AIzaSyBUV6YEpG7xjxJ8s9ZjIZP8A56L4TxAK7k"
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyCiforLtPDvDY3WzkKeWc2ykgR_Aw9rYk0"
 GoogleMaps(app)
@@ -53,7 +56,6 @@ class UserActivities(db.Model):
     activity_moving_time = db.Column(db.String(32))
     average_speed = db.Column(db.String(32))
     max_speed = db.Column(db.String(32))
-
 
 
 class ReusableForm(Form):
@@ -116,6 +118,7 @@ def response_url():
     check_code = athlete_access_token
     check_access_token = AccessTokens.query.filter_by(access_token=check_code).first()
     if not check_access_token:
+        print(client.get_athlete().email)
         signature = AccessTokens(athlete_id=str(athlete.id), access_token=athlete_access_token,
                                  email_address=client.get_athlete().email)
         db.session.add(signature)
@@ -123,13 +126,13 @@ def response_url():
         resp = make_response(render_template("response_url.html", athlete_access_token=athlete_access_token, athlete=athlete,
                                              athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile,
                                              last_activity_id=last_activity()))
-        resp.set_cookie('athlete_id', str(athlete.id))
+        resp.set_cookie('athlete_id', str(athlete.id), expires=datetime.datetime.now()+datetime.timedelta(days=365))
         return resp
     else:
         resp = make_response(render_template("return_user.html", athlete_access_token=athlete_access_token, athlete=athlete,
                                              athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile,
                                              last_activity_id=last_activity()))
-        resp.set_cookie('athlete_id', str(athlete.id))
+        resp.set_cookie('athlete_id', str(athlete.id), expires=datetime.datetime.now()+datetime.timedelta(days=365))
         return resp
 
 
@@ -140,26 +143,34 @@ def summary():
     else:
         for activity in client.get_activities(before=datetime.datetime.now(),
                                               after=client.get_athlete().created_at, limit=None):
-            signature = UserActivities(athlete_id=client.get_athlete().id, activity_id=activity.id,
-                                       activity_type=activity.type, date=activity.start_date, distance=activity.distance.__str__(),
-                                       activity_moving_time=activity.moving_time, average_speed=activity.average_speed.__str__(),
-                                       max_speed=activity.max_speed.__str__())
-            db.session.add(signature)
-            db.session.commit()
+            activity_present = UserActivities.query.filter_by(activity_id=activity).first()
 
-        first_activity = UserActivities.query.order_by(UserActivities.date).first()
-        print(first_activity)
-        total_rides = UserActivities.query.filter_by(activity_type='ride').count()
-        total_runs = UserActivities.query.filter_by(activity_type='run').count()
+            if activity_present:
+                db.session.commit()
+            else:
+                signature = UserActivities(athlete_id=client.get_athlete().id, activity_id=activity.id,
+                                           activity_type=activity.type, date=activity.start_date,
+                                           distance=activity.distance.__str__(),
+                                           activity_moving_time=activity.moving_time,
+                                           average_speed=activity.average_speed.__str__(),
+                                           max_speed=activity.max_speed.__str__())
+                db.session.add(signature)
+                db.session.commit()
 
+        UserActivities.query.filter_by(athlete_id=client.get_athlete().id)
+        first_activity = UserActivities.query.filter_by(athlete_id=client.get_athlete().id).order_by(UserActivities.date).first()
+        total_rides = UserActivities.query.filter_by(activity_type='ride', athlete_id=client.get_athlete().id).count()
+        total_runs = UserActivities.query.filter_by(activity_type='run', athlete_id=client.get_athlete().id).count()
+
+        print('first activity: ', first_activity)
         pie_chart = pygal.Pie()  # Then create a bar graph object
         pie_chart.add('Rides', total_rides)  # Add some values
         pie_chart.add('Runs', total_runs)  # Add some values
         pie_chart = pie_chart.render_data_uri()
         return render_template("summary.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats(),
                                last_ten_rides=last_ten_rides(), athlete_profiler=client.get_athlete().profile,
-                               pie_chart=pie_chart, first_activity=first_activity, activities_2017=activities_2017(),
-                               activities_2018=activities_2018())
+                               pie_chart=pie_chart, first_activity=first_activity,
+                               activities_2017=activities_2017(), activities_2018=activities_2018())
 
 
 # If the user has already authorized the application this is the page that will be returned (instead of response_url).
@@ -260,38 +271,44 @@ def marathon():
             distance_run = race_distances(race_type)
             time_run = get_sec(hours, minutes, seconds)
 
-            kilometer__minute = (distance_run / (time_run/60))
             try:
-                pace = Speed(kilometer__minute=(distance_run / (time_run/60)))
+                pace = get_running_speed(distance_run, time_run)
             except ZeroDivisionError:
                 pace = 0
-            kilometer = Decimal(1)/Decimal(kilometer__minute)
-            kilometres_per_minute = sec_to_time(get_sec(0, Decimal(1)/Decimal(kilometer__minute), 0))
 
-            line_chart = pygal.Line()  # Then create a bar graph object
-            line_chart.add('Fibonacci', [kilometer, kilometer, kilometer, kilometer, kilometer, kilometer, kilometer,
-                                         kilometer, kilometer, kilometer, kilometer])  # Add some values
-            line_chart.x_labels = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2']
-            line_chart = line_chart.render_data_uri()
+            kilometer__minute = get_kms_per_minute(distance_run, time_run)
+            kilometres_per_minute = sec_to_time(get_sec(0, kilometer__minute, 0))
 
-            bar_chart = pygal.Bar()
-            bar_chart.add('Fibonacci', [kilometer, kilometer, kilometer, kilometer, kilometer, kilometer, kilometer,
-                                        kilometer, kilometer, kilometer, kilometer])  # Add some values
-            bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
-            bar_chart = bar_chart.render_data_uri()
+            # line_chart = pygal.Line()  # Then create a bar graph object
+            # line_chart.add('Fibonacci', [kilometer, kilometer, kilometer, kilometer, kilometer, kilometer, kilometer,
+            #                              kilometer, kilometer, kilometer, kilometer])  # Add some values
+            # line_chart.x_labels = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2']
+            # line_chart = line_chart.render_data_uri()
+            #
+            # bar_chart = pygal.Bar()
+            # bar_chart.add('Fibonacci', [kilometer, kilometer, kilometer, kilometer, kilometer, kilometer, kilometer,
+            #                             kilometer, kilometer, kilometer, kilometer])  # Add some values
+            # bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
+            # bar_chart = bar_chart.render_data_uri()
 
         else:
             flash('Error: You are required to enter a distance. ')
 
         return render_template("marathon.html", bar_chart=bar_chart, line_chart=line_chart, form=form, hours=hours,
                                minutes=minutes, seconds=seconds, pace=pace, kilometres_per_minute=kilometres_per_minute,
-                               kilometer=kilometer)
+                               kilometer__minute=kilometer__minute)
     else:
         return render_template("marathon.html", bar_chart=bar_chart, line_chart=line_chart, form=form)
 
 
-def get_pace(distance, time):
-    pace = time/(distance*1000)
+def get_kms_per_minute(distance, time):
+    kilometer = (distance/ (time / 60))
+    kms_per_minute = Decimal(1)/Decimal(kilometer)
+    return kms_per_minute
+
+
+def get_running_speed(distance, time):
+    pace = (distance*1000) / (time)
     return pace
 
 
@@ -318,9 +335,7 @@ def peter_reigel_predictor():
 
             # Save the comment here.
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
-            distance_run = race_distances(race_type)
-            time_run = get_sec(hours, minutes, seconds)
-            predicted_marathon_time = sec_to_time(time_run * (42.195 / distance_run)**1.06)
+            predicted_marathon_time = sec_to_time(peter_reigel_formula(race_type, hours, minutes, seconds))
         else:
             flash('Error: You are required to enter a distance. ')
 
@@ -383,9 +398,7 @@ def andrew_vickers_half_marathon():
             print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
 
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
-            distance_run = race_distances(race_type)
-            time_run = get_sec(hours, minutes, seconds)
-            predicted_marathon_time = sec_to_time(time_run * 2.19)
+            predicted_marathon_time = sec_to_time(andrew_vickers_formula(race_type, hours, minutes, seconds))
         else:
             flash('Error: You are required to enter a distance. ')
 
@@ -393,10 +406,99 @@ def andrew_vickers_half_marathon():
                            predicted_marathon_time=predicted_marathon_time)
 
 
+def peter_reigel_formula(race_type, hours, minutes, seconds):
+    distance_run = race_distances(race_type)
+    time_run = get_sec(hours, minutes, seconds)
+    time = time_run * (42.195 / distance_run) ** 1.06
+    return time
+
+
+def andrew_vickers_formula(race_type, hours, minutes, seconds):
+    time_run = get_sec(hours, minutes, seconds)
+    time = time_run * 2.19
+    return time
+
+
+def dave_cameron_formula(race_type, hours, minutes, seconds):
+    distance_run = race_distances(race_type)
+    distance_run = distance_run * 1000
+    time_run = get_sec(hours, minutes, seconds)
+    a = 13.49681 - (0.000030363 * distance_run) + (835.7114 / (distance_run ** 0.7905))
+    b = 13.49681 - (0.000030363 * (42.195 * 1000)) + (835.7114 / ((42.195 * 1000) ** 0.7905))
+    time = (time_run / distance_run) * (a / b) * (42.195 * 1000)
+    return time
+
+
 @app.route('/marathon/hansons_marathon_method/', methods=['GET', 'POST'])
 def hansons_marathon_method():
+    form = ReusableForm(request.form)
+    average = 0
+    andrew_vickers = 0
+    dave_cameron = 0
+    peter_reigel = 0
+    pace=0
+    #
 
-    return render_template("hansons_marathon_method.html")
+    # writer = tsv.TsvWriter(
+    #     open("C:/Users/Greg Sloggett/Dropbox/FinalYearProject/FYP_Project_Folder/static/data.tsv", "w"))
+    #
+    # i = 0
+    # while i < 43:
+    #     if i == 0:
+    #         writer.line("kilometre   pacing")
+    #     else:
+    #         writer.line(i, "    7")
+    #     i += 1
+    #
+    # writer.close()
+
+    # reader = tsv.TsvReader(open("C:/Users/Greg Sloggett/Dropbox/FinalYearProject/FYP_Project_Folder/static/data.tsv"))
+    # for parts in reader:
+    #     # Here parts is a list of strings, one per tab-separated column.
+    #     # Make sure you handle not having enough fields, or not being able to
+    #     # parse numbers where you expect them.
+    #
+    #     print("Record with fields: {}".format(parts))
+
+    if request.method == 'POST':
+        if form.validate():
+            race_type = request.form['race_length']
+            hours = request.form['race_time_hours']
+            if hours == '':
+                hours = 0
+            minutes = request.form['race_time_minutes']
+            if minutes == '':
+                minutes = 0
+            seconds = request.form['race_time_seconds']
+            if seconds == '':
+                seconds = 0
+
+            print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
+
+            distance_run = race_distances(race_type)
+
+            peter_reigel = peter_reigel_formula(race_type, hours, minutes, seconds)
+            dave_cameron = dave_cameron_formula(race_type, hours, minutes, seconds)
+            if distance_run == 21.098:
+                andrew_vickers = andrew_vickers_formula(race_type, hours, minutes, seconds)
+                average = (peter_reigel + andrew_vickers + dave_cameron)/3
+            else:
+                average = (peter_reigel + dave_cameron)/2
+
+            average = sec_to_time(average)
+            peter_reigel = sec_to_time(peter_reigel)
+            dave_cameron = sec_to_time(dave_cameron)
+            andrew_vickers = sec_to_time(andrew_vickers)
+
+            time_run = get_sec(hours, minutes, seconds)
+
+            pace = get_kms_per_minute(distance_run, time_run)
+
+        else:
+            flash('Error: You are required to enter a distance. ')
+
+    return render_template("hansons_marathon_method.html", form=form, average=average, andrew_vickers=andrew_vickers,
+                           dave_cameron=dave_cameron, peter_reigel=peter_reigel)
 
 
 @app.route('/about/', methods=['GET', 'POST'])
@@ -442,12 +544,8 @@ def dave_cameron_predictor():
             print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
 
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
-            distance_run = race_distances(race_type)
-            distance_run = distance_run * 1000
-            time_run = get_sec(hours, minutes, seconds)
-            a = 13.49681 - (0.000030363 * distance_run) + (835.7114 / (distance_run ** 0.7905))
-            b = 13.49681 - (0.000030363 * (42.195 * 1000)) + (835.7114 / ((42.195*1000) ** 0.7905))
-            predicted_marathon_time = sec_to_time((time_run / distance_run) * (a / b) * (42.195*1000))
+
+            predicted_marathon_time = sec_to_time(dave_cameron_formula(race_type, hours, minutes, seconds))
 
         else:
             flash('Error: You are required to enter a distance. ')
