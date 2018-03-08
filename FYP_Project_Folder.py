@@ -12,6 +12,7 @@ import datetime
 import csv
 import tsv
 import random
+import os.path
 
 app = Flask(__name__)
 #app.static_url_path='/static'
@@ -21,7 +22,7 @@ GoogleMaps(app)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-#
+# #
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="GregorySloggett",
     password="Xavi6legend",
@@ -450,7 +451,8 @@ def hansons_marathon_method():
     #     i += 1
 
 
-    with open("/static/data.csv", 'w', newline='') as csvfile:
+
+    with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
 
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
