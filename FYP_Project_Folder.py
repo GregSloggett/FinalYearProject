@@ -20,18 +20,18 @@ app = Flask(__name__)
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyCiforLtPDvDY3WzkKeWc2ykgR_Aw9rYk0"
 GoogleMaps(app)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # #
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="GregorySloggett",
-    password="Xavi6legend",
-    hostname="GregorySloggett.mysql.pythonanywhere-services.com",
-    databasename="GregorySloggett$access_tokens",
-)
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+#     username="GregorySloggett",
+#     password="Xavi6legend",
+#     hostname="GregorySloggett.mysql.pythonanywhere-services.com",
+#     databasename="GregorySloggett$access_tokens",
+# )
+# app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+# app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.config.update(dict(
     SECRET_KEY="powerful secretkey",
@@ -440,38 +440,6 @@ def hansons_marathon_method():
     peter_reigel = 0
     pace=0
 
-    # writer = csv.writer(open("C:/Users/Greg Sloggett/Dropbox/FinalYearProject/FYP_Project_Folder/static/data.csv", "w"))
-    #
-    # i = 0
-    # while(i<43):
-    #     if(i==0):
-    #         writer.write('kilometre pacing')
-    #     else:
-    #         writer.write("{}    7".format(i))
-    #     i += 1
-
-
-
-    with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
-
-        spamwriter = csv.writer(csvfile, delimiter=' ',
-                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        i = 0
-        while (i < 43):
-            if (i == 0):
-                spamwriter.writerow(['kilometre,pace'])
-            else:
-                spamwriter.writerow(['{},{}'.format(i,random.randrange(0, 7))])
-            i+=1
-
-    # reader = tsv.TsvReader(open("C:/Users/Greg Sloggett/Dropbox/FinalYearProject/FYP_Project_Folder/static/data.csv"))
-    # for parts in reader:
-    #     # Here parts is a list of strings, one per tab-separated column.
-    #     # Make sure you handle not having enough fields, or not being able to
-    #     # parse numbers where you expect them.
-    #
-    #     print("Record with fields: {}".format(parts))
-
     if request.method == 'POST':
         if form.validate():
             race_type = request.form['race_length']
@@ -505,6 +473,20 @@ def hansons_marathon_method():
             time_run = get_sec(hours, minutes, seconds)
 
             pace = get_kms_per_minute(distance_run, time_run)
+
+            with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
+            # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w', newline='') as csvfile:
+
+                spamwriter = csv.writer(csvfile, delimiter=' ',
+                                        quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                i = 0
+                while (i < 43):
+                    if (i == 0):
+                        spamwriter.writerow(['kilometre,pace'])
+                    else:
+                        spamwriter.writerow(['{},{}'.format(i, pace)])
+                    i += 1
+
 
         else:
             flash('Error: You are required to enter a distance. ')
