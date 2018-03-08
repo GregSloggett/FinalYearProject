@@ -11,6 +11,7 @@ import math
 import datetime
 import csv
 import tsv
+import random
 
 app = Flask(__name__)
 #app.static_url_path='/static'
@@ -20,7 +21,7 @@ GoogleMaps(app)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+#
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="GregorySloggett",
     password="Xavi6legend",
@@ -437,22 +438,31 @@ def hansons_marathon_method():
     dave_cameron = 0
     peter_reigel = 0
     pace=0
-    #
 
-    # writer = tsv.TsvWriter(
-    #     open("C:/Users/Greg Sloggett/Dropbox/FinalYearProject/FYP_Project_Folder/static/data.tsv", "w"))
+    # writer = csv.writer(open("C:/Users/Greg Sloggett/Dropbox/FinalYearProject/FYP_Project_Folder/static/data.csv", "w"))
     #
     # i = 0
-    # while i < 43:
-    #     if i == 0:
-    #         writer.line("kilometre   pacing")
+    # while(i<43):
+    #     if(i==0):
+    #         writer.write('kilometre pacing')
     #     else:
-    #         writer.line(i, "    7")
+    #         writer.write("{}    7".format(i))
     #     i += 1
-    #
-    # writer.close()
 
-    # reader = tsv.TsvReader(open("C:/Users/Greg Sloggett/Dropbox/FinalYearProject/FYP_Project_Folder/static/data.tsv"))
+
+    with open("C:/Users/Greg Sloggett/Dropbox/FinalYearProject/FYP_Project_Folder/static/data.csv", 'w', newline='') as csvfile:
+
+        spamwriter = csv.writer(csvfile, delimiter=' ',
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        i = 0
+        while (i < 43):
+            if (i == 0):
+                spamwriter.writerow(['kilometre,pace'])
+            else:
+                spamwriter.writerow(['{},{}'.format(i,random.randrange(0, 7))])
+            i+=1
+
+    # reader = tsv.TsvReader(open("C:/Users/Greg Sloggett/Dropbox/FinalYearProject/FYP_Project_Folder/static/data.csv"))
     # for parts in reader:
     #     # Here parts is a list of strings, one per tab-separated column.
     #     # Make sure you handle not having enough fields, or not being able to

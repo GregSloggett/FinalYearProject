@@ -217,7 +217,7 @@
                 var g = svg.append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                d3.tsv("/static/data.tsv", function(d) {
+                d3.csv("/static/data.csv", function(d) {
                     d.pace = +d.pace;
                     d.kilometre = +d.kilometre;
                     return d;
