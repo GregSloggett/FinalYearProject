@@ -450,7 +450,7 @@ def hansons_marathon_method():
     #     i += 1
 
 
-    with open("C:/Users/Greg Sloggett/Dropbox/FinalYearProject/FYP_Project_Folder/static/data.csv", 'w', newline='') as csvfile:
+    with open("/static/data.csv", 'w', newline='') as csvfile:
 
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
