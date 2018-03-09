@@ -1,4 +1,3 @@
-import resp as resp
 from flask import Flask, render_template, request, make_response, redirect, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.testing.pickleable import User
@@ -12,17 +11,12 @@ import pygal
 import math
 import datetime
 import csv
-import tsv
-import random
-import os.path
-from flaskext.versioned import Versioned
 
 app = Flask(__name__)
 #app.static_url_path='/static'
 # app.config['GOOGLEMAPS_KEY'] = "AIzaSyBUV6YEpG7xjxJ8s9ZjIZP8A56L4TxAK7k"
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyCiforLtPDvDY3WzkKeWc2ykgR_Aw9rYk0"
 GoogleMaps(app)
-versioned = Versioned(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
