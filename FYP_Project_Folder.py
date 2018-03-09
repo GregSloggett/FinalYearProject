@@ -1,8 +1,10 @@
+import resp as resp
 from flask import Flask, render_template, request, make_response, redirect, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.testing.pickleable import User
 from stravalib.client import Client
 from flask_googlemaps import GoogleMaps, Map
+from urllib3 import response
 from wtforms import Form, StringField, PasswordField, BooleanField, SubmitField, IntegerField, TextField, validators
 from measurement.measures import Speed, Time
 from decimal import getcontext, Decimal
@@ -13,25 +15,27 @@ import csv
 import tsv
 import random
 import os.path
+from flaskext.versioned import Versioned
 
 app = Flask(__name__)
 #app.static_url_path='/static'
 # app.config['GOOGLEMAPS_KEY'] = "AIzaSyBUV6YEpG7xjxJ8s9ZjIZP8A56L4TxAK7k"
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyCiforLtPDvDY3WzkKeWc2ykgR_Aw9rYk0"
 GoogleMaps(app)
+versioned = Versioned(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # #
-# SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-#     username="GregorySloggett",
-#     password="Xavi6legend",
-#     hostname="GregorySloggett.mysql.pythonanywhere-services.com",
-#     databasename="GregorySloggett$access_tokens",
-# )
-# app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-# app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+    username="GregorySloggett",
+    password="Xavi6legend",
+    hostname="GregorySloggett.mysql.pythonanywhere-services.com",
+    databasename="GregorySloggett$access_tokens",
+)
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.config.update(dict(
     SECRET_KEY="powerful secretkey",
@@ -474,8 +478,9 @@ def hansons_marathon_method():
 
             pace = get_kms_per_minute(distance_run, time_run)
 
-            with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
-            # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w', newline='') as csvfile:
+            # with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
+            with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w',
+                      newline='') as csvfile:
 
                 spamwriter = csv.writer(csvfile, delimiter=' ',
                                         quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -492,7 +497,7 @@ def hansons_marathon_method():
             flash('Error: You are required to enter a distance. ')
 
     return render_template("hansons_marathon_method.html", form=form, average=average, andrew_vickers=andrew_vickers,
-                           dave_cameron=dave_cameron, peter_reigel=peter_reigel)
+                       dave_cameron=dave_cameron, peter_reigel=peter_reigel)
 
 
 @app.route('/about/', methods=['GET', 'POST'])
@@ -583,6 +588,12 @@ def daniels_gilbert_vo2_max():
             flash('Error: You are required to enter a distance. ')
 
     return render_template("daniels_gilbert_vo2_max.html", form=form, vo2max=vo2max)
+
+
+@app.route('/index', methods=['GET', 'POST'])
+def index():
+
+    return render_template("index.html")
 
 
 def activities_2018():
