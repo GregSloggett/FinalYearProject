@@ -18,9 +18,12 @@ app = Flask(__name__)
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyCiforLtPDvDY3WzkKeWc2ykgR_Aw9rYk0"
 GoogleMaps(app)
 
+# local db
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-#
+
+# server db
+
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="GregorySloggett",
     password="Xavi6legend",
@@ -136,21 +139,52 @@ def response_url():
         return resp
 
 
-@app.route('/summary/', methods=['GET', 'POST'])
-def summary():
+@app.route('/activities/', methods=['GET', 'POST'])
+def activities():
+    activities = []
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
         for activity in client.get_activities(before=datetime.datetime.now(),
                                               after=client.get_athlete().created_at, limit=None):
-            activity_present = UserActivities.query.filter_by(activity_id=activity).first()
+            activity_data = len(activities)+1, u'{0.id}'.format(activity), u'{0.name}'.format(activity), u'{0.distance}'.format(activity)
+            activities.append(activity_data)
+
+        return render_template("activities.html", activities=activities)
+
+
+@app.route('/summary/', methods=['GET', 'POST'])
+def summary():
+    activities = []
+    total_activity_distance = 0
+    running_distance = 0
+    cycling_distance = 0
+    other_activity_distance = 0
+    if check_for_cookie() is False:
+        return render_template("homepage.html")
+    else:
+        for activity in client.get_activities(before=datetime.datetime.now(),
+                                              after=client.get_athlete().created_at, limit=None):
+            activities.append(activity)
+            total_activity_distance += convert_distance_to_integer(activity.distance.__str__())
+
+            if activity.type == 'Run':
+                running_distance += convert_distance_to_integer(activity.distance.__str__())
+            elif activity.type == 'Ride':
+                cycling_distance += convert_distance_to_integer(activity.distance.__str__())
+            else:
+                other_activity_distance += convert_distance_to_integer(activity.distance.__str__())
+
+            activity_present = UserActivities.query.filter_by(activity_id=activity.id).first()
 
             if activity_present:
                 db.session.commit()
+                print('already present')
             else:
+                print('not present')
                 signature = UserActivities(athlete_id=client.get_athlete().id, activity_id=activity.id,
                                            activity_type=activity.type, date=activity.start_date,
-                                           distance=activity.distance.__str__(),
+                                           distance=convert_distance_to_integer(activity.distance.__str__()),
                                            activity_moving_time=activity.moving_time,
                                            average_speed=activity.average_speed.__str__(),
                                            max_speed=activity.max_speed.__str__())
@@ -159,18 +193,113 @@ def summary():
 
         UserActivities.query.filter_by(athlete_id=client.get_athlete().id)
         first_activity = UserActivities.query.filter_by(athlete_id=client.get_athlete().id).order_by(UserActivities.date).first()
-        total_rides = UserActivities.query.filter_by(activity_type='ride', athlete_id=client.get_athlete().id).count()
-        total_runs = UserActivities.query.filter_by(activity_type='run', athlete_id=client.get_athlete().id).count()
 
-        print('first activity: ', first_activity)
-        pie_chart = pygal.Pie()  # Then create a bar graph object
-        pie_chart.add('Rides', total_rides)  # Add some values
-        pie_chart.add('Runs', total_runs)  # Add some values
-        pie_chart = pie_chart.render_data_uri()
+        pie_chart = total_activities_pie_chart()
+        distances_run = distances_ran(activities)
+
+        write_distances_csv(distances_run)
+
         return render_template("summary.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats(),
                                last_ten_rides=last_ten_rides(), athlete_profiler=client.get_athlete().profile,
                                pie_chart=pie_chart, first_activity=first_activity,
-                               activities_2017=activities_2017(), activities_2018=activities_2018())
+                               activities_2017=activities_2017(), activities_2018=activities_2018(),
+                               total_activity_distance=total_activity_distance, running_distance=running_distance,
+                               cycling_distance=cycling_distance, other_activity_distance=other_activity_distance)
+
+
+def write_distances_csv(distances_run):
+    five_k = 0
+    ten_k = 0
+    three_k = 0
+    one_five_k = 0
+    four_k = 0
+    five_m = 0
+    ten_m = 0
+    half = 0
+    marathon = 0
+
+    for id, distance in distances_run.items():
+        if distance == "5K":
+            five_k += 1
+        elif distance == "10K":
+            ten_k += 1
+        elif distance == "3K":
+            three_k += 1
+        elif distance == "1.5K":
+            one_five_k += 1
+        elif distance == "4K":
+            four_k += 1
+        elif distance == "5M":
+            five_m += 1
+        elif distance == "10M":
+            ten_m += 1
+        elif distance == "Half":
+            half += 1
+        elif distance == "Marathon":
+            marathon += 1
+
+    with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\distances.csv", 'w',
+              newline='') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter=' ',
+                                quotechar='', quoting=csv.QUOTE_NONE)
+
+        spamwriter.writerow(['letter,frequency'])
+        spamwriter.writerow(['1.5K,{}'.format(one_five_k)])
+        spamwriter.writerow(['3K,{}'.format(three_k)])
+        spamwriter.writerow(['4K,{}'.format(four_k)])
+        spamwriter.writerow(['5K,{}'.format(five_k)])
+        spamwriter.writerow(['5M,{}'.format(five_m)])
+        spamwriter.writerow(['10K,{}'.format(ten_k)])
+        spamwriter.writerow(['10M,{}'.format(ten_m)])
+        spamwriter.writerow(['Half-Marathon,{}'.format(half)])
+        spamwriter.writerow(['Marathon,{}'.format(marathon)])
+
+
+def convert_distance_to_integer(string_distance):
+    dist, redundant = string_distance.split('.')
+    integer_distance = int(dist)
+    return integer_distance
+
+
+def distances_ran(activities):
+    distances = {}
+    for activity in activities:
+        if activity.type == 'Run':
+            distance = convert_distance_to_integer(activity.distance.__str__())
+            if 1400 < distance < 1600:
+                distances[activity.id] = "1.5K"
+            elif 2750 < distance < 3250:
+                distances[activity.id] = "3K"
+            elif 3750 < distance < 4250:
+                distances[activity.id] = "4K"
+            elif 4500 < distance < 5500:
+                distances[activity.id] = "5K"
+            elif 7750 < distance < 8250:
+                distances[activity.id] = "5M"
+            elif 9500 < distance < 10500:
+                distances[activity.id] = "10K"
+            elif 15750 < distance < 16250:
+                distances[activity.id] = "10M"
+            elif 20500 < distance < 21500:
+                distances[activity.id] = "Half"
+            elif 41000 < distance < 43000:
+                distances[activity.id] = "Marathon"
+    return distances
+
+
+def total_activities_pie_chart():
+    total_rides = UserActivities.query.filter_by(activity_type='ride', athlete_id=client.get_athlete().id).count()
+    total_runs = UserActivities.query.filter_by(activity_type='run', athlete_id=client.get_athlete().id).count()
+    total_swims = UserActivities.query.filter_by(activity_type='swim', athlete_id=client.get_athlete().id).count()
+    total_ski = UserActivities.query.filter_by(activity_type='alpineski', athlete_id=client.get_athlete().id).count()
+
+    pie_chart = pygal.Pie()  # Then create a bar graph object
+    pie_chart.add('Rides', total_rides)  # Add some values
+    pie_chart.add('Runs', total_runs)  # Add some values
+    pie_chart.add('Swims', total_swims)
+    pie_chart.add('Skis', total_ski)
+    pie_chart = pie_chart.render_data_uri()
+    return pie_chart
 
 
 # If the user has already authorized the application this is the page that will be returned (instead of response_url).
@@ -192,34 +321,27 @@ def activity(activity_id):
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
+        dist_alt = client.get_activity_streams(activity_id=activity_id, types=['distance', 'altitude'],
+                                               resolution='high')
 
-        dist_time = client.get_activity_streams(activity_id=activity_id, types=['distance', 'time'],
-                                                resolution='medium')
-        elevation = client.get_activity_streams(activity_id=activity_id, types=['elevation'],
-                                                resolution='medium')
-        times = []
-        distances = []
-        count = 0
-        check_count = 0
-        for each in dist_time['distance'].data:
+        with open("/home/GregorySloggett/FinalYearProject/static/altitude.csv", 'w', newline='') as csvfile:
+        # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\altitude.csv", 'w', newline='') as csvfile:
+            spamwriter = csv.writer(csvfile, delimiter=' ',
+                                    quotechar='', quoting=csv.QUOTE_NONE)
 
-            # if each % 1000 <= 5:
-            times.append(dist_time['time'].data[count])
-            distances.append(dist_time['distance'].data[count])
-            count += 1
+            spamwriter.writerow(['distance,altitude'])
 
-    line_chart = pygal.Line()  # Then create a bar graph object
-    # line_chart.x_labels = ['0', '1000', '2000', '3000', str(distances[-1])]
-    line_chart.add('Distance', distances)  # Add some values
-    line_chart.add('Time', times)  # Add some values
-    line_chart = line_chart.render_data_uri()
+            count = 0
+            for each in dist_alt['distance'].data:
+                spamwriter.writerow(['{},{}'.format(dist_alt['distance'].data[count], dist_alt['altitude'].data[count])])
+                count += 1
 
     return render_template("activity.html", athlete=client.get_athlete(),
                            athlete_profiler=client.get_athlete().profile,
                            activity_data=client.get_activity(activity_id=activity_id, include_all_efforts=True),
                            athlete_stats=client.get_athlete_stats(),
                            streams=client.get_activity_streams(activity_id=activity_id, types=types,
-                                                               resolution='medium'), line_chart=line_chart)
+                                                               resolution='medium'))
 
 
 @app.route('/activity/<activity_id>/<activity_map>', methods=['GET', 'POST'])
@@ -472,9 +594,8 @@ def hansons_marathon_method():
 
             pace = get_kms_per_minute(distance_run, time_run)
 
-            # with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
-            with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w',
-                      newline='') as csvfile:
+            with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
+            # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w',newline='') as csvfile:
 
                 spamwriter = csv.writer(csvfile, delimiter=' ',
                                         quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -491,7 +612,7 @@ def hansons_marathon_method():
             flash('Error: You are required to enter a distance. ')
 
     return render_template("hansons_marathon_method.html", form=form, average=average, andrew_vickers=andrew_vickers,
-                       dave_cameron=dave_cameron, peter_reigel=peter_reigel)
+                           dave_cameron=dave_cameron, peter_reigel=peter_reigel)
 
 
 @app.route('/about/', methods=['GET', 'POST'])

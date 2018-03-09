@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="Cache-Control: private, no-cache, no-store, max-age=0, proxy-revalidate, s-maxage=0 "/>
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="Vary" content="*" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Two-column full width responsive layout</title>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
@@ -12,8 +16,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js" type="text/javascript"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.3.2/holder.min.js" type="text/javascript"></script>
-{#    <link rel="stylesheet" href="/static/d3.slider.css" />#}
-{#    <script src="/static/d3.slider.js"></script>#}
+    {#    <link rel="stylesheet" href="/static/d3.slider.css" />#}
+    {#    <script src="/static/d3.slider.js"></script>#}
     <style>
         .bar {
             fill: steelblue;
@@ -25,6 +29,41 @@
 
         .axis--x path {
             display: none;
+        }
+
+        .ticks {
+            font: 10px sans-serif;
+        }
+
+        .track,
+        .track-inset,
+        .track-overlay {
+            stroke-linecap: round;
+        }
+
+        .track {
+            stroke: #000;
+            stroke-opacity: 0.3;
+            stroke-width: 10px;
+        }
+
+        .track-inset {
+            stroke: #ddd;
+            stroke-width: 8px;
+        }
+
+        .track-overlay {
+            pointer-events: stroke;
+            stroke-width: 50px;
+            stroke: transparent;
+            cursor: crosshair;
+        }
+
+        .handle {
+            fill: #fff;
+            stroke: #000;
+            stroke-opacity: 0.5;
+            stroke-width: 1.25px;
         }
 
     </style>
@@ -141,7 +180,7 @@
                 <br>
                 <div class="row">
                     <div class="col-sm-12">
-                        <button type="submit" class="btn btn-success">Get Your Time!</button>
+                        <button onclick="redraw()" type="submit" class="btn btn-success">Get Your Time!</button>
                     </div>
                 </div>
             </form>
@@ -202,22 +241,33 @@
 
     <div class="row">
         <div class="col-sm-12">
-            <svg width="1100" height="600"></svg>
+            <svg width="1100" height="600" id="barChart"></svg>
             <script src="https://d3js.org/d3.v4.min.js"></script>
             <script>
 
-                var svg = d3.select("svg"),
-                    margin = {top: 20, right: 20, bottom: 30, left: 40},
-                    width = +svg.attr("width") - margin.left - margin.right,
-                    height = +svg.attr("height") - margin.top - margin.bottom;
+                {#                var url = "http://127.0.0.1:5000/marathon/hansons_marathon_method/";#}
+
+                var chart = d3.select("#barChart"),
+                    margin = {top: 20, right: 20, bottom: 60, left: 40},
+                    width = +chart.attr("width") - margin.left - margin.right,
+                    height = +chart.attr("height") - margin.top - margin.bottom;
+
+                var hx = d3.scaleLinear()
+                    .domain([0, 2])
+                    .range([0, width])
+                    .clamp(true);
 
                 var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
                     y = d3.scaleLinear().rangeRound([height, 0]);
 
-                var g = svg.append("g")
+                var bars = chart.append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                d3.csv("/static/data.csv", function(d) {
+                var slider = chart.append("g")
+                    .attr("class", "slider")
+                    .attr("transform", "translate(" + margin.left + "," + (height + margin.bottom) + ")");
+
+                d3.csv("/static/data.csv" + '?' + Math.floor(Math.random() * 1000), function(d) {
                     d.pace = +d.pace;
                     d.kilometre = +d.kilometre;
                     return d;
@@ -225,14 +275,14 @@
                     if (error) throw error;
 
                     x.domain(data.map(function(d) { return d.kilometre; }));
-                    y.domain([0, d3.max(data, function(d) { return d.pace; })]);
+                    y.domain([0, d3.max(data, function(d) { return d.pace; })+1]);
 
-                    g.append("g")
+                    bars.append("g")
                         .attr("class", "axis axis--x")
                         .attr("transform", "translate(0," + height + ")")
                         .call(d3.axisBottom(x));
 
-                    g.append("g")
+                    bars.append("g")
                         .attr("class", "axis axis--y")
                         .call(d3.axisLeft(y))
                         .append("text")
@@ -242,7 +292,7 @@
                         .attr("text-anchor", "end")
                         .text("Pace");
 
-                    g.selectAll(".bar")
+                    bars.selectAll(".bar")
                         .data(data)
                         .enter().append("rect")
                         .attr("class", "bar")
@@ -256,15 +306,63 @@
                         .attr("width", x.bandwidth())
                         .attr("height", function(d) { return height - y(d.pace); })
 
+
+                    slider.append("line")
+                        .attr("class", "track")
+                        .attr("x1", x.range()[0])
+                        .attr("x2", x.range()[1])
+                        .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+                        .attr("class", "track-inset")
+                        .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+                        .attr("class", "track-overlay")
+                        .call(d3.drag()
+                            .on("start.interrupt", function() { slider.interrupt(); })
+                            .on("start drag", function() { chart_colour(x.invert(d3.event.x)); }));
+
+
+
+                    slider.insert("g", ".track-overlay")
+                        .attr("class", "ticks")
+                        .attr("transform", "translate(0," + 18 + ")")
+                        .selectAll("text")
+                        .data(hx.ticks(10))
+                        .enter().append("text")
+                        .attr("x", hx)
+                        .attr("text-anchor", "middle")
+                        .text(function(d) {
+                            if (d > 1) {
+                                return "+" + d;
+                            } else if (d == 1){
+                                return 1;
+                            }else{
+                                return "-" + d
+                            }
+                        });
+
+                    slider.transition() // Gratuitous intro!
+                        .duration(750)
+                        .tween("chart_colour", function() {
+                            var i = d3.interpolate(0, 70);
+                            return function(t) { chart_colour(i(t)); };
+                        });
+
+                    var handle = slider.insert("circle", ".track-overlay")
+                        .attr("class", "handle")
+                        .attr("r", 9)
+                        .attr("transform", "translate(" + width/2 + ",0)");
+
+                    function chart_colour(h) {
+                        handle.attr("cx", x(h));
+                        chart.style("background-color", d3.hsl(h, 0.2, 1));
+                    }
+
                 });
 
             </script>
-
-
         </div>
     </div>
-    <br><br>
-</div>
 
+    <br><br><br><br><br><br><br>
+</div>
 </body>
 </html>
