@@ -1,368 +1,296 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="Cache-Control" content="Cache-Control: private, no-cache, no-store, max-age=0, proxy-revalidate, s-maxage=0 "/>
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <meta http-equiv="Vary" content="*" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Two-column full width responsive layout</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+{% extends "page_layout.html" %}
+
+{% block style %}
+    .bar {
+    fill: steelblue;
+    }
+
+    .bar:hover {
+    fill: brown;
+    }
+
+    .axis--x path {
+    display: none;
+    }
+
+    .ticks {
+    font: 10px sans-serif;
+    }
+
+    .track,
+    .track-inset,
+    .track-overlay {
+    stroke-linecap: round;
+    }
+
+    .track {
+    stroke: #000;
+    stroke-opacity: 0.3;
+    stroke-width: 10px;
+    }
+
+    .track-inset {
+    stroke: #ddd;
+    stroke-width: 8px;
+    }
+
+    .track-overlay {
+    pointer-events: stroke;
+    stroke-width: 50px;
+    stroke: transparent;
+    cursor: crosshair;
+    }
+
+    .handle {
+    fill: #fff;
+    stroke: #000;
+    stroke-opacity: 0.5;
+    stroke-width: 1.25px;
+    }
+{% endblock %}
 
 
-    <!-- Demo Dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js" type="text/javascript"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.3.2/holder.min.js" type="text/javascript"></script>
-    {#    <link rel="stylesheet" href="/static/d3.slider.css" />#}
-    {#    <script src="/static/d3.slider.js"></script>#}
-    <style>
-        .bar {
-            fill: steelblue;
-        }
+{% block body %}
 
-        .bar:hover {
-            fill: brown;
-        }
+    <body style="padding-top: 50px;">
 
-        .axis--x path {
-            display: none;
-        }
-
-        .ticks {
-            font: 10px sans-serif;
-        }
-
-        .track,
-        .track-inset,
-        .track-overlay {
-            stroke-linecap: round;
-        }
-
-        .track {
-            stroke: #000;
-            stroke-opacity: 0.3;
-            stroke-width: 10px;
-        }
-
-        .track-inset {
-            stroke: #ddd;
-            stroke-width: 8px;
-        }
-
-        .track-overlay {
-            pointer-events: stroke;
-            stroke-width: 50px;
-            stroke: transparent;
-            cursor: crosshair;
-        }
-
-        .handle {
-            fill: #fff;
-            stroke: #000;
-            stroke-opacity: 0.5;
-            stroke-width: 1.25px;
-        }
-
-    </style>
-
-</head>
-
-<body style="padding-top: 50px;">
-
-<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="../">
-                <span class="glyphicon glyphicon-chevron-left"></span>
-            </a>
-            <a class="navbar-brand" href="/">Strava Companion</a>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-left">
-                <li><a href="/">Home</a></li>
-                <li><a href="/summary/">Your Summary</a></li>
-                <li class="dropdown">
-                    <a href="/marathon/" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Marathon <span class="caret"></span></a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li class="dropdown-header" style="font-size: smaller"><b>Marathon Predictions</b></li>
-                        <li><a href="/marathon/peter_reigel_predictor/">Peter Riegel Predictor</a></li>
-                        <li><a href="/marathon/andrew_vickers_half_marathon/">Andrew Vickers Half Marathon</a></li>
-                        <li><a href="/marathon/dave_cameron_predictor/">Dave Cameron Predictor</a></li>
-                        <li><a href="/marathon/daniels_gilbert_vo2_max/">Daniel's & Gilbert's VO2 Max Estimate</a></li>
-                        <li><a href="/marathon/">Estimate Your Time</a></li>
-                        <li class="divider"></li>
-                        <li class="dropdown-header" style="font-size: smaller"><b>Pacing Planners</b></li>
-                        <li><a href="/marathon/hansons_marathon_method/">Hansons Marathon Method</a></li>
-                    </ul>
-                </li>
-                <li><a href="https://www.strava.com">Strava</a></li>
-                <li><a href="/about/">About</a></li>
-            </ul>
-
+    <div class="runner" style="background-image: url('/static/EveningRunFemale.jpeg')">
+        <div class="jumbotron" style="background-color: transparent">
+            <br><br><br><br>
         </div>
     </div>
-</div>
 
-<div class="runner" style="background-image: url('/static/EveningRunFemale.jpeg')">
-    <div class="jumbotron" style="background-color: transparent">
-        <br><br><br><br>
-    </div>
-</div>
+    <div class="container">
 
-<div class="container">
-
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="page-header">
-                <h2>Marathon Prediction - Multiple Formula</h2>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h2>Marathon Prediction - Multiple Formula</h2>
+                </div>
             </div>
         </div>
-    </div>
-    <br>
-    <div class="row">
-        <div class="col-sm-6">
-            <form  action="{{ url_for('hansons_marathon_method') }}" method="post" role="form">
-                {{ form.csrf }}
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="form-group has-success has-feedback">
-                            <label for="race_length">What's a race that you've recently run?</label>
+        <br>
+        <div class="row">
+            <div class="col-sm-6">
+                <form  action="{{ url_for('hansons_marathon_method') }}" method="post" role="form">
+                    {{ form.csrf }}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group has-success has-feedback">
+                                <label for="race_length">What's a race that you've recently run?</label>
 
-                            <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
-                                <option value="" disabled selected hidden>Select your distance.</option>
-                                <option value="Marathon" onclick="getRace()">Marathon</option>
-                                <option value="Half Marathon" onclick="getRace()">Half Marathon</option>
-                                <option value="10 Miler" onclick="getRace()">10 Miles</option>
-                                <option value="10 Kilometre" onclick="getRace()">10K</option>
-                                <option value="5 Miler" onclick="getRace()">5 Miles</option>
-                                <option value="5 Kilometre" onclick="getRace()">5K</option>
-                                <option value="3 Kilometre" onclick="getRace()">3K</option>
-                                <option value="Miler" onclick="getRace()">1 Mile</option>
-                                <option value="1500 Metre" onclick="getRace()">1500 Meters</option>
-                            </select>
+                                <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
+                                    <option value="" disabled selected hidden>Select your distance.</option>
+                                    <option value="Marathon" onclick="getRace()">Marathon</option>
+                                    <option value="Half Marathon" onclick="getRace()">Half Marathon</option>
+                                    <option value="10 Miler" onclick="getRace()">10 Miles</option>
+                                    <option value="10 Kilometre" onclick="getRace()">10K</option>
+                                    <option value="5 Miler" onclick="getRace()">5 Miles</option>
+                                    <option value="5 Kilometre" onclick="getRace()">5K</option>
+                                    <option value="3 Kilometre" onclick="getRace()">3K</option>
+                                    <option value="Miler" onclick="getRace()">1 Mile</option>
+                                    <option value="1500 Metre" onclick="getRace()">1500 Meters</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <script>
-                    function getRace() {
-                        var race_length = document.getElementById("race_length").value;
-                        document.getElementById("id1").innerHTML = "What time did you complete that " + race_length + " in?";
-                    }
-                </script>
+                    <script>
+                        function getRace() {
+                            var race_length = document.getElementById("race_length").value;
+                            document.getElementById("id1").innerHTML = "What time did you complete that " + race_length + " in?";
+                        }
+                    </script>
 
-                <div id="race_length_head1" class="row">
-                    <div id="race_length_head2" class="col-sm-12">
-                        <label id="id1">
-                            Duration:
-                        </label>
+                    <div id="race_length_head1" class="row">
+                        <div id="race_length_head2" class="col-sm-12">
+                            <label id="id1">
+                                Duration:
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4 form-group has-success has-feedback">
-                        <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    <div class="row">
+                        <div class="col-sm-4 form-group has-success has-feedback">
+                            <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        </div>
+                        <div class="col-sm-4 form-group has-warning has-feedback">
+                            <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        </div>
+                        <div class="col-sm-4 form-group has-error has-feedback">
+                            <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        </div>
                     </div>
-                    <div class="col-sm-4 form-group has-warning has-feedback">
-                        <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <button onclick="redraw()" type="submit" class="btn btn-success">Get Your Time!</button>
+                        </div>
                     </div>
-                    <div class="col-sm-4 form-group has-error has-feedback">
-                        <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
-                    </div>
-                </div>
+                </form>
+
+
                 <br>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <button onclick="redraw()" type="submit" class="btn btn-success">Get Your Time!</button>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+
+                        {% for message in messages %}
+                            {% if "Error" not in message[1] %}
+                                <div class="alert alert-info">
+                                    <strong>Success! </strong> {{ message[1] }}
+                                </div>
+                            {% endif %}
+
+                            {% if "Error" in message[1] %}
+                                <div class="alert alert-warning">
+                                    {{ message[1] }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <br>
+
+            </div>
+            <div class="col-sm-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">Peter Reigel Marathon Prediction Algorithm</div>
+                    <div class="panel-body">
+                        <p>
+                            The formulas and their predicted times are shown below
+                        </p>
+                        <p>
+                            {% if peter_reigel != 0 %}
+                                Peter Reigel Prediction: {{ peter_reigel }} <br>
+                            {% endif %}
+                            {% if andrew_vickers != 0 %}
+                                Andrew Vickers Prediction: {{ andrew_vickers }} <br>
+                            {% endif %}
+                            {% if dave_cameron != 0 %}
+                                Dave Cameron Prediction: {{ dave_cameron }} <br>
+                            {% endif %}
+                        </p>
+                        <p>
+                            {% if average != 0%}
+                                Average Prediction: {{ average }}
+                            {% endif %}
+                        </p>
+
+
                     </div>
-                </div>
-            </form>
-
-
-            <br>
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-
-                    {% for message in messages %}
-                        {% if "Error" not in message[1] %}
-                            <div class="alert alert-info">
-                                <strong>Success! </strong> {{ message[1] }}
-                            </div>
-                        {% endif %}
-
-                        {% if "Error" in message[1] %}
-                            <div class="alert alert-warning">
-                                {{ message[1] }}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            <br>
-
-        </div>
-        <div class="col-sm-6">
-            <div class="panel panel-info">
-                <div class="panel-heading">Peter Reigel Marathon Prediction Algorithm</div>
-                <div class="panel-body">
-                    <p>
-                        The formulas and their predicted times are shown below
-                    </p>
-                    <p>
-                        {% if peter_reigel != 0 %}
-                            Peter Reigel Prediction: {{ peter_reigel }} <br>
-                        {% endif %}
-                        {% if andrew_vickers != 0 %}
-                            Andrew Vickers Prediction: {{ andrew_vickers }} <br>
-                        {% endif %}
-                        {% if dave_cameron != 0 %}
-                            Dave Cameron Prediction: {{ dave_cameron }} <br>
-                        {% endif %}
-                    </p>
-                    <p>
-                        {% if average != 0%}
-                            Average Prediction: {{ average }}
-                        {% endif %}
-                    </p>
-
-
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-sm-12">
-            <svg width="1100" height="600" id="barChart"></svg>
-            <script src="https://d3js.org/d3.v4.min.js"></script>
-            <script>
+        <div class="row">
+            <div class="col-sm-12">
+                <svg width="100%" height="500px"></svg>
 
-                {#                var url = "http://127.0.0.1:5000/marathon/hansons_marathon_method/";#}
+                <script src="https://d3js.org/d3.v4.min.js"></script>
+                <script>
 
-                var chart = d3.select("#barChart"),
-                    margin = {top: 20, right: 20, bottom: 60, left: 40},
-                    width = +chart.attr("width") - margin.left - margin.right,
-                    height = +chart.attr("height") - margin.top - margin.bottom;
+                    // SETUP
+                    var svg = d3.select("svg"),
+                        margin = { top: 20, right: 20, bottom: 30, left: 40 },
+                        x = d3.scaleBand().padding(0.1),
+                        y = d3.scaleLinear(),
+                        theData = undefined;
 
-                var hx = d3.scaleLinear()
-                    .domain([0, 2])
-                    .range([0, width])
-                    .clamp(true);
+                    var g = svg.append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
-                    y = d3.scaleLinear().rangeRound([height, 0]);
+                    g.append("g")
+                        .attr("class", "axis axis--x");
 
-                var bars = chart.append("g")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                    g.append("g")
+                        .attr("class", "axis axis--y");
 
-                var slider = chart.append("g")
-                    .attr("class", "slider")
-                    .attr("transform", "translate(" + margin.left + "," + (height + margin.bottom) + ")");
-
-                d3.csv("/static/data.csv" + '?' + Math.floor(Math.random() * 1000), function(d) {
-                    d.pace = +d.pace;
-                    d.kilometre = +d.kilometre;
-                    return d;
-                }, function(error, data) {
-                    if (error) throw error;
-
-                    x.domain(data.map(function(d) { return d.kilometre; }));
-                    y.domain([0, d3.max(data, function(d) { return d.pace; })+1]);
-
-                    bars.append("g")
-                        .attr("class", "axis axis--x")
-                        .attr("transform", "translate(0," + height + ")")
-                        .call(d3.axisBottom(x));
-
-                    bars.append("g")
-                        .attr("class", "axis axis--y")
-                        .call(d3.axisLeft(y))
-                        .append("text")
+                    g.append("text")
                         .attr("transform", "rotate(-90)")
                         .attr("y", 6)
                         .attr("dy", "0.71em")
                         .attr("text-anchor", "end")
-                        .text("Pace");
+                        .text("Frequency");
 
-                    bars.selectAll(".bar")
-                        .data(data)
-                        .enter().append("rect")
-                        .attr("class", "bar")
-                        .attr("height", 0)
-                        .attr("y", height)
-                        .transition().duration(1000)
-                        .delay(function(d, i) {return i * 50;})
-                        .attr("x", function(d) { return x(d.kilometre); })
-                        .attr("y", function(d) { return y(d.pace); })
+                    // DRAWING
 
-                        .attr("width", x.bandwidth())
-                        .attr("height", function(d) { return height - y(d.pace); })
+                    function draw_chart() {
 
+                        var bounds = svg.node().getBoundingClientRect(),
+                            width = bounds.width - margin.left - margin.right,
+                            height = bounds.height - margin.top - margin.bottom;
 
-                    slider.append("line")
-                        .attr("class", "track")
-                        .attr("x1", x.range()[0])
-                        .attr("x2", x.range()[1])
-                        .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
-                        .attr("class", "track-inset")
-                        .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
-                        .attr("class", "track-overlay")
-                        .call(d3.drag()
-                            .on("start.interrupt", function() { slider.interrupt(); })
-                            .on("start drag", function() { chart_colour(x.invert(d3.event.x)); }));
+                        x.rangeRound([0, width]);
+                        y.rangeRound([height, 0]);
 
+                        g.select(".axis--x")
+                            .attr("transform", "translate(0," + height + ")")
+                            .call(d3.axisBottom(x));
 
+                        g.select(".axis--y")
+                            .call(d3.axisLeft(y));
 
-                    slider.insert("g", ".track-overlay")
-                        .attr("class", "ticks")
-                        .attr("transform", "translate(0," + 18 + ")")
-                        .selectAll("text")
-                        .data(hx.ticks(10))
-                        .enter().append("text")
-                        .attr("x", hx)
-                        .attr("text-anchor", "middle")
-                        .text(function(d) {
-                            if (d > 1) {
-                                return "+" + d;
-                            } else if (d == 1){
-                                return 1;
-                            }else{
-                                return "-" + d
-                            }
-                        });
+                        var bars = g.selectAll(".bar")
+                            .data(theData);
 
-                    slider.transition() // Gratuitous intro!
-                        .duration(750)
-                        .tween("chart_colour", function() {
-                            var i = d3.interpolate(0, 70);
-                            return function(t) { chart_colour(i(t)); };
-                        });
+{#                        var slider = chart.append("g")#}
+{#                            .attr("class", "slider")#}
+{#                            .attr("transform", "translate(" + margin.left + "," + (height + margin.bottom) + ")");#}
+{#                        #}
 
-                    var handle = slider.insert("circle", ".track-overlay")
-                        .attr("class", "handle")
-                        .attr("r", 9)
-                        .attr("transform", "translate(" + width/2 + ",0)");
+                        // ENTER
+                        bars.enter().append("rect")
+                            .attr("class", "bar")
+                            .attr("x", function (d) { return x(d.kilometre); })
+                            .attr("y", function (d) { return y(d.pace); })
+                            .attr("width", x.bandwidth())
+                            .attr("height", function (d) { return height - y(d.pace); });
 
-                    function chart_colour(h) {
-                        handle.attr("cx", x(h));
-                        chart.style("background-color", d3.hsl(h, 0.2, 1));
+                        // UPDATE
+                        bars.attr("x", function (d) { return x(d.kilometre); })
+                            .attr("y", function (d) { return y(d.pace); })
+                            .attr("width", x.bandwidth())
+                            .attr("height", function (d) { return height - y(d.pace); });
+
+                        // EXIT
+                        bars.exit()
+                            .remove();
+
+                        svg.selectAll(".bar").on("click", function(d){location.replace("/activities/" + d.letter);});
+
                     }
 
-                });
+                    // LOADING DATA
 
-            </script>
+                    function loadData(csvFile) {
+
+                        d3.csv(csvFile, function (d) {
+                            d.pace = +d.pace;
+                            d.kilometre = +d.kilometre;
+                            return d;
+
+                        }, function (error, data) {
+                            if (error) throw error;
+
+                            theData = data;
+
+                            x.domain(theData.map(function (d) { return d.kilometre; }));
+                            y.domain([0, d3.max(theData, function (d) { return d.pace; })+1]);
+
+                            draw_chart();
+
+                        });
+                    }
+
+                    // START!
+
+                    window.addEventListener("resize", draw_chart);
+                    loadData("/static/data.csv" + '?' + Math.floor(Math.random() * 1000));
+
+                </script>
+            </div>
         </div>
-    </div>
 
-    <br><br><br><br><br><br><br>
-</div>
-</body>
-</html>
+        <br><br><br><br><br><br><br>
+    </div>
+    </body>
+{% endblock %}

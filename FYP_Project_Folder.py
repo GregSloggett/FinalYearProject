@@ -13,7 +13,7 @@ import datetime
 import csv
 
 app = Flask(__name__)
-#app.static_url_path='/static'
+# app.static_url_path='/static'
 # app.config['GOOGLEMAPS_KEY'] = "AIzaSyBUV6YEpG7xjxJ8s9ZjIZP8A56L4TxAK7k"
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyCiforLtPDvDY3WzkKeWc2ykgR_Aw9rYk0"
 GoogleMaps(app)
@@ -23,7 +23,6 @@ GoogleMaps(app)
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # server db
-
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="GregorySloggett",
     password="Xavi6legend",
@@ -77,7 +76,7 @@ class AboutForm(Form):
 MY_ACCESS_TOKEN = 'a6e5a504f806ed79c8a6e25f59da056b440faac5'
 MY_CLIENT_ID = 20518
 MY_CLIENT_SECRET = 'cf516a44b390c99b6777f771be0103314516931e'
-STR_LENGTH=6
+STR_LENGTH = 6
 client = Client()
 
 
@@ -126,31 +125,95 @@ def response_url():
                                  email_address=client.get_athlete().email)
         db.session.add(signature)
         db.session.commit()
-        resp = make_response(render_template("response_url.html", athlete_access_token=athlete_access_token, athlete=athlete,
-                                             athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile,
-                                             last_activity_id=last_activity()))
-        resp.set_cookie('athlete_id', str(athlete.id), expires=datetime.datetime.now()+datetime.timedelta(days=365))
+        resp = make_response(
+            render_template("response_url.html", athlete_access_token=athlete_access_token, athlete=athlete,
+                            athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile,
+                            last_activity_id=last_activity()))
+        resp.set_cookie('athlete_id', str(athlete.id), expires=datetime.datetime.now() + datetime.timedelta(days=365))
         return resp
     else:
-        resp = make_response(render_template("return_user.html", athlete_access_token=athlete_access_token, athlete=athlete,
-                                             athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile,
-                                             last_activity_id=last_activity()))
-        resp.set_cookie('athlete_id', str(athlete.id), expires=datetime.datetime.now()+datetime.timedelta(days=365))
+        resp = make_response(
+            render_template("return_user.html", athlete_access_token=athlete_access_token, athlete=athlete,
+                            athlete_stats=client.get_athlete_stats(), athlete_profiler=athlete.profile,
+                            last_activity_id=last_activity()))
+        resp.set_cookie('athlete_id', str(athlete.id), expires=datetime.datetime.now() + datetime.timedelta(days=365))
         return resp
 
 
-@app.route('/activities/', methods=['GET', 'POST'])
-def activities():
-    activities = []
+activity_routes = ['five_k', 'ten_k', 'three_k', 'one_five_k', 'four_k',
+                   'five_m', 'ten_m', 'half', 'marathon', 'activities']
+
+
+@app.route('/activities/<distance_name>', methods=['GET', 'POST'])
+def activities(distance_name):
+    print(distance_name)
+    activities_ = []
+    activities_data = []
+    data_one_five = []
+    data_3k = []
+    data_4k = []
+    data_5k = []
+    data_10k = []
+    data_5m = []
+    data_10m = []
+    data_half = []
+    data_marathon = []
+
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
         for activity in client.get_activities(before=datetime.datetime.now(),
                                               after=client.get_athlete().created_at, limit=None):
-            activity_data = len(activities)+1, u'{0.id}'.format(activity), u'{0.name}'.format(activity), u'{0.distance}'.format(activity)
-            activities.append(activity_data)
+            activity_data = len(activities_data) + 1, '{}'.format(activity.id), '{}'.format(activity.name), \
+                            '{}'.format(activity.distance), u'{}'.format(activity.moving_time)
+            activities_.append(activity)
 
-        return render_template("activities.html", activities=activities)
+            activities_data.append(activity_data)
+            distance = convert_distance_to_integer(activity.distance.__str__())
+
+            if activity.type == 'Run':
+                if 1400 < distance < 1600:
+                    data_one_five.append(activity_data)
+                elif 2750 < distance < 3250:
+                    data_3k.append(activity_data)
+                elif 3750 < distance < 4250:
+                    data_4k.append(activity_data)
+                elif 4500 < distance < 5500:
+                    data_5k.append(activity_data)
+                elif 7750 < distance < 8250:
+                    data_5m.append(activity_data)
+                elif 9500 < distance < 10500:
+                    data_10k.append(activity_data)
+                elif 15750 < distance < 16250:
+                    data_10m.append(activity_data)
+                elif 20500 < distance < 21500:
+                    data_half.append(activity_data)
+                elif 41000 < distance < 43000:
+                    data_marathon.append(activity_data)
+
+        if distance_name == '1.5K':
+            activities_data = data_one_five
+        elif distance_name == '3K':
+            activities_data = data_3k
+        elif distance_name == '4K':
+            activities_data = data_4k
+        elif distance_name == '5K':
+            activities_data = data_5k
+        elif distance_name == '5M':
+            activities_data = data_5m
+        elif distance_name == '10K':
+            activities_data = data_10k
+        elif distance_name == '10M':
+            activities_data = data_10m
+        elif distance_name == 'Half-Marathon':
+            activities_data = data_half
+        elif distance_name == 'Marathon':
+            activities_data = data_marathon
+        else:
+            activities_data = activities_data
+
+        print(activities_data)
+        return render_template("activities.html", activities_data=activities_data)
 
 
 @app.route('/summary/', methods=['GET', 'POST'])
@@ -192,12 +255,13 @@ def summary():
                 db.session.commit()
 
         UserActivities.query.filter_by(athlete_id=client.get_athlete().id)
-        first_activity = UserActivities.query.filter_by(athlete_id=client.get_athlete().id).order_by(UserActivities.date).first()
+        first_activity = UserActivities.query.filter_by(athlete_id=client.get_athlete().id).order_by(
+            UserActivities.date).first()
 
         pie_chart = total_activities_pie_chart()
         distances_run = distances_ran(activities)
-
-        write_distances_csv(distances_run)
+        five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon = total_distances(distances_run)
+        write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon)
 
         return render_template("summary.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats(),
                                last_ten_rides=last_ten_rides(), athlete_profiler=client.get_athlete().profile,
@@ -207,7 +271,7 @@ def summary():
                                cycling_distance=cycling_distance, other_activity_distance=other_activity_distance)
 
 
-def write_distances_csv(distances_run):
+def total_distances(distances_run):
     five_k = 0
     ten_k = 0
     three_k = 0
@@ -238,6 +302,10 @@ def write_distances_csv(distances_run):
         elif distance == "Marathon":
             marathon += 1
 
+    return five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon
+
+
+def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon):
     with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\distances.csv", 'w',
               newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
@@ -305,10 +373,10 @@ def total_activities_pie_chart():
 # If the user has already authorized the application this is the page that will be returned (instead of response_url).
 @app.route('/return_user/', methods=['GET', 'POST'])
 def return_user():
-
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
+
         return render_template("return_user.html", athlete=client.get_athlete(),
                                athlete_profiler=client.get_athlete().profile, athlete_stats=client.get_athlete_stats(),
                                last_activity_id=last_activity())
@@ -333,7 +401,8 @@ def activity(activity_id):
 
             count = 0
             for each in dist_alt['distance'].data:
-                spamwriter.writerow(['{},{}'.format(dist_alt['distance'].data[count], dist_alt['altitude'].data[count])])
+                spamwriter.writerow(
+                    ['{},{}'.format(dist_alt['distance'].data[count], dist_alt['altitude'].data[count])])
                 count += 1
 
     return render_template("activity.html", athlete=client.get_athlete(),
@@ -347,7 +416,6 @@ def activity(activity_id):
 @app.route('/activity/<activity_id>/<activity_map>', methods=['GET', 'POST'])
 def map(activity_id, activity_map):
     types = ['time', 'latlng', 'altitude', 'heartrate', 'temp']
-
 
     if check_for_cookie() is False:
         return render_template("homepage.html")
@@ -424,13 +492,13 @@ def marathon():
 
 
 def get_kms_per_minute(distance, time):
-    kilometer = (distance/ (time / 60))
-    kms_per_minute = Decimal(1)/Decimal(kilometer)
+    kilometer = (distance / (time / 60))
+    kms_per_minute = Decimal(1) / Decimal(kilometer)
     return kms_per_minute
 
 
 def get_running_speed(distance, time):
-    pace = (distance*1000) / (time)
+    pace = (distance * 1000) / (time)
     return pace
 
 
@@ -461,7 +529,7 @@ def peter_reigel_predictor():
         else:
             flash('Error: You are required to enter a distance. ')
 
-    return render_template("peter_reigel_predictor.html", form=form, predicted_marathon_time= predicted_marathon_time)
+    return render_template("peter_reigel_predictor.html", form=form, predicted_marathon_time=predicted_marathon_time)
 
 
 def get_sec(hours, minutes, seconds):
@@ -558,7 +626,7 @@ def hansons_marathon_method():
     andrew_vickers = 0
     dave_cameron = 0
     peter_reigel = 0
-    pace=0
+    pace = 0
 
     if request.method == 'POST':
         if form.validate():
@@ -581,9 +649,9 @@ def hansons_marathon_method():
             dave_cameron = dave_cameron_formula(race_type, hours, minutes, seconds)
             if distance_run == 21.098:
                 andrew_vickers = andrew_vickers_formula(race_type, hours, minutes, seconds)
-                average = (peter_reigel + andrew_vickers + dave_cameron)/3
+                average = (peter_reigel + andrew_vickers + dave_cameron) / 3
             else:
-                average = (peter_reigel + dave_cameron)/2
+                average = (peter_reigel + dave_cameron) / 2
 
             average = sec_to_time(average)
             peter_reigel = sec_to_time(peter_reigel)
@@ -664,7 +732,7 @@ def dave_cameron_predictor():
         else:
             flash('Error: You are required to enter a distance. ')
 
-    return render_template("dave_cameron_predictor.html", form=form, predicted_marathon_time= predicted_marathon_time)
+    return render_template("dave_cameron_predictor.html", form=form, predicted_marathon_time=predicted_marathon_time)
 
 
 @app.route('/marathon/daniels_gilbert_vo2_max/', methods=['GET', 'POST'])
@@ -690,25 +758,20 @@ def daniels_gilbert_vo2_max():
 
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
             distance_run = race_distances(race_type)
-            distance_run = distance_run*1000
+            distance_run = distance_run * 1000
             time_run = get_sec(hours, minutes, seconds)
-            time_run = time_run/60  # divide by 60 to get time in minutes rather than seconds
-            v = distance_run/time_run
+            time_run = time_run / 60  # divide by 60 to get time in minutes rather than seconds
+            v = distance_run / time_run
             top_fraction = 0.000104 * (v * v) + (0.182258 * v) - 4.6
-            bottom_fraction = 0.2989558 * math.exp(-0.1932605 * time_run) + 0.1894393 * math.exp(-0.012778 * time_run) + 0.8
-            vo2max = top_fraction/bottom_fraction
+            bottom_fraction = 0.2989558 * math.exp(-0.1932605 * time_run) + 0.1894393 * math.exp(
+                -0.012778 * time_run) + 0.8
+            vo2max = top_fraction / bottom_fraction
 
 
         else:
             flash('Error: You are required to enter a distance. ')
 
     return render_template("daniels_gilbert_vo2_max.html", form=form, vo2max=vo2max)
-
-
-@app.route('/index', methods=['GET', 'POST'])
-def index():
-
-    return render_template("index.html")
 
 
 def activities_2018():
@@ -759,8 +822,8 @@ def last_ten_rides():
 
 # This displays some details on the summary page of the users last ten rides (ID, Name, Distance)
 def last_activity():
-    for activity in client.get_activities(before="2018-02-09T00:00:00Z",
-                                          after="2017-01-01T00:00:00Z", limit=1):
+    for activity in client.get_activities(before=datetime.datetime.now(),
+                                          after=client.get_athlete().created_at, limit=1):
         return activity.id
 
 
