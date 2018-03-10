@@ -23,6 +23,7 @@ GoogleMaps(app)
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # server db
+
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="GregorySloggett",
     password="Xavi6legend",

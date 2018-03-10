@@ -111,12 +111,6 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-8">
-
-        </div>
-    </div>
-
-    <div class="row">
         <div class="col-sm-12">
             <svg width="1100" height="500"></svg>
             <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -180,18 +174,15 @@
 
     </div>
     <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-12">
             <br><br>
             <button type="button" class="btn btn-primary">
                 <a href="/activity/{{ activity_data.id }}/{{ activity_data.start_latlng }}">See map for activity: {{ activity_data.name }}</a>
             </button>
         </div>
-        <div class="col-sm-4">
-
-        </div>
-
     </div>
 
+    <br><br>
 </div>
 </body>
 {% endblock %}

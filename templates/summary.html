@@ -47,6 +47,35 @@
     stroke-opacity: 0.5;
     stroke-width: 1.25px;
     }
+
+    .d3-tip {
+    line-height: 1;
+    font-weight: bold;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 2px;
+    }
+
+    /* Creates a small triangle extender for the tooltip */
+    .d3-tip:after {
+    box-sizing: border-box;
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.8);
+    content: "\25BC";
+    position: absolute;
+    text-align: center;
+    }
+
+    /* Style northward tooltips differently */
+    .d3-tip.n:after {
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
+    }
 {% endblock %}
 
 {% block body %}
@@ -191,7 +220,12 @@
                             .attr("x", function (d) { return x(d.letter); })
                             .attr("y", function (d) { return y(d.frequency); })
                             .attr("width", x.bandwidth())
-                            .attr("height", function (d) { return height - y(d.frequency); });
+                            .attr("height", function (d) { return height - y(d.frequency); })
+                            .on("click", function(d){location.replace("/activities/" + d.letter);})
+                            .on("mouseover", function(){return tooltip.style("visibility", "visible");})
+                            .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+                            .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+
 
                         // UPDATE
                         bars.attr("x", function (d) { return x(d.letter); })
@@ -203,7 +237,6 @@
                         bars.exit()
                             .remove();
 
-                        svg.selectAll(".bar").on("click", function(d){location.replace("/activities/" + d.letter);});
 
                     }
 
@@ -231,7 +264,7 @@
                     // START!
 
                     window.addEventListener("resize", draw);
-                    loadData("/static/distances.csv" + '?' + Math.floor(Math.random() * 1000));
+                    loadData("/home/GregorySloggett/FinalYearProject/static/distances.csv" + '?' + Math.floor(Math.random() * 1000));
 
                 </script>
             </div>
