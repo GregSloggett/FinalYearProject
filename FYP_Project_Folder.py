@@ -448,7 +448,7 @@ def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
-        spamwriter.writerow(['letter,frequency'])
+        spamwriter.writerow(['a,frequency'])
         spamwriter.writerow(['1.5K,{}'.format(one_five_k)])
         spamwriter.writerow(['3K,{}'.format(three_k)])
         spamwriter.writerow(['4K,{}'.format(four_k)])
@@ -458,6 +458,7 @@ def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_
         spamwriter.writerow(['10M,{}'.format(ten_m)])
         spamwriter.writerow(['Half-Marathon,{}'.format(half)])
         spamwriter.writerow(['Marathon,{}'.format(marathon)])
+
 
 
 def convert_distance_to_integer(string_distance):
