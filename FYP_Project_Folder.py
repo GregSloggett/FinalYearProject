@@ -260,7 +260,37 @@ def summary():
 
         pie_chart = total_activities_pie_chart()
         distances_run = distances_ran(activities)
-        five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon = total_distances(distances_run)
+
+        five_k = 0
+        ten_k = 0
+        three_k = 0
+        one_five_k = 0
+        four_k = 0
+        five_m = 0
+        ten_m = 0
+        half = 0
+        marathon = 0
+
+        for id, distance in distances_run.items():
+            if distance == "5K":
+                five_k += 1
+            elif distance == "10K":
+                ten_k += 1
+            elif distance == "3K":
+                three_k += 1
+            elif distance == "1.5K":
+                one_five_k += 1
+            elif distance == "4K":
+                four_k += 1
+            elif distance == "5M":
+                five_m += 1
+            elif distance == "10M":
+                ten_m += 1
+            elif distance == "Half":
+                half += 1
+            elif distance == "Marathon":
+                marathon += 1
+
         write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon)
 
         jan_run = 0
@@ -408,47 +438,13 @@ def summary():
                                )
 
 
-def total_distances(distances_run):
-    five_k = 0
-    ten_k = 0
-    three_k = 0
-    one_five_k = 0
-    four_k = 0
-    five_m = 0
-    ten_m = 0
-    half = 0
-    marathon = 0
-
-    for id, distance in distances_run.items():
-        if distance == "5K":
-            five_k += 1
-        elif distance == "10K":
-            ten_k += 1
-        elif distance == "3K":
-            three_k += 1
-        elif distance == "1.5K":
-            one_five_k += 1
-        elif distance == "4K":
-            four_k += 1
-        elif distance == "5M":
-            five_m += 1
-        elif distance == "10M":
-            ten_m += 1
-        elif distance == "Half":
-            half += 1
-        elif distance == "Marathon":
-            marathon += 1
-
-    return five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon
-
-
 def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon):
     with open("/home/GregorySloggett/FinalYearProject/static/distances.csv", 'w', newline='') as csvfile:
     # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\distances.csv", 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
-        spamwriter.writerow(['a,frequency'])
+        spamwriter.writerow(['letter,frequency'])
         spamwriter.writerow(['1.5K,{}'.format(one_five_k)])
         spamwriter.writerow(['3K,{}'.format(three_k)])
         spamwriter.writerow(['4K,{}'.format(four_k)])
