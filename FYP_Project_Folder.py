@@ -446,7 +446,7 @@ def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_
     with open("/home/GregorySloggett/FinalYearProject/static/distances.csv", 'w', newline='') as csvfile:
     # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\distances.csv", 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
-                                quotechar='', quoting=csv.QUOTE_NONE)
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
         spamwriter.writerow(['letter,frequency'])
         spamwriter.writerow(['1.5K,{}'.format(one_five_k)])
@@ -906,6 +906,7 @@ def hansons_marathon_method():
             time_run = get_sec(hours, minutes, seconds)
 
             pace = get_kms_per_minute(distance_run, time_run)
+
 
             with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
             # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w',newline='') as csvfile:

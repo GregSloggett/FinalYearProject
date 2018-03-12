@@ -204,9 +204,9 @@
                             .remove();
                     }
                     // LOADING DATA
-                    function loadData(csvFile) {
+                    function loadData() {
 
-                        d3.csv(csvFile, function (d) {
+                    d3.csv("/static/distances.csv" + '?' + Math.floor(Math.random() * 1000), function(d) {
                             d.frequency = +d.frequency;
                             return d;
 
@@ -224,7 +224,7 @@
                     }
                     // START!
                     window.addEventListener("resize", draw);
-                    loadData("/static/distances.csv" + '?' + Math.floor(Math.random() * 1000));
+                    loadData();
 
                 </script>
             </div>
