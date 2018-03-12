@@ -16,12 +16,12 @@ app = Flask(__name__)
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyCiforLtPDvDY3WzkKeWc2ykgR_Aw9rYk0"
 GoogleMaps(app)
 
-# local db
+# # local db
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # server db
-#
+
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="GregorySloggett",
     password="Xavi6legend",
@@ -391,7 +391,6 @@ def summary():
         return render_template("summary.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats(),
                                last_ten_rides=last_ten_rides(), athlete_profiler=client.get_athlete().profile,
                                pie_chart=pie_chart, first_activity=first_activity,
-                               activities_2017=activities_2017(), activities_2018=activities_2018(),
                                total_activity_distance=total_activity_distance, running_distance=running_distance,
                                cycling_distance=cycling_distance, other_activity_distance=other_activity_distance,
 
@@ -443,8 +442,8 @@ def total_distances(distances_run):
 
 
 def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon):
-    with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\distances.csv", 'w',
-              newline='') as csvfile:
+    with open("/home/GregorySloggett/FinalYearProject/static/distances.csv", 'w', newline='') as csvfile:
+    # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\distances.csv", 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='', quoting=csv.QUOTE_NONE)
 

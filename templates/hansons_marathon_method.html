@@ -120,6 +120,19 @@
                         </div>
                     </div>
                     <br>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <p align="middle"><b>OR</b></p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <p>Select an equivalent distance from your strava activities!</p>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-sm-12">
                             <button onclick="redraw()" type="submit" class="btn btn-success">Get Your Time!</button>
@@ -254,8 +267,6 @@
                         // EXIT
                         bars.exit()
                             .remove();
-
-                        svg.selectAll(".bar").on("click", function(d){location.replace("/activities/" + d.letter);});
 
                     }
 
