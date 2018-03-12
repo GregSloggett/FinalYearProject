@@ -257,6 +257,7 @@ def summary():
         first_activity = UserActivities.query.filter_by(athlete_id=client.get_athlete().id).order_by(
             UserActivities.date).first()
 
+
         pie_chart = total_activities_pie_chart()
         distances_run = distances_ran(activities)
         five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon = total_distances(distances_run)
@@ -442,8 +443,8 @@ def total_distances(distances_run):
 
 
 def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon):
-    # with open("/home/GregorySloggett/FinalYearProject/static/distances.csv", 'w', newline='') as csvfile:
-    with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\distances.csv", 'w', newline='') as csvfile:
+    with open("/home/GregorySloggett/FinalYearProject/static/distances.csv", 'w', newline='') as csvfile:
+    # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\distances.csv", 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='', quoting=csv.QUOTE_NONE)
 

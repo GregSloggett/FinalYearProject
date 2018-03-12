@@ -124,7 +124,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <h2>Running distances</h2>
+                    <h3>Running distances</h3>
                 </div>
                 <p>Click on the bars to see more about your <code>activities</code>!</p>
 
@@ -252,6 +252,14 @@
 
         <div class="row">
             <div class="col-sm-12">
+                <div class="page-header">
+                    <h3>Your Activities Last Year</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
 
                 <div id='dashboard'>
                 </div>
@@ -268,7 +276,7 @@
                         // function to handle histogram.
                         function histoGram(fD){
                             var hG={},    hGDim = {t: 60, r: 0, b: 30, l: 0};
-                            hGDim.w = 700 - hGDim.l - hGDim.r,
+                            hGDim.w = 500 - hGDim.l - hGDim.r,
                                 hGDim.h = 400 - hGDim.t - hGDim.b;
 
                             //create svg for histogram.
@@ -481,7 +489,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <h2>Your Last Ten Activities</h2>
+                    <h3>Your Last Ten Activities</h3>
                 </div>
                 <p>The table below displays your last 10 <code>activities</code>.</p>
 
