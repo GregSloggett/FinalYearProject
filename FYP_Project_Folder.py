@@ -1,16 +1,14 @@
-from flask import Flask, render_template, request, make_response, redirect, flash, url_for
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.testing.pickleable import User
-from stravalib.client import Client
-from flask_googlemaps import GoogleMaps, Map
-from urllib3 import response
-from wtforms import Form, StringField, PasswordField, BooleanField, SubmitField, IntegerField, TextField, validators
-from measurement.measures import Speed, Time
-from decimal import getcontext, Decimal
-import pygal
-import math
-import datetime
 import csv
+import datetime
+import math
+from decimal import getcontext, Decimal
+
+import pygal
+from flask import Flask, render_template, request, make_response, flash
+from flask_googlemaps import GoogleMaps
+from flask_sqlalchemy import SQLAlchemy
+from stravalib.client import Client
+from wtforms import Form, IntegerField, TextField, validators
 
 app = Flask(__name__)
 # app.static_url_path='/static'
@@ -23,7 +21,7 @@ GoogleMaps(app)
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # server db
-
+#
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="GregorySloggett",
     password="Xavi6legend",
@@ -264,12 +262,150 @@ def summary():
         five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon = total_distances(distances_run)
         write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon)
 
+        jan_run = 0
+        feb_run = 0
+        mar_run = 0
+        apr_run = 0
+        may_run = 0
+        jun_run = 0
+        jul_run = 0
+        aug_run = 0
+        sep_run = 0
+        oct_run = 0
+        nov_run = 0
+        dec_run = 0
+
+        jan_ride = 0
+        feb_ride = 0
+        mar_ride = 0
+        apr_ride = 0
+        may_ride = 0
+        jun_ride = 0
+        jul_ride = 0
+        aug_ride = 0
+        sep_ride = 0
+        oct_ride = 0
+        nov_ride = 0
+        dec_ride = 0
+
+        jan = 0
+        feb = 0
+        mar = 0
+        apr = 0
+        may = 0
+        jun = 0
+        jul = 0
+        aug = 0
+        sep = 0
+        oct = 0
+        nov = 0
+        dec = 0
+
+        if check_for_cookie() is False:
+            return render_template("homepage.html")
+        else:
+            month = 1
+            while month <= 12:
+                month_str = "%02d" % (month,)
+                for activity in client.get_activities(before="2017-" + month_str + "-28T00:00:00Z",
+                                                      after="2017-" + month_str + "-01T00:00:00Z", limit=None):
+                    if (activity.type == 'Run'):
+                        if month == 1:
+                            jan_run += 1
+                        elif month == 2:
+                            feb_run += 1
+                        elif month == 3:
+                            mar_run += 1
+                        elif month == 4:
+                            apr_run += 1
+                        elif month == 5:
+                            may_run += 1
+                        elif month == 6:
+                            jun_run += 1
+                        elif month == 7:
+                            jul_run += 1
+                        elif month == 8:
+                            aug_run += 1
+                        elif month == 9:
+                            sep_run += 1
+                        elif month == 10:
+                            oct_run += 1
+                        elif month == 11:
+                            nov_run += 1
+                        elif month == 12:
+                            dec_run += 1
+                    elif (activity.type == 'Ride'):
+                        if month == 1:
+                            jan_ride += 1
+                        elif month == 2:
+                            feb_ride += 1
+                        elif month == 3:
+                            mar_ride += 1
+                        elif month == 4:
+                            apr_ride += 1
+                        elif month == 5:
+                            may_ride += 1
+                        elif month == 6:
+                            jun_ride += 1
+                        elif month == 7:
+                            jul_ride += 1
+                        elif month == 8:
+                            aug_ride += 1
+                        elif month == 9:
+                            sep_ride += 1
+                        elif month == 10:
+                            oct_ride += 1
+                        elif month == 11:
+                            nov_ride += 1
+                        elif month == 12:
+                            dec_ride += 1
+                    elif convert_distance_to_integer(activity.distance.__str__()) > 0:
+                        if month == 1:
+                            jan += 1
+                        elif month == 2:
+                            feb += 1
+                        elif month == 3:
+                            mar += 1
+                        elif month == 4:
+                            apr += 1
+                        elif month == 5:
+                            may += 1
+                        elif month == 6:
+                            jun += 1
+                        elif month == 7:
+                            jul += 1
+                        elif month == 8:
+                            aug += 1
+                        elif month == 9:
+                            sep += 1
+                        elif month == 10:
+                            oct += 1
+                        elif month == 11:
+                            nov += 1
+                        elif month == 12:
+                            dec += 1
+
+                month += 1
+
+
         return render_template("summary.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats(),
                                last_ten_rides=last_ten_rides(), athlete_profiler=client.get_athlete().profile,
                                pie_chart=pie_chart, first_activity=first_activity,
                                activities_2017=activities_2017(), activities_2018=activities_2018(),
                                total_activity_distance=total_activity_distance, running_distance=running_distance,
-                               cycling_distance=cycling_distance, other_activity_distance=other_activity_distance)
+                               cycling_distance=cycling_distance, other_activity_distance=other_activity_distance,
+
+                               jan=jan, feb=feb, mar=mar, apr=apr, may=may, jun=jun, jul=jul, aug=aug, sep=sep
+                               , oct=oct, nov=nov, dec=dec,
+                               jan_run=jan_run, feb_run=feb_run, mar_run=mar_run, apr_run=apr_run, may_run=may_run,
+                               jun_run=jun_run, jul_run=jul_run, aug_run=aug_run, sep_run=sep_run, oct_run=oct_run,
+                               nov_run=nov_run, dec_run=dec_run,
+                               jan_ride=jan_ride, feb_ride=feb_ride, mar_ride=mar_ride, apr_ride=apr_ride,
+                               may_ride=may_ride,
+                               jun_ride=jun_ride, jul_ride=jul_ride, aug_ride=aug_ride, sep_ride=sep_ride,
+                               oct_ride=oct_ride,
+                               nov_ride=nov_ride, dec_ride=dec_ride
+                               )
 
 
 def total_distances(distances_run):
@@ -412,6 +548,114 @@ def activity(activity_id):
                            athlete_stats=client.get_athlete_stats(),
                            streams=client.get_activity_streams(activity_id=activity_id, types=types,
                                                                resolution='medium'))
+
+# @app.route('/index/', methods=['GET', 'POST'])
+# def index():
+#     form = ReusableForm(request.form)
+#     average = 0
+#     andrew_vickers = 0
+#     dave_cameron = 0
+#     peter_reigel = 0
+#     pace = 0
+#     wasActivitySelected = False
+#     activities_ = []
+#     activities_data = []
+#     data_one_five = []
+#     data_3k = []
+#     data_4k = []
+#     data_5k = []
+#     data_10k = []
+#     data_5m = []
+#     data_10m = []
+#     data_half = []
+#     data_marathon = []
+#
+#     if check_for_cookie() is False:
+#         return render_template("homepage.html")
+#     else:
+#         for activity in client.get_activities(before=datetime.datetime.now(),
+#                                               after=client.get_athlete().created_at, limit=None):
+#             if activity.type == 'Run':
+#                 activity_data = len(activities_data) + 1, '{}'.format(activity.id), '{}'.format(activity.name), \
+#                                 '{}'.format(activity.distance), u'{}'.format(activity.moving_time)
+#                 activities_data.append(activity_data)
+#
+#         if request.method == 'POST':
+#             if form.validate():
+#                 race_type = request.form['race_length']
+#                 hours = request.form['race_time_hours']
+#                 if hours == '':
+#                     hours = 0
+#                 minutes = request.form['race_time_minutes']
+#                 if minutes == '':
+#                     minutes = 0
+#                 seconds = request.form['race_time_seconds']
+#                 if seconds == '':
+#                     seconds = 0
+#
+#                 print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
+#
+#                 distance_run = race_distances(race_type)
+#
+#                 peter_reigel = peter_reigel_formula(race_type, hours, minutes, seconds)
+#                 dave_cameron = dave_cameron_formula(race_type, hours, minutes, seconds)
+#                 if distance_run == 21.098:
+#                     andrew_vickers = andrew_vickers_formula(race_type, hours, minutes, seconds)
+#                     average = (peter_reigel + andrew_vickers + dave_cameron) / 3
+#                 else:
+#                     average = (peter_reigel + dave_cameron) / 2
+#
+#                 average = sec_to_time(average)
+#                 peter_reigel = sec_to_time(peter_reigel)
+#                 dave_cameron = sec_to_time(dave_cameron)
+#                 andrew_vickers = sec_to_time(andrew_vickers)
+#
+#                 time_run = get_sec(hours, minutes, seconds)
+#
+#                 pace = get_kms_per_minute(distance_run, time_run)
+#
+#                 # with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
+#                 with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w',
+#                           newline='') as csvfile:
+#
+#                     spamwriter = csv.writer(csvfile, delimiter=' ',
+#                                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
+#                     i = 0
+#                     while (i < 43):
+#                         if (i == 0):
+#                             spamwriter.writerow(['kilometre,pace'])
+#                         else:
+#                             spamwriter.writerow(['{},{}'.format(i, pace)])
+#                         i += 1
+#             elif wasActivitySelected==True:
+#                 if 1400 < activities < 1600:
+#                     data_one_five.append(activity_data)
+#                 elif 2750 < distance < 3250:
+#                     data_3k.append(activity_data)
+#                 elif 3750 < distance < 4250:
+#                     data_4k.append(activity_data)
+#                 elif 4500 < distance < 5500:
+#                     data_5k.append(activity_data)
+#                 elif 7750 < distance < 8250:
+#                     data_5m.append(activity_data)
+#                 elif 9500 < distance < 10500:
+#                     data_10k.append(activity_data)
+#                 elif 15750 < distance < 16250:
+#                     data_10m.append(activity_data)
+#                 elif 20500 < distance < 21500:
+#                     data_half.append(activity_data)
+#                 elif 41000 < distance < 43000:
+#                     data_marathon.append(activity_data)
+#
+#             else:
+#                 flash('Error: You are required to enter a distance. ')
+#
+#             print(data_4k)
+#
+#     return render_template("index.html", form=form, average=average, andrew_vickers=andrew_vickers,
+#                            dave_cameron=dave_cameron, peter_reigel=peter_reigel,
+#                            data_one_five=data_one_five, data_3k=data_3k, data_4k=data_4k, data_5k=data_5k, data_10k=data_10k,
+#                            data_5m=data_5m, data_1om=data_10m, data_half=data_half, data_marathon=data_marathon)
 
 
 @app.route('/activity/<activity_id>/<activity_map>', methods=['GET', 'POST'])
