@@ -180,11 +180,11 @@
                         g.select(".axis--y")
                             .call(d3.axisLeft(y));
 
-                        var bars = g.selectAll(".bar")
+                        var bars2 = g.selectAll(".bar")
                             .data(theData);
 
                         // ENTER
-                        bars.enter().append("rect")
+                        bars2.enter().append("rect")
                             .attr("class", "bar")
                             .attr("x", function (d) { return x(d.letter); })
                             .attr("y", function (d) { return y(d.frequency); })
@@ -194,13 +194,13 @@
 
 
                         // UPDATE
-                        bars.attr("x", function (d) { return x(d.letter); })
+                        bars2.attr("x", function (d) { return x(d.letter); })
                             .attr("y", function (d) { return y(d.frequency); })
                             .attr("width", x.bandwidth())
                             .attr("height", function (d) { return height - y(d.frequency); });
 
                         // EXIT
-                        bars.exit()
+                        bars2.exit()
                             .remove();
                     }
                     // LOADING DATA
