@@ -444,16 +444,18 @@ def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
+    # spamwriter.writerow(['{},{}'.format(i, pace)])
+
         spamwriter.writerow(['letter,frequency'])
-        spamwriter.writerow(['1.5K,{}'.format(one_five_k)])
-        spamwriter.writerow(['3K,{}'.format(three_k)])
-        spamwriter.writerow(['4K,{}'.format(four_k)])
-        spamwriter.writerow(['5K,{}'.format(five_k)])
-        spamwriter.writerow(['5M,{}'.format(five_m)])
-        spamwriter.writerow(['10K,{}'.format(ten_k)])
-        spamwriter.writerow(['10M,{}'.format(ten_m)])
-        spamwriter.writerow(['Half-Marathon,{}'.format(half)])
-        spamwriter.writerow(['Marathon,{}'.format(marathon)])
+        spamwriter.writerow(['{},{}'.format('1.5K', one_five_k)])
+        spamwriter.writerow(['{},{}'.format('3K', three_k)])
+        spamwriter.writerow(['{},{}'.format('4K', four_k)])
+        spamwriter.writerow(['{},{}'.format('5K', five_k)])
+        spamwriter.writerow(['{},{}'.format('5M', five_m)])
+        spamwriter.writerow(['{},{}'.format('10K', ten_k)])
+        spamwriter.writerow(['{},{}'.format('10M', ten_m)])
+        spamwriter.writerow(['{},{}'.format('Half-Marathon', half)])
+        spamwriter.writerow(['{},{}'.format('Marathon', marathon)])
 
 
 
