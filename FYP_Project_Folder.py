@@ -226,7 +226,7 @@ def summary():
         return render_template("homepage.html")
     else:
         for activity in client.get_activities(before=datetime.datetime.now(),
-                                              after=client.get_athlete().created_at, limit=None):
+                                              after="2010-01-01T00:00:00Z", limit=None):
             activities.append(activity)
             total_activity_distance += convert_distance_to_integer(activity.distance.__str__())
 
@@ -548,114 +548,6 @@ def activity(activity_id):
                            streams=client.get_activity_streams(activity_id=activity_id, types=types,
                                                                resolution='medium'))
 
-# @app.route('/index/', methods=['GET', 'POST'])
-# def index():
-#     form = ReusableForm(request.form)
-#     average = 0
-#     andrew_vickers = 0
-#     dave_cameron = 0
-#     peter_reigel = 0
-#     pace = 0
-#     wasActivitySelected = False
-#     activities_ = []
-#     activities_data = []
-#     data_one_five = []
-#     data_3k = []
-#     data_4k = []
-#     data_5k = []
-#     data_10k = []
-#     data_5m = []
-#     data_10m = []
-#     data_half = []
-#     data_marathon = []
-#
-#     if check_for_cookie() is False:
-#         return render_template("homepage.html")
-#     else:
-#         for activity in client.get_activities(before=datetime.datetime.now(),
-#                                               after=client.get_athlete().created_at, limit=None):
-#             if activity.type == 'Run':
-#                 activity_data = len(activities_data) + 1, '{}'.format(activity.id), '{}'.format(activity.name), \
-#                                 '{}'.format(activity.distance), u'{}'.format(activity.moving_time)
-#                 activities_data.append(activity_data)
-#
-#         if request.method == 'POST':
-#             if form.validate():
-#                 race_type = request.form['race_length']
-#                 hours = request.form['race_time_hours']
-#                 if hours == '':
-#                     hours = 0
-#                 minutes = request.form['race_time_minutes']
-#                 if minutes == '':
-#                     minutes = 0
-#                 seconds = request.form['race_time_seconds']
-#                 if seconds == '':
-#                     seconds = 0
-#
-#                 print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
-#
-#                 distance_run = race_distances(race_type)
-#
-#                 peter_reigel = peter_reigel_formula(race_type, hours, minutes, seconds)
-#                 dave_cameron = dave_cameron_formula(race_type, hours, minutes, seconds)
-#                 if distance_run == 21.098:
-#                     andrew_vickers = andrew_vickers_formula(race_type, hours, minutes, seconds)
-#                     average = (peter_reigel + andrew_vickers + dave_cameron) / 3
-#                 else:
-#                     average = (peter_reigel + dave_cameron) / 2
-#
-#                 average = sec_to_time(average)
-#                 peter_reigel = sec_to_time(peter_reigel)
-#                 dave_cameron = sec_to_time(dave_cameron)
-#                 andrew_vickers = sec_to_time(andrew_vickers)
-#
-#                 time_run = get_sec(hours, minutes, seconds)
-#
-#                 pace = get_kms_per_minute(distance_run, time_run)
-#
-#                 # with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
-#                 with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w',
-#                           newline='') as csvfile:
-#
-#                     spamwriter = csv.writer(csvfile, delimiter=' ',
-#                                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
-#                     i = 0
-#                     while (i < 43):
-#                         if (i == 0):
-#                             spamwriter.writerow(['kilometre,pace'])
-#                         else:
-#                             spamwriter.writerow(['{},{}'.format(i, pace)])
-#                         i += 1
-#             elif wasActivitySelected==True:
-#                 if 1400 < activities < 1600:
-#                     data_one_five.append(activity_data)
-#                 elif 2750 < distance < 3250:
-#                     data_3k.append(activity_data)
-#                 elif 3750 < distance < 4250:
-#                     data_4k.append(activity_data)
-#                 elif 4500 < distance < 5500:
-#                     data_5k.append(activity_data)
-#                 elif 7750 < distance < 8250:
-#                     data_5m.append(activity_data)
-#                 elif 9500 < distance < 10500:
-#                     data_10k.append(activity_data)
-#                 elif 15750 < distance < 16250:
-#                     data_10m.append(activity_data)
-#                 elif 20500 < distance < 21500:
-#                     data_half.append(activity_data)
-#                 elif 41000 < distance < 43000:
-#                     data_marathon.append(activity_data)
-#
-#             else:
-#                 flash('Error: You are required to enter a distance. ')
-#
-#             print(data_4k)
-#
-#     return render_template("index.html", form=form, average=average, andrew_vickers=andrew_vickers,
-#                            dave_cameron=dave_cameron, peter_reigel=peter_reigel,
-#                            data_one_five=data_one_five, data_3k=data_3k, data_4k=data_4k, data_5k=data_5k, data_10k=data_10k,
-#                            data_5m=data_5m, data_1om=data_10m, data_half=data_half, data_marathon=data_marathon)
-
 
 @app.route('/activity/<activity_id>/<activity_map>', methods=['GET', 'POST'])
 def map(activity_id, activity_map):
@@ -790,7 +682,7 @@ def sec_to_time(seconds):
 def race_distances(race_type):
     if race_type == "Marathon":
         numerical_distance = 42.195
-    elif race_type == "Half Marathon":
+    elif race_type == "Half":
         numerical_distance = 21.098
     elif race_type == "10 Miler":
         numerical_distance = 16.093
@@ -863,70 +755,132 @@ def dave_cameron_formula(race_type, hours, minutes, seconds):
     return time
 
 
-@app.route('/marathon/hansons_marathon_method/', methods=['GET', 'POST'])
-def hansons_marathon_method():
+@app.route('/marathon/multiple_marathon_predictor/', methods=['GET', 'POST'])
+def multiple_marathon_predictor():
     form = ReusableForm(request.form)
     average = 0
     andrew_vickers = 0
     dave_cameron = 0
     peter_reigel = 0
-    pace = 0
+    pace_str = 0
+    getcontext().prec = 3
 
-    if request.method == 'POST':
-        if form.validate():
-            race_type = request.form['race_length']
-            hours = request.form['race_time_hours']
-            if hours == '':
-                hours = 0
-            minutes = request.form['race_time_minutes']
-            if minutes == '':
-                minutes = 0
-            seconds = request.form['race_time_seconds']
-            if seconds == '':
-                seconds = 0
+    wasActivitySelected = False
+    activities_ = []
+    activities_data = []
+    data_one_five = []
+    data_3k = []
+    data_5k = []
+    data_10k = []
+    data_5m = []
+    data_10m = []
+    data_half = []
+    data_marathon = []
 
-            print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
+    if check_for_cookie() is False:
+        return render_template("homepage.html")
+    else:
+        for activity in client.get_activities(before=datetime.datetime.now(),
+                                              after=client.get_athlete().created_at, limit=None):
+            if activity.type == 'Run':
+                activity_data = len(activities_data) + 1, '{}'.format(activity.id), '{}'.format(activity.name), \
+                                '{}'.format(activity.distance), u'{}'.format(activity.moving_time)
 
-            distance_run = race_distances(race_type)
+                distance = convert_distance_to_integer(activity.distance.__str__())
 
-            peter_reigel = peter_reigel_formula(race_type, hours, minutes, seconds)
-            dave_cameron = dave_cameron_formula(race_type, hours, minutes, seconds)
-            if distance_run == 21.098:
-                andrew_vickers = andrew_vickers_formula(race_type, hours, minutes, seconds)
-                average = (peter_reigel + andrew_vickers + dave_cameron) / 3
+                if 1400 < distance < 1600:
+                    data_one_five.append(activity_data)
+                    activities_data.append(activity_data)
+                elif 2750 < distance < 3250:
+                    data_3k.append(activity_data)
+                    activities_data.append(activity_data)
+                elif 4500 < distance < 5500:
+                    data_5k.append(activity_data)
+                    activities_data.append(activity_data)
+                elif 7750 < distance < 8250:
+                    data_5m.append(activity_data)
+                    activities_data.append(activity_data)
+                elif 9500 < distance < 10500:
+                    data_10k.append(activity_data)
+                    activities_data.append(activity_data)
+                elif 15750 < distance < 16250:
+                    data_10m.append(activity_data)
+                    activities_data.append(activity_data)
+                elif 20500 < distance < 21500:
+                    data_half.append(activity_data)
+                    activities_data.append(activity_data)
+                elif 41000 < distance < 43000:
+                    data_marathon.append(activity_data)
+                    activities_data.append(activity_data)
+
+        if request.method == 'POST':
+            if form.validate():
+                race_type = request.form['race_length']
+                hours = request.form['race_time_hours']
+                if hours == '':
+                    hours = 0
+                minutes = request.form['race_time_minutes']
+                if minutes == '':
+                    minutes = 0
+                seconds = request.form['race_time_seconds']
+                if seconds == '':
+                    seconds = 0
+
+                print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
+
+                distance_run = race_distances(race_type)
+
+                peter_reigel = peter_reigel_formula(race_type, hours, minutes, seconds)
+                dave_cameron = dave_cameron_formula(race_type, hours, minutes, seconds)
+                if distance_run == 21.098:
+                    andrew_vickers = andrew_vickers_formula(race_type, hours, minutes, seconds)
+                    average = (peter_reigel + andrew_vickers + dave_cameron) / 3
+                else:
+                    average = (peter_reigel + dave_cameron) / 2
+
+                peter_reigel = sec_to_time(peter_reigel)
+                dave_cameron = sec_to_time(dave_cameron)
+                andrew_vickers = sec_to_time(andrew_vickers)
+
+                time_run = get_sec(hours, minutes, seconds)
+
+                print(average)
+                print(time_run)
+
+                pace = get_kms_per_minute(42.195, average)
+
+                print(pace)
+
+
+                pace_mins, pace_secs = str(pace).split('.')
+                decimal_pace_secs = float("0." + pace_secs)
+                pace_secs = int(decimal_pace_secs * 60)
+
+                pace_str = pace_mins + ":" + str("%02d" % (pace_secs,))
+
+                average = sec_to_time(average)
+
+                with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
+                # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w', newline='') as csvfile:
+
+                    spamwriter = csv.writer(csvfile, delimiter=' ',
+                                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                    i = 0
+                    while (i < 43):
+                        if (i == 0):
+                            spamwriter.writerow(['kilometre,pace'])
+                        else:
+                            spamwriter.writerow(['{},{}'.format(i, pace)])
+                        i += 1
+
             else:
-                average = (peter_reigel + dave_cameron) / 2
+                flash('Error: You are required to enter a distance. ')
 
-            average = sec_to_time(average)
-            peter_reigel = sec_to_time(peter_reigel)
-            dave_cameron = sec_to_time(dave_cameron)
-            andrew_vickers = sec_to_time(andrew_vickers)
-
-            time_run = get_sec(hours, minutes, seconds)
-
-            pace = get_kms_per_minute(distance_run, time_run)
-
-
-            with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
-            # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w',newline='') as csvfile:
-
-                spamwriter = csv.writer(csvfile, delimiter=' ',
-                                        quotechar='|', quoting=csv.QUOTE_MINIMAL)
-                i = 0
-                while (i < 43):
-                    if (i == 0):
-                        spamwriter.writerow(['kilometre,pace'])
-                    else:
-                        spamwriter.writerow(['{},{}'.format(i, pace)])
-                    i += 1
-
-
-        else:
-            flash('Error: You are required to enter a distance. ')
-
-    return render_template("hansons_marathon_method.html", form=form, average=average, andrew_vickers=andrew_vickers,
-                           dave_cameron=dave_cameron, peter_reigel=peter_reigel)
-
+    return render_template("multiple_marathon_predictor.html", form=form, average=average, andrew_vickers=andrew_vickers,
+                           dave_cameron=dave_cameron, peter_reigel=peter_reigel, activities_data=activities_data,
+                           data_one_five=data_one_five, data_3k=data_3k, data_5k=data_5k, data_10k=data_10k,
+                           data_5m=data_5m, data_1om=data_10m, data_half=data_half, data_marathon=data_marathon,
+                           pace_str=pace_str)
 
 @app.route('/about/', methods=['GET', 'POST'])
 def about():

@@ -206,7 +206,7 @@
                     // LOADING DATA
                     function loadData() {
 
-                    d3.csv("/static/distances.csv" + '?' + Math.floor(Math.random() * 1000), function(d) {
+                        d3.csv("/static/distances.csv" + '?' + Math.floor(Math.random() * 1000), function(d) {
                             d.frequency = +d.frequency;
                             return d;
 
@@ -291,11 +291,16 @@
 
                             // Add x-axis to the histogram svg.
                             hGsvg.append("g").attr("class", "x axis")
-                                .attr("transform", "translate(0," + hGDim.h + ")")
-                                .call(d3.svg.axis().scale(x).orient("bottom"));
+                                .attr("transform", "translate(18," + (hGDim.h+10) + ")")
+                                .call(d3.axisBottom(x));
+{##}
+{#                            hGsvg.append("text")#}
+{#                                .attr("transform", "translate(" + (hGDim.w/2) + " ," + (hGDim.h + hGDim.t + 20) + ")")#}
+{#                                .style("text-anchor", "middle")#}
+{#                                .text("Months");#}
 
                             // Create function for y-axis map.
-                            var y = d3.scale.linear().range([hGDim.h, 0])
+                            var y = d3.scaleLinear().range([hGDim.h, 0])
                                 .domain([0, d3.max(fD, function(d) { return d[1]; })]);
 
                             // Create bars for histogram to contain rectangles and freq labels.
