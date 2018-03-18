@@ -70,268 +70,268 @@
             </div>
         </div>
         <br>
+
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-6">
 
-
-                <div class="row">
-                    <div class="col-sm-6">
-
-                        <div class="panel panel-info">
-                            <div class="panel-heading">Multiple Prediction Algorithm
-                                <a href="#" data-toggle="popover" title="Get Your Marathon Time" data-content="Input your own time,
+                <div class="panel panel-info">
+                    <div class="panel-heading">Multiple Prediction Algorithm
+                        <a href="#" data-toggle="popover" title="Get Your Marathon Time" data-content="Input your own time,
                                             or choose one of your strava activities! Simply just click the activity row!">
-                                    <strong><span class="glyphicon glyphicon-info-sign"></span></strong>
-                                </a>
+                            <strong><span class="glyphicon glyphicon-info-sign"></span></strong>
+                        </a>
 
-                                <script>
-                                    $(document).ready(function(){
-                                        $('[data-toggle="popover"]').popover();
-                                    });
-                                </script>
+                        <script>
+                            $(document).ready(function(){
+                                $('[data-toggle="popover"]').popover();
+                            });
+                        </script>
+                    </div>
+                    <div class="panel-body">
+
+                        <p>
+                            This is our combined Marathon prediction method, using three of the most common
+                            prediction methods to do so:
+                            <br>
+                            <br> - Peter Reigel Method
+                            <br> - Dave Cameron Method
+                            <br> - Andrew Vicker's Half Marathon Method
+                            <br>
+                            <br>
+                            The weighted average of these three methods together produces a balanced and
+                            quite accurate prediction for any Marathon runner aspiring to set a new goal.
+
+                        </p>
+
+                        <form id="time-form" action="{{ url_for('multiple_marathon_predictor') }}" method="post" role="form">
+                            {{ form.csrf }}
+
+                            <br><br>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group has-success has-feedback">
+                                        <label for="race_length">What's a race that you've recently run?</label>
+
+                                        <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
+                                            <option value="" disabled selected hidden>Select your distance.</option>
+                                            <option value="Marathon" onclick="getRace()">Marathon</option>
+                                            <option value="Half" onclick="getRace()">Half Marathon</option>
+                                            <option value="10 Miler" onclick="getRace()">10 Miles</option>
+                                            <option value="10 Kilometre" onclick="getRace()">10K</option>
+                                            <option value="5 Miler" onclick="getRace()">5 Miles</option>
+                                            <option value="5 Kilometre" onclick="getRace()">5K</option>
+                                            <option value="3 Kilometre" onclick="getRace()">3K</option>
+                                            {#                                                    <option value="Miler" onclick="getRace()">1 Mile</option>#}
+                                            <option value="1500 Metre" onclick="getRace()">1500 Meters</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="panel-body">
+                            <script>
+                                function getRace() {
+                                    var race_length = document.getElementById("race_length").value;
+                                    document.getElementById("id1").innerHTML = "What time did you complete that " + race_length + " in?";
+                                }
+                            </script>
 
-                                <p>
-                                    This is our combined Marathon prediction method, using three of the most common
-                                    prediction methods to do so:
-                                    <br>
-                                    <br> - Peter Reigel Method
-                                    <br> - Dave Cameron Method
-                                    <br> - Andrew Vicker's Half Marathon Method
-                                    <br>
-                                    <br>
-                                    The weighted average of these three methods together produces a balanced and
-                                    quite accurate prediction for any Marathon runner aspiring to set a new goal.
+                            <div id="race_length_head1" class="row">
+                                <div id="race_length_head2" class="col-sm-12">
+                                    <label id="id1">
+                                        Duration:
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 form-group has-success has-feedback">
+                                    <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                                </div>
+                                <div class="col-sm-4 form-group has-warning has-feedback">
+                                    <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                                </div>
+                                <div class="col-sm-4 form-group has-error has-feedback">
+                                    <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
+                                </div>
+                            </div>
 
-                                </p>
-
-                                <form id="time-form" action="{{ url_for('multiple_marathon_predictor') }}" method="post" role="form">
-                                    {{ form.csrf }}
-
-                                    <br><br>
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <div class="form-group has-success has-feedback">
-                                                <label for="race_length">What's a race that you've recently run?</label>
-
-                                                <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
-                                                    <option value="" disabled selected hidden>Select your distance.</option>
-                                                    <option value="Marathon" onclick="getRace()">Marathon</option>
-                                                    <option value="Half" onclick="getRace()">Half Marathon</option>
-                                                    <option value="10 Miler" onclick="getRace()">10 Miles</option>
-                                                    <option value="10 Kilometre" onclick="getRace()">10K</option>
-                                                    <option value="5 Miler" onclick="getRace()">5 Miles</option>
-                                                    <option value="5 Kilometre" onclick="getRace()">5K</option>
-                                                    <option value="3 Kilometre" onclick="getRace()">3K</option>
-                                                    {#                                                    <option value="Miler" onclick="getRace()">1 Mile</option>#}
-                                                    <option value="1500 Metre" onclick="getRace()">1500 Meters</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <script>
-                                        function getRace() {
-                                            var race_length = document.getElementById("race_length").value;
-                                            document.getElementById("id1").innerHTML = "What time did you complete that " + race_length + " in?";
-                                        }
-                                    </script>
-
-                                    <div id="race_length_head1" class="row">
-                                        <div id="race_length_head2" class="col-sm-12">
-                                            <label id="id1">
-                                                Duration:
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-4 form-group has-success has-feedback">
-                                            <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
-                                        </div>
-                                        <div class="col-sm-4 form-group has-warning has-feedback">
-                                            <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
-                                        </div>
-                                        <div class="col-sm-4 form-group has-error has-feedback">
-                                            <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
-                                        </div>
-                                    </div>
-
-                                    <br>
-                                    <div class="row">
-                                        <div class="col-sm-12" align="middle">
-                                            <button id="submitFormButton" type="submit" class="btn btn-success">Get Your Time!</button>
-                                        </div>
-                                    </div>
-                                </form>
+                            <br>
+                            <div class="row">
+                                <div class="col-sm-12" align="middle">
+                                    <button id="submitFormButton" type="submit" class="btn btn-success">Get Your Time!</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
+                        <p>
+                            {% if peter_reigel != 0 %}
+                                Peter Reigel Prediction: {{ peter_reigel }} <br>
+                            {% endif %}
+                            {% if andrew_vickers != 0 %}
+                                Andrew Vickers Prediction: {{ andrew_vickers }} <br>
+                            {% endif %}
+                            {% if dave_cameron != 0 %}
+                                Dave Cameron Prediction: {{ dave_cameron }} <br>
+                            {% endif %}
+                        </p>
+                        <p>
+                            {% if average != 0%}
+                                Average Prediction: {{ average }}
                                 <br>
-                                <p>
-                                    {% if peter_reigel != 0 %}
-                                        Peter Reigel Prediction: {{ peter_reigel }} <br>
-                                    {% endif %}
-                                    {% if andrew_vickers != 0 %}
-                                        Andrew Vickers Prediction: {{ andrew_vickers }} <br>
-                                    {% endif %}
-                                    {% if dave_cameron != 0 %}
-                                        Dave Cameron Prediction: {{ dave_cameron }} <br>
-                                    {% endif %}
-                                </p>
-                                <p>
-                                    {% if average != 0%}
-                                        Average Prediction: {{ average }}
-                                        <br>
-                                        Pace: {{ pace_str }} min/km
-                                    {% endif %}
-                                </p>
+                                Pace: {{ pace_str }} min/km
+                            {% endif %}
+                        </p>
 
 
-                            </div>
-                        </div>
+
 
                     </div>
-
-                    <div class="row">
-                        <div class="col-sm-6">
-
-                            <div class="table-responsive">
-                                <table id='myTable' class="table table-striped table-hover">
-                                    <caption><h3>Activity Table</h3></caption>
-
-                                    <script type="text/javascript">
-                                        $(document).ready(function() {
-                                            $('#myTable').dataTable( {
-                                                "columnDefs": [
-                                                    { "type": "numeric-comma", targets: 3 }
-                                                ]
-                                            } );
-                                        } );
-                                    </script>
-
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>ID</th>
-                                        <th>Activity Name</th>
-                                        <th>Distance</th>
-                                        <th>Time</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    {% for each_ride in activities_data %}
-
-                                        <tr>
-                                            <td scope="row">{{ each_ride[0] }}</td>
-                                            <td><u><code><a href="/activity/{{ each_ride[1] }}"> {{ each_ride[1] }} </a></code></u></td>
-                                            <td>{{ each_ride[2] }}</td>
-                                            <td>{{ each_ride[3] }}</td>
-                                            <td>{{ each_ride[4] }}</td>
-
-                                        </tr>
-
-                                    {% endfor %}
-
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <script>
-                        (function () {
-                            if (window.addEventListener) {
-                                window.addEventListener('load', run, false);
-                            } else if (window.attachEvent) {
-                                window.attachEvent('onload', run);
-                            }
-
-                            function run() {
-                                var t = document.getElementById('myTable');
-                                t.onclick = function (event) {
-                                    event = event || window.event; //IE8
-                                    var target = event.target || event.srcElement;
-                                    while (target && target.nodeName != 'TR') { // find TR
-                                        target = target.parentElement;
-                                    }
-                                    //if (!target) { return; } //tr should be always found
-                                    var cells = target.cells; //cell collection - https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableRowElement
-                                    //var cells = target.getElementsByTagName('td'); //alternative
-                                    if (!cells.length || target.parentNode.nodeName == 'THEAD') {
-                                        return;
-                                    }
-
-                                    var f1 = document.getElementById('race_length');
-                                    var f2 = document.getElementById('race_time_hours');
-                                    var f3 = document.getElementById('race_time_minutes');
-                                    var f4 = document.getElementById('race_time_seconds');
-
-                                    var moving_time = cells[4].innerHTML;
-                                    var array = moving_time.split(":");
-                                    var hrs = array[0];
-                                    var mins = array[1];
-                                    var secs = array[2];
-
-                                    var distance = parseInt(cells[3].innerHTML);
-
-
-                                    if(4750 < distance && distance < 5250) {
-                                        f1.value = "5 Kilometre";
-                                    }
-                                    else if(9750 < distance && distance < 10250) {
-                                        f1.value = "10 Kilometre";
-                                    }
-                                    else if(2750 < distance && distance < 3250) {
-                                        f1.value = "3 Kilometre";
-                                    }
-                                    else if(1250 < distance && distance < 1750) {
-                                        f1.value = "1500 Metre";
-                                    }
-                                    else if(7750 < distance && distance < 8250) {
-                                        f1.value = "5 Miler";
-                                    }
-                                    else if(15750 < distance && distance < 16250) {
-                                        f1.value = "10 Miler";
-                                    }
-                                    else if(20500 < distance && distance < 21500) {
-                                        f1.value = "Half";
-                                    }
-                                    else if(41000 < distance && distance < 43000) {
-                                        f1.value = "Marathon";
-                                    }
-
-                                    f2.value = hrs;
-                                    f3.value = mins;
-                                    f4.value = secs;
-                                    //console.log(target.nodeName, event);
-
-                                    var submitFormButton = document.getElementById("submitFormButton");
-                                    submitFormButton.click();
-                                };
-                            }
-
-                        })();
-                    </script>
                 </div>
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-
-                        {% for message in messages %}
-                            {% if "Error" not in message[1] %}
-                                <div class="alert alert-info">
-                                    <strong>Success! </strong> {{ message[1] }}
-                                </div>
-                            {% endif %}
-
-                            {% if "Error" in message[1] %}
-                                <div class="alert alert-warning">
-                                    {{ message[1] }}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-
             </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+
+                    <div class="table-responsive">
+                        <table id='myTable' class="table table-striped table-hover">
+                            <caption><h3>Activity Table</h3></caption>
+
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $('#myTable').dataTable( {
+                                        "columnDefs": [
+                                            { "type": "numeric-comma", targets: 3 }
+                                        ]
+                                    } );
+                                } );
+                            </script>
+
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>ID</th>
+                                <th>Activity Name</th>
+                                <th>Distance</th>
+                                <th>Time</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for each_ride in activities_data %}
+
+                                <tr>
+                                    <td scope="row">{{ each_ride[0] }}</td>
+                                    <td><u><code><a href="/activity/{{ each_ride[1] }}"> {{ each_ride[1] }} </a></code></u></td>
+                                    <td>{{ each_ride[2] }}</td>
+                                    <td>{{ each_ride[3] }}</td>
+                                    <td>{{ each_ride[4] }}</td>
+
+
+                                </tr>
+
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function () {
+                    if (window.addEventListener) {
+                        window.addEventListener('load', run, false);
+                    } else if (window.attachEvent) {
+                        window.attachEvent('onload', run);
+                    }
+
+                    function run() {
+                        var t = document.getElementById('myTable');
+                        t.onclick = function (event) {
+                            event = event || window.event; //IE8
+                            var target = event.target || event.srcElement;
+                            while (target && target.nodeName != 'TR') { // find TR
+                                target = target.parentElement;
+                            }
+                            //if (!target) { return; } //tr should be always found
+                            var cells = target.cells; //cell collection - https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableRowElement
+                            //var cells = target.getElementsByTagName('td'); //alternative
+                            if (!cells.length || target.parentNode.nodeName == 'THEAD') {
+                                return;
+                            }
+
+                            var f1 = document.getElementById('race_length');
+                            var f2 = document.getElementById('race_time_hours');
+                            var f3 = document.getElementById('race_time_minutes');
+                            var f4 = document.getElementById('race_time_seconds');
+
+                            var moving_time = cells[4].innerHTML;
+                            var array = moving_time.split(":");
+                            var hrs = array[0];
+                            var mins = array[1];
+                            var secs = array[2];
+
+                            var distance = parseInt(cells[3].innerHTML);
+
+
+                            if(4750 < distance && distance < 5250) {
+                                f1.value = "5 Kilometre";
+                            }
+                            else if(9750 < distance && distance < 10250) {
+                                f1.value = "10 Kilometre";
+                            }
+                            else if(2750 < distance && distance < 3250) {
+                                f1.value = "3 Kilometre";
+                            }
+                            else if(1250 < distance && distance < 1750) {
+                                f1.value = "1500 Metre";
+                            }
+                            else if(7750 < distance && distance < 8250) {
+                                f1.value = "5 Miler";
+                            }
+                            else if(15750 < distance && distance < 16250) {
+                                f1.value = "10 Miler";
+                            }
+                            else if(20500 < distance && distance < 21500) {
+                                f1.value = "Half";
+                            }
+                            else if(41000 < distance && distance < 43000) {
+                                f1.value = "Marathon";
+                            }
+
+                            f2.value = hrs;
+                            f3.value = mins;
+                            f4.value = secs;
+                            //console.log(target.nodeName, event);
+
+                            var submitFormButton = document.getElementById("submitFormButton");
+                            submitFormButton.click();
+                        };
+                    }
+
+                })();
+            </script>
         </div>
+
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+
+                {% for message in messages %}
+                    {% if "Error" not in message[1] %}
+                        <div class="alert alert-info">
+                            <strong>Success! </strong> {{ message[1] }}
+                        </div>
+                    {% endif %}
+
+                    {% if "Error" in message[1] %}
+                        <div class="alert alert-warning">
+                            {{ message[1] }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+
 
         <div class="row">
             <div class="col-sm-12">
@@ -343,108 +343,228 @@
 
         <div class="row">
             <div class="col-sm-12">
-                <svg width="100%" height="500px"></svg>
 
-                <script src="https://d3js.org/d3.v4.min.js"></script>
-                <script>
+                <ul class="nav nav-tabs nav-justified">
+                    <li class="active"><a data-toggle="tab" href="#kilometre">Kilometre Splits</a></li>
+                    <li><a data-toggle="tab" href="#landmark">Landmark Splits</a></li>
+                </ul>
+                <br>
+                <div class="tab-content">
+                    <div id="kilometre" class="tab-pane fade in active">
+                        <h4>Kilometre Splits</h4>
 
-                    // SETUP
-                    var svg = d3.select("svg"),
-                        margin = { top: 20, right: 20, bottom: 30, left: 40 },
-                        x = d3.scaleBand().padding(0.1),
-                        y = d3.scaleLinear(),
-                        theData = undefined;
+                        <svg width="100%" height="500px"></svg>
 
-                    var g = svg.append("g")
-                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                        <script src="https://d3js.org/d3.v4.min.js"></script>
+                        <script>
 
-                    g.append("g")
-                        .attr("class", "axis axis--x");
+                            // SETUP
+                            var svg = d3.select("svg"),
+                                margin = { top: 20, right: 20, bottom: 30, left: 40 },
+                                x = d3.scaleBand().padding(0.1),
+                                y = d3.scaleLinear(),
+                                theData = undefined;
 
-                    g.append("g")
-                        .attr("class", "axis axis--y");
+                            var g = svg.append("g")
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                    g.append("text")
-                        .attr("transform", "rotate(-90)")
-                        .attr("y", 6)
-                        .attr("dy", "0.71em")
-                        .attr("text-anchor", "end")
-                        .text("Frequency");
+                            g.append("g")
+                                .attr("class", "axis axis--x");
 
-                    // DRAWING
+                            g.append("g")
+                                .attr("class", "axis axis--y");
 
-                    function draw_chart() {
+                            g.append("text")
+                                .attr("transform", "rotate(-90)")
+                                .attr("y", 6)
+                                .attr("dy", "0.71em")
+                                .attr("text-anchor", "end")
+                                .text("Pace");
 
-                        var bounds = svg.node().getBoundingClientRect(),
-                            width = bounds.width - margin.left - margin.right,
-                            height = bounds.height - margin.top - margin.bottom;
+                            // DRAWING
 
-                        x.rangeRound([0, width]);
-                        y.rangeRound([height, 0]);
+                            function draw_chart() {
 
-                        g.select(".axis--x")
-                            .attr("transform", "translate(0," + height + ")")
-                            .call(d3.axisBottom(x));
+                                var bounds = svg.node().getBoundingClientRect(),
+                                    width = bounds.width - margin.left - margin.right,
+                                    height = bounds.height - margin.top - margin.bottom;
 
-                        g.select(".axis--y")
-                            .call(d3.axisLeft(y));
+                                x.rangeRound([0, width]);
+                                y.rangeRound([height, 0]);
 
-                        var bars = g.selectAll(".bar")
-                            .data(theData);
+                                g.select(".axis--x")
+                                    .attr("transform", "translate(0," + height + ")")
+                                    .call(d3.axisBottom(x));
 
-                        {#                        var slider = chart.append("g")#}
-                        {#                            .attr("class", "slider")#}
-                        {#                            .attr("transform", "translate(" + margin.left + "," + (height + margin.bottom) + ")");#}
-                        {#                        #}
+                                g.select(".axis--y")
+                                    .call(d3.axisLeft(y));
 
-                        // ENTER
-                        bars.enter().append("rect")
-                            .attr("class", "bar")
-                            .attr("x", function (d) { return x(d.kilometre); })
-                            .attr("y", function (d) { return y(d.pace); })
-                            .attr("width", x.bandwidth())
-                            .attr("height", function (d) { return height - y(d.pace); });
+                                var bars = g.selectAll(".bar")
+                                    .data(theData);
 
-                        // UPDATE
-                        bars.attr("x", function (d) { return x(d.kilometre); })
-                            .attr("y", function (d) { return y(d.pace); })
-                            .attr("width", x.bandwidth())
-                            .attr("height", function (d) { return height - y(d.pace); });
+{#                                var slider = chart.append("g")#}
+{#                                    .attr("class", "slider")#}
+{#                                    .attr("transform", "translate(" + margin.left + "," + (height + margin.bottom) + ")");#}
 
-                        // EXIT
-                        bars.exit()
-                            .remove();
 
-                    }
+                                // ENTER
+                                bars.enter().append("rect")
+                                    .attr("class", "bar")
+                                    .attr("x", function (d) { return x(d.kilometre); })
+                                    .attr("y", function (d) { return y(d.pace); })
+                                    .attr("width", x.bandwidth())
+                                    .attr("height", function (d) { return height - y(d.pace); });
 
-                    // LOADING DATA
+                                // UPDATE
+                                bars.attr("x", function (d) { return x(d.kilometre); })
+                                    .attr("y", function (d) { return y(d.pace); })
+                                    .attr("width", x.bandwidth())
+                                    .attr("height", function (d) { return height - y(d.pace); });
 
-                    function loadData(csvFile) {
+                                // EXIT
+                                bars.exit()
+                                    .remove();
 
-                        d3.csv(csvFile, function (d) {
-                            d.pace = +d.pace;
-                            d.kilometre = +d.kilometre;
-                            return d;
+                            }
 
-                        }, function (error, data) {
-                            if (error) throw error;
+                            // LOADING DATA
 
-                            theData = data;
+                            function loadData(csvFile) {
 
-                            x.domain(theData.map(function (d) { return d.kilometre; }));
-                            y.domain([0, d3.max(theData, function (d) { return d.pace; })+1]);
+                                d3.csv(csvFile, function (d) {
+                                    d.pace = +d.pace;
+                                    d.kilometre = +d.kilometre;
+                                    return d;
 
-                            draw_chart();
+                                }, function (error, data) {
+                                    if (error) throw error;
 
-                        });
-                    }
+                                    theData = data;
 
-                    // START!
+                                    x.domain(theData.map(function (d) { return d.kilometre; }));
+                                    y.domain([0, d3.max(theData, function (d) { return d.pace; })+1]);
 
-                    window.addEventListener("resize", draw_chart);
-                    loadData("/static/data.csv" + '?' + Math.floor(Math.random() * 1000));
+                                    draw_chart();
 
-                </script>
+                                });
+                            }
+
+                            // START!
+
+                            window.addEventListener("resize", draw_chart);
+                            loadData("/static/data.csv" + '?' + Math.floor(Math.random() * 1000));
+
+                        </script>
+
+                    </div>
+                    <div id="landmark" class="tab-pane fade">
+                        <h4>Landmark Splits</h4>
+
+                        <svg width="100%" height="500px"></svg>
+
+                        <script src="https://d3js.org/d3.v4.min.js"></script>
+                        <script>
+
+                            // SETUP
+                            var svg = d3.select("svg"),
+                                margin = { top: 20, right: 20, bottom: 30, left: 40 },
+                                x = d3.scaleBand().padding(0.1),
+                                y = d3.scaleLinear(),
+                                theData = undefined;
+
+                            var g = svg.append("g")
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                            g.append("g")
+                                .attr("class", "axis axis--x");
+
+                            g.append("g")
+                                .attr("class", "axis axis--y");
+
+                            g.append("text")
+                                .attr("transform", "rotate(-90)")
+                                .attr("y", 6)
+                                .attr("dy", "0.71em")
+                                .attr("text-anchor", "end")
+                                .text("Pace");
+
+                            // DRAWING
+
+                            function draw_chart() {
+
+                                var bounds = svg.node().getBoundingClientRect(),
+                                    width = bounds.width - margin.left - margin.right,
+                                    height = bounds.height - margin.top - margin.bottom;
+
+                                x.rangeRound([0, width]);
+                                y.rangeRound([height, 0]);
+
+                                g.select(".axis--x")
+                                    .attr("transform", "translate(0," + height + ")")
+                                    .call(d3.axisBottom(x));
+
+                                g.select(".axis--y")
+                                    .call(d3.axisLeft(y));
+
+                                var bars = g.selectAll(".bar")
+                                    .data(theData);
+
+                                {#                        var slider = chart.append("g")#}
+                                {#                            .attr("class", "slider")#}
+                                {#                            .attr("transform", "translate(" + margin.left + "," + (height + margin.bottom) + ")");#}
+                                {#                        #}
+
+                                // ENTER
+                                bars.enter().append("rect")
+                                    .attr("class", "bar")
+                                    .attr("x", function (d) { return x(d.kilometre); })
+                                    .attr("y", function (d) { return y(d.pace); })
+                                    .attr("width", x.bandwidth())
+                                    .attr("height", function (d) { return height - y(d.pace); });
+
+                                // UPDATE
+                                bars.attr("x", function (d) { return x(d.kilometre); })
+                                    .attr("y", function (d) { return y(d.pace); })
+                                    .attr("width", x.bandwidth())
+                                    .attr("height", function (d) { return height - y(d.pace); });
+
+                                // EXIT
+                                bars.exit()
+                                    .remove();
+
+                            }
+
+                            // LOADING DATA
+
+                            function loadData(csvFile) {
+
+                                d3.csv(csvFile, function (d) {
+                                    d.pace = +d.pace;
+                                    d.kilometre = +d.kilometre;
+                                    return d;
+
+                                }, function (error, data) {
+                                    if (error) throw error;
+
+                                    theData = data;
+
+                                    x.domain(theData.map(function (d) { return d.kilometre; }));
+                                    y.domain([0, d3.max(theData, function (d) { return d.pace; })+1]);
+
+                                    draw_chart();
+
+                                });
+                            }
+
+                            // START!
+
+                            window.addEventListener("resize", draw_chart);
+                            loadData("/static/data.csv" + '?' + Math.floor(Math.random() * 1000));
+
+                        </script>
+
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -471,10 +591,10 @@
                     <li><a data-toggle="tab" href="#nine">9-10 m/km Pace</a></li>
                     <li><a data-toggle="tab" href="#ten">10-11 m/km Pace</a></li>
                 </ul>
-
+                <br>
                 <div class="tab-content">
                     <div id="three" class="tab-pane fade in active">
-                        <h3>3-4 Minute Kilometre Paces</h3>
+                        <h4>3-4 Minute Kilometre Paces</h4>
                         <table class="table table-striped table-hover table-bordered table-responsive padded">
 
                             <thead>
@@ -1115,7 +1235,7 @@
                         </table>
                     </div>
                     <div id="four" class="tab-pane fade">
-                        <h3>4-5 Minute Kilometre Pace</h3>
+                        <h4>4-5 Minute Kilometre Pace</h4>
                         <table class="table table-striped table-hover table-bordered table-responsive padded">
                             <thead>
                             <tr>
@@ -1754,7 +1874,7 @@
                         </table>
                     </div>
                     <div id="five" class="tab-pane fade">
-                        <h3>5-6 Minute Kilometre Pace</h3>
+                        <h4>5-6 Minute Kilometre Pace</h4>
                         <table class="table table-striped table-hover table-bordered table-responsive padded">
                             <thead>
                             <tr>
@@ -2393,7 +2513,7 @@
                         </table>
                     </div>
                     <div id="six" class="tab-pane fade">
-                        <h3>6-7 Minute Kilometre Pace</h3>
+                        <h4>6-7 Minute Kilometre Pace</h4>
                         <table class="table table-striped table-hover table-bordered table-responsive padded">
                             <thead>
                             <tr>
@@ -3032,7 +3152,7 @@
                         </table>
                     </div>
                     <div id="seven" class="tab-pane fade">
-                        <h3>7-8 Minute Kilometre Pace</h3>
+                        <h4>7-8 Minute Kilometre Pace</h4>
                         <table class="table table-striped table-hover table-bordered table-responsive padded">
                             <thead>
                             <tr>
@@ -3671,7 +3791,7 @@
                         </table>
                     </div>
                     <div id="eight" class="tab-pane fade">
-                        <h3>8-9 Minute Kilometre Pace</h3>
+                        <h4>8-9 Minute Kilometre Pace</h4>
                         <table class="table table-striped table-hover table-bordered table-responsive padded">
                             <thead>
                             <tr>
@@ -4310,7 +4430,7 @@
                         </table>
                     </div>
                     <div id="nine" class="tab-pane fade">
-                        <h3>9-10 Minute Kilometre Pace</h3>
+                        <h4>9-10 Minute Kilometre Pace</h4>
                         <table class="table table-striped table-hover table-bordered table-responsive padded">
                             <thead>
                             <tr>
@@ -4949,7 +5069,7 @@
                         </table>
                     </div>
                     <div id="ten" class="tab-pane fade">
-                        <h3>10-11 Minute Kilometre Pace</h3>
+                        <h4>10-11 Minute Kilometre Pace</h4>
                         <table class="table table-striped table-hover table-bordered table-responsive padded">
 
                             <thead>

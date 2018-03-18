@@ -1,5 +1,6 @@
 import csv
 import datetime
+from datetime import timedelta
 import math
 from decimal import getcontext, Decimal
 
@@ -9,6 +10,7 @@ from flask_googlemaps import GoogleMaps
 from flask_sqlalchemy import SQLAlchemy
 from stravalib.client import Client
 from wtforms import Form, IntegerField, TextField, validators
+from pygal.style import RotateStyle
 
 app = Flask(__name__)
 # app.static_url_path='/static'
@@ -103,7 +105,7 @@ def check_for_cookie():
         return False
 
 
-# The response page that the user is presented with when they authorize the app for the first time.
+# The response page for first time authorization.
 @app.route('/response_url/', methods=['GET', 'POST'])
 def response_url():
     error = request.args.get('error')
@@ -111,10 +113,16 @@ def response_url():
         return render_template("access_denied.html", methods=['GET', 'POST'])
 
     code = request.args.get('code')
-    athlete_access_token = client.exchange_code_for_token(client_id=MY_CLIENT_ID,
-                                                          client_secret=MY_CLIENT_SECRET, code=code)
+
+    athlete_access_token = client.exchange_code_for_token\
+        (client_id=MY_CLIENT_ID,
+         client_secret=MY_CLIENT_SECRET,
+         code=code)
 
     client.access_token = athlete_access_token
+
+
+
     athlete = client.get_athlete()
     check_code = athlete_access_token
     check_access_token = AccessTokens.query.filter_by(access_token=check_code).first()
@@ -147,6 +155,8 @@ activity_routes = ['five_k', 'ten_k', 'three_k', 'one_five_k', 'four_k',
 def activities(distance_name):
     print(distance_name)
     activities_ = []
+    all_runs = []
+    all_rides = []
     activities_data = []
     data_one_five = []
     data_3k = []
@@ -164,13 +174,16 @@ def activities(distance_name):
         for activity in client.get_activities(before=datetime.datetime.now(),
                                               after=client.get_athlete().created_at, limit=None):
             activity_data = len(activities_data) + 1, '{}'.format(activity.id), '{}'.format(activity.name), \
-                            '{}'.format(activity.distance), u'{}'.format(activity.moving_time)
+                            '{}'.format(activity.distance), '{}'.format(activity.moving_time), \
+                            '{}'.format(activity.average_speed), '{}'.format(activity.max_speed), \
+                            '{}'.format(str(activity.start_date)[0:10])
             activities_.append(activity)
 
             activities_data.append(activity_data)
             distance = convert_distance_to_integer(activity.distance.__str__())
 
             if activity.type == 'Run':
+                all_runs.append(activity_data)
                 if 1400 < distance < 1600:
                     data_one_five.append(activity_data)
                 elif 2750 < distance < 3250:
@@ -189,6 +202,8 @@ def activities(distance_name):
                     data_half.append(activity_data)
                 elif 41000 < distance < 43000:
                     data_marathon.append(activity_data)
+            elif activity.type == 'Ride':
+                all_rides.append(activity_data)
 
         if distance_name == '1.5K':
             activities_data = data_one_five
@@ -204,10 +219,14 @@ def activities(distance_name):
             activities_data = data_10k
         elif distance_name == '10M':
             activities_data = data_10m
-        elif distance_name == 'Half-Marathon':
+        elif distance_name == 'Half':
             activities_data = data_half
         elif distance_name == 'Marathon':
             activities_data = data_marathon
+        elif distance_name == 'all_runs':
+            activities_data = all_runs
+        elif distance_name == 'all_rides':
+            activities_data = all_rides
         else:
             activities_data = activities_data
 
@@ -222,220 +241,288 @@ def summary():
     running_distance = 0
     cycling_distance = 0
     other_activity_distance = 0
+
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
+        week_runs = [0,0,0,0,0,0,0]
+        week_rides = [0,0,0,0,0,0,0]
+        week_other = [0,0,0,0,0,0,0]
+        prev_day = 7  # not a valid day of the week as needs to be used to check against activity day
+        weekly_activities_total = 0
+        weekly_runs_total = 0
+        weekly_rides_total = 0
+        weekly_other_total = 0
+        distance_covered = 0
+        time_training = 0
+
         for activity in client.get_activities(before=datetime.datetime.now(),
-                                              after="2010-01-01T00:00:00Z", limit=None):
-            activities.append(activity)
-            total_activity_distance += convert_distance_to_integer(activity.distance.__str__())
+                                              after=datetime.datetime.now()-timedelta(days=7), limit=None):
+            weekly_activities_total += 1
+
+            month_str = "%02d" % (int(str(activity.start_date)[5:7]),)
+            day_str = "%02d" % (int(str(activity.start_date)[8:10]),)
+
+            day_of_week = datetime.datetime(int(str(activity.start_date)[0:4]), int(month_str), int(day_str)).weekday()
+
+            if prev_day != day_of_week:
+                todays_runs = 0
+                todays_rides = 0
+                todays_other = 0
 
             if activity.type == 'Run':
-                running_distance += convert_distance_to_integer(activity.distance.__str__())
+                todays_runs += 1
+                week_runs[day_of_week] = todays_runs
+                weekly_runs_total += 1
             elif activity.type == 'Ride':
-                cycling_distance += convert_distance_to_integer(activity.distance.__str__())
+                todays_rides += 1
+                week_rides[day_of_week] = todays_rides
+                weekly_rides_total += 1
             else:
-                other_activity_distance += convert_distance_to_integer(activity.distance.__str__())
+                todays_other += 1
+                week_other[day_of_week] = todays_other
+                weekly_other_total
 
-            activity_present = UserActivities.query.filter_by(activity_id=activity.id).first()
+            hrs, mins, secs = str(activity.moving_time).split(':')
+            time_training += get_sec(hrs, mins, secs)
 
-            if activity_present:
-                db.session.commit()
-                print('already present')
-            else:
-                print('not present')
-                signature = UserActivities(athlete_id=client.get_athlete().id, activity_id=activity.id,
-                                           activity_type=activity.type, date=activity.start_date,
-                                           distance=convert_distance_to_integer(activity.distance.__str__()),
-                                           activity_moving_time=activity.moving_time,
-                                           average_speed=activity.average_speed.__str__(),
-                                           max_speed=activity.max_speed.__str__())
-                db.session.add(signature)
-                db.session.commit()
+            distance_covered += convert_distance_to_integer(activity.distance.__str__())
+            prev_day = day_of_week
+        print(week_runs, week_rides)
 
-        UserActivities.query.filter_by(athlete_id=client.get_athlete().id)
-        first_activity = UserActivities.query.filter_by(athlete_id=client.get_athlete().id).order_by(
-            UserActivities.date).first()
+    iteration = 0
+    first_activity_val = 100000000000
+    for activity in client.get_activities(before=datetime.datetime.now(),
+                                          after="2010-01-01T00:00:00Z", limit=None):
+        if int(activity.id) < int(first_activity_val):
+            first_activity = activity
+            first_activity_val = int(first_activity.id)
+        # iteration = 1
+        activities.append(activity)
+        total_activity_distance += convert_distance_to_integer(activity.distance.__str__())
 
-
-        pie_chart = total_activities_pie_chart()
-        distances_run = distances_ran(activities)
-
-        five_k = 0
-        ten_k = 0
-        three_k = 0
-        one_five_k = 0
-        four_k = 0
-        five_m = 0
-        ten_m = 0
-        half = 0
-        marathon = 0
-
-        for id, distance in distances_run.items():
-            if distance == "5K":
-                five_k += 1
-            elif distance == "10K":
-                ten_k += 1
-            elif distance == "3K":
-                three_k += 1
-            elif distance == "1.5K":
-                one_five_k += 1
-            elif distance == "4K":
-                four_k += 1
-            elif distance == "5M":
-                five_m += 1
-            elif distance == "10M":
-                ten_m += 1
-            elif distance == "Half":
-                half += 1
-            elif distance == "Marathon":
-                marathon += 1
-
-        write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon)
-
-        jan_run = 0
-        feb_run = 0
-        mar_run = 0
-        apr_run = 0
-        may_run = 0
-        jun_run = 0
-        jul_run = 0
-        aug_run = 0
-        sep_run = 0
-        oct_run = 0
-        nov_run = 0
-        dec_run = 0
-
-        jan_ride = 0
-        feb_ride = 0
-        mar_ride = 0
-        apr_ride = 0
-        may_ride = 0
-        jun_ride = 0
-        jul_ride = 0
-        aug_ride = 0
-        sep_ride = 0
-        oct_ride = 0
-        nov_ride = 0
-        dec_ride = 0
-
-        jan = 0
-        feb = 0
-        mar = 0
-        apr = 0
-        may = 0
-        jun = 0
-        jul = 0
-        aug = 0
-        sep = 0
-        oct = 0
-        nov = 0
-        dec = 0
-
-        if check_for_cookie() is False:
-            return render_template("homepage.html")
+        if activity.type == 'Run':
+            running_distance += convert_distance_to_integer(activity.distance.__str__())
+        elif activity.type == 'Ride':
+            cycling_distance += convert_distance_to_integer(activity.distance.__str__())
         else:
-            month = 1
-            while month <= 12:
-                month_str = "%02d" % (month,)
-                for activity in client.get_activities(before="2017-" + month_str + "-28T00:00:00Z",
-                                                      after="2017-" + month_str + "-01T00:00:00Z", limit=None):
-                    if (activity.type == 'Run'):
-                        if month == 1:
-                            jan_run += 1
-                        elif month == 2:
-                            feb_run += 1
-                        elif month == 3:
-                            mar_run += 1
-                        elif month == 4:
-                            apr_run += 1
-                        elif month == 5:
-                            may_run += 1
-                        elif month == 6:
-                            jun_run += 1
-                        elif month == 7:
-                            jul_run += 1
-                        elif month == 8:
-                            aug_run += 1
-                        elif month == 9:
-                            sep_run += 1
-                        elif month == 10:
-                            oct_run += 1
-                        elif month == 11:
-                            nov_run += 1
-                        elif month == 12:
-                            dec_run += 1
-                    elif (activity.type == 'Ride'):
-                        if month == 1:
-                            jan_ride += 1
-                        elif month == 2:
-                            feb_ride += 1
-                        elif month == 3:
-                            mar_ride += 1
-                        elif month == 4:
-                            apr_ride += 1
-                        elif month == 5:
-                            may_ride += 1
-                        elif month == 6:
-                            jun_ride += 1
-                        elif month == 7:
-                            jul_ride += 1
-                        elif month == 8:
-                            aug_ride += 1
-                        elif month == 9:
-                            sep_ride += 1
-                        elif month == 10:
-                            oct_ride += 1
-                        elif month == 11:
-                            nov_ride += 1
-                        elif month == 12:
-                            dec_ride += 1
-                    elif convert_distance_to_integer(activity.distance.__str__()) > 0:
-                        if month == 1:
-                            jan += 1
-                        elif month == 2:
-                            feb += 1
-                        elif month == 3:
-                            mar += 1
-                        elif month == 4:
-                            apr += 1
-                        elif month == 5:
-                            may += 1
-                        elif month == 6:
-                            jun += 1
-                        elif month == 7:
-                            jul += 1
-                        elif month == 8:
-                            aug += 1
-                        elif month == 9:
-                            sep += 1
-                        elif month == 10:
-                            oct += 1
-                        elif month == 11:
-                            nov += 1
-                        elif month == 12:
-                            dec += 1
+            other_activity_distance += convert_distance_to_integer(activity.distance.__str__())
 
-                month += 1
+        activity_present = UserActivities.query.filter_by(activity_id=activity.id).first()
+
+        if activity_present:
+            db.session.commit()
+            print('already present')
+        else:
+            print('not present')
+            signature = UserActivities(athlete_id=client.get_athlete().id, activity_id=activity.id,
+                                       activity_type=activity.type, date=activity.start_date,
+                                       distance=convert_distance_to_integer(activity.distance.__str__()),
+                                       activity_moving_time=activity.moving_time,
+                                       average_speed=activity.average_speed.__str__(),
+                                       max_speed=activity.max_speed.__str__())
+            db.session.add(signature)
+            db.session.commit()
+
+    UserActivities.query.filter_by(athlete_id=client.get_athlete().id)
 
 
-        return render_template("summary.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats(),
-                               last_ten_rides=last_ten_rides(), athlete_profiler=client.get_athlete().profile,
-                               pie_chart=pie_chart, first_activity=first_activity,
-                               total_activity_distance=total_activity_distance, running_distance=running_distance,
-                               cycling_distance=cycling_distance, other_activity_distance=other_activity_distance,
 
-                               jan=jan, feb=feb, mar=mar, apr=apr, may=may, jun=jun, jul=jul, aug=aug, sep=sep
-                               , oct=oct, nov=nov, dec=dec,
-                               jan_run=jan_run, feb_run=feb_run, mar_run=mar_run, apr_run=apr_run, may_run=may_run,
-                               jun_run=jun_run, jul_run=jul_run, aug_run=aug_run, sep_run=sep_run, oct_run=oct_run,
-                               nov_run=nov_run, dec_run=dec_run,
-                               jan_ride=jan_ride, feb_ride=feb_ride, mar_ride=mar_ride, apr_ride=apr_ride,
-                               may_ride=may_ride,
-                               jun_ride=jun_ride, jul_ride=jul_ride, aug_ride=aug_ride, sep_ride=sep_ride,
-                               oct_ride=oct_ride,
-                               nov_ride=nov_ride, dec_ride=dec_ride
-                               )
+    pie_chart = total_activities_pie_chart()
+    distances_run = distances_ran(activities)
+
+    five_k = 0
+    ten_k = 0
+    three_k = 0
+    one_five_k = 0
+    four_k = 0
+    five_m = 0
+    ten_m = 0
+    half = 0
+    marathon = 0
+
+    for id, distance in distances_run.items():
+        if distance == "5K":
+            five_k += 1
+        elif distance == "10K":
+            ten_k += 1
+        elif distance == "3K":
+            three_k += 1
+        elif distance == "1.5K":
+            one_five_k += 1
+        elif distance == "4K":
+            four_k += 1
+        elif distance == "5M":
+            five_m += 1
+        elif distance == "10M":
+            ten_m += 1
+        elif distance == "Half":
+            half += 1
+        elif distance == "Marathon":
+            marathon += 1
+
+    write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon)
+
+    jan_run = 0
+    feb_run = 0
+    mar_run = 0
+    apr_run = 0
+    may_run = 0
+    jun_run = 0
+    jul_run = 0
+    aug_run = 0
+    sep_run = 0
+    oct_run = 0
+    nov_run = 0
+    dec_run = 0
+
+    jan_ride = 0
+    feb_ride = 0
+    mar_ride = 0
+    apr_ride = 0
+    may_ride = 0
+    jun_ride = 0
+    jul_ride = 0
+    aug_ride = 0
+    sep_ride = 0
+    oct_ride = 0
+    nov_ride = 0
+    dec_ride = 0
+
+    jan = 0
+    feb = 0
+    mar = 0
+    apr = 0
+    may = 0
+    jun = 0
+    jul = 0
+    aug = 0
+    sep = 0
+    oct = 0
+    nov = 0
+    dec = 0
+
+    if check_for_cookie() is False:
+        return render_template("homepage.html")
+    else:
+        month = 1
+        while month <= 12:
+            month_str = "%02d" % (month,)
+            for activity in client.get_activities(before="2017-" + month_str + "-28T00:00:00Z",
+                                                  after="2017-" + month_str + "-01T00:00:00Z", limit=None):
+                if (activity.type == 'Run'):
+                    if month == 1:
+                        jan_run += 1
+                    elif month == 2:
+                        feb_run += 1
+                    elif month == 3:
+                        mar_run += 1
+                    elif month == 4:
+                        apr_run += 1
+                    elif month == 5:
+                        may_run += 1
+                    elif month == 6:
+                        jun_run += 1
+                    elif month == 7:
+                        jul_run += 1
+                    elif month == 8:
+                        aug_run += 1
+                    elif month == 9:
+                        sep_run += 1
+                    elif month == 10:
+                        oct_run += 1
+                    elif month == 11:
+                        nov_run += 1
+                    elif month == 12:
+                        dec_run += 1
+                elif (activity.type == 'Ride'):
+                    if month == 1:
+                        jan_ride += 1
+                    elif month == 2:
+                        feb_ride += 1
+                    elif month == 3:
+                        mar_ride += 1
+                    elif month == 4:
+                        apr_ride += 1
+                    elif month == 5:
+                        may_ride += 1
+                    elif month == 6:
+                        jun_ride += 1
+                    elif month == 7:
+                        jul_ride += 1
+                    elif month == 8:
+                        aug_ride += 1
+                    elif month == 9:
+                        sep_ride += 1
+                    elif month == 10:
+                        oct_ride += 1
+                    elif month == 11:
+                        nov_ride += 1
+                    elif month == 12:
+                        dec_ride += 1
+                elif convert_distance_to_integer(activity.distance.__str__()) > 0:
+                    if month == 1:
+                        jan += 1
+                    elif month == 2:
+                        feb += 1
+                    elif month == 3:
+                        mar += 1
+                    elif month == 4:
+                        apr += 1
+                    elif month == 5:
+                        may += 1
+                    elif month == 6:
+                        jun += 1
+                    elif month == 7:
+                        jul += 1
+                    elif month == 8:
+                        aug += 1
+                    elif month == 9:
+                        sep += 1
+                    elif month == 10:
+                        oct += 1
+                    elif month == 11:
+                        nov += 1
+                    elif month == 12:
+                        dec += 1
+
+            month += 1
+
+
+    dark_rotate_style = RotateStyle('#9e6ffe')
+    dark_rotate_style.background = 'white'
+    line_chart = pygal.Line(legend_at_bottom=True, legend_at_bottom_columns=3, dots_size=5,
+                            show_minor_y_labels=False, height=400, style=dark_rotate_style)
+
+    line_chart.title = 'Activities This Week:'
+    line_chart.x_labels = (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+    line_chart.add('Runs', week_runs)
+    line_chart.add('Rides', week_rides)
+    line_chart.add('Other Activities', week_other)
+    line_chart = line_chart.render_data_uri()
+
+
+    return render_template("summary.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats(),
+                           last_ten_rides=last_ten_rides(), athlete_profiler=client.get_athlete().profile,
+                           pie_chart=pie_chart, first_activity=first_activity, line_chart=line_chart,
+                           total_activity_distance=total_activity_distance, running_distance=running_distance,
+                           cycling_distance=cycling_distance, other_activity_distance=other_activity_distance,
+                           weekly_activities_total=weekly_activities_total, weekly_runs_total=weekly_runs_total,
+                           weekly_rides_total=weekly_rides_total, weekly_others_total=weekly_other_total,
+                           distance_covered=distance_covered, time_training=sec_to_time(time_training),
+                           join_date=str(client.get_athlete().created_at)[0:4],
+
+                           jan=jan, feb=feb, mar=mar, apr=apr, may=may, jun=jun, jul=jul, aug=aug, sep=sep
+                           , oct=oct, nov=nov, dec=dec,
+                           jan_run=jan_run, feb_run=feb_run, mar_run=mar_run, apr_run=apr_run, may_run=may_run,
+                           jun_run=jun_run, jul_run=jul_run, aug_run=aug_run, sep_run=sep_run, oct_run=oct_run,
+                           nov_run=nov_run, dec_run=dec_run,
+                           jan_ride=jan_ride, feb_ride=feb_ride, mar_ride=mar_ride, apr_ride=apr_ride,
+                           may_ride=may_ride,
+                           jun_ride=jun_ride, jul_ride=jul_ride, aug_ride=aug_ride, sep_ride=sep_ride,
+                           oct_ride=oct_ride,
+                           nov_ride=nov_ride, dec_ride=dec_ride
+                           )
 
 
 def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon):
@@ -444,7 +531,7 @@ def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
-    # spamwriter.writerow(['{},{}'.format(i, pace)])
+        # spamwriter.writerow(['{},{}'.format(i, pace)])
 
         spamwriter.writerow(['letter,frequency'])
         spamwriter.writerow(['{},{}'.format('1.5K', one_five_k)])
@@ -454,9 +541,8 @@ def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_
         spamwriter.writerow(['{},{}'.format('5M', five_m)])
         spamwriter.writerow(['{},{}'.format('10K', ten_k)])
         spamwriter.writerow(['{},{}'.format('10M', ten_m)])
-        spamwriter.writerow(['{},{}'.format('Half-Marathon', half)])
+        spamwriter.writerow(['{},{}'.format('Half', half)])
         spamwriter.writerow(['{},{}'.format('Marathon', marathon)])
-
 
 
 def convert_distance_to_integer(string_distance):
