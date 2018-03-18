@@ -281,7 +281,7 @@ def summary():
             else:
                 todays_other += 1
                 week_other[day_of_week] = todays_other
-                weekly_other_total
+                weekly_other_total += 1
 
             hrs, mins, secs = str(activity.moving_time).split(':')
             time_training += get_sec(hrs, mins, secs)
@@ -462,6 +462,7 @@ def summary():
                     elif month == 12:
                         dec_ride += 1
                 elif convert_distance_to_integer(activity.distance.__str__()) > 0:
+                    print('here')
                     if month == 1:
                         jan += 1
                     elif month == 2:
@@ -492,8 +493,9 @@ def summary():
 
     dark_rotate_style = RotateStyle('#9e6ffe')
     dark_rotate_style.background = 'white'
-    line_chart = pygal.Line(legend_at_bottom=True, legend_at_bottom_columns=3, dots_size=5,
-                            show_minor_y_labels=False, height=400, style=dark_rotate_style)
+    line_chart = pygal.Line(legend_at_bottom=True, legend_at_bottom_columns=3, dots_size=6,
+                            show_minor_y_labels=False, height=400, style=dark_rotate_style,
+                            stroke_style={'width': 3})
 
     line_chart.title = 'Activities This Week:'
     line_chart.x_labels = (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
