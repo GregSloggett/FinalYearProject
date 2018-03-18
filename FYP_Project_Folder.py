@@ -292,6 +292,7 @@ def summary():
 
     iteration = 0
     first_activity_val = 100000000000
+    first_activity = ''
     for activity in client.get_activities(before=datetime.datetime.now(),
                                           after="2010-01-01T00:00:00Z", limit=None):
         if int(activity.id) < int(first_activity_val):
