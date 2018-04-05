@@ -3,7 +3,7 @@
 
 <body style="padding-top: 50px;">
 
-<div class="runner" style="background-image: url('/static/RunnerImage.jpg')">
+<div class="runner" style="background-image: url('/static/images/RunnerImage.jpg')">
     <div class="jumbotron" style="background-color: transparent">
         <br><br><br><br>
     </div>
@@ -59,13 +59,16 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-4 form-group has-success has-feedback">
-                        <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        <input type="number" class="form-control" id="race_time_hours" name="race_time_hours"
+                               min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
                     </div>
                     <div class="col-sm-4 form-group has-warning has-feedback">
-                        <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes"
+                               min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
                     </div>
                     <div class="col-sm-4 form-group has-error has-feedback">
-                        <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds"
+                               min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
                     </div>
                 </div>
                 <br>
@@ -121,7 +124,10 @@
                 <div class="panel-heading">Dave Cameron's Prediction Algorithm</div>
                 <div class="panel-body">
                     <p>
-                        blah blah blah
+                        The Dave Cameron Model is commonly applied for forecasting your performance based on a previous
+                        race result. The equation applies a formula that makes your time increase by a slightly larger
+                        factor than the distance increase, and makes your time decrease by a slightly smaller factor
+                        than the distance decrease.
                     </p>
                     <p>
                         The formula is..
@@ -129,7 +135,13 @@
 
                     <div style="font-size: medium; font-family: 'Cambria Math'; text-align: center" >
                         <p>
-                            \[ T2 = T1(\frac{D2}{D1})⋅1.06 \]
+                            \[ T_1 = \frac{T_2}{D_1}(
+                                        \frac
+                                        {13.49681 - (0.000030363⋅D_1) + (\frac{835.7114}{D_1^{0.7905}}))}
+                                        {13.49681 - (0.000030363⋅D_2) + (\frac{835.7114}{D_2^{0.7905}})}
+                                    )⋅D_2
+                            \]
+
                         </p>
                     </div>
 
@@ -137,10 +149,10 @@
                         Where..
                     </p>
                     <p style="padding-left: 5em">
-                        x = x<br>
-                        y = y<br>
-                        z = z<br>
-                        w = w<br>
+                        \(T_1\) = Predicted Time<br>
+                        \(T_2\) = Time of Previous Race Run<br>
+                        \(D_1\) = Distance of Previous Race Run<br>
+                        \(D_2\) = Marathon Distance in Meters (42.195 x 1000)
 
                     </p>
                 </div>

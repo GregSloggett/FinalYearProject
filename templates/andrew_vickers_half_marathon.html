@@ -1,146 +1,141 @@
 {% extends "page_layout.html" %}
 {% block body %}
 
-<body style="padding-top: 50px;">
+    <body style="padding-top: 50px;">
 
-<div class="runner" style="background-image: url('/static/GroupOfRunners.jpeg')">
-    <div class="jumbotron" style="background-color: transparent">
-        <br><br><br><br>
-    </div>
-</div>
-
-<div class="container">
-
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="page-header">
-                <h2>Andrew Vicker's Half Marathon</h2>
-            </div>
+    <div class="runner" style="background-image: url('/static/images/GroupOfRunners.jpeg')">
+        <div class="jumbotron" style="background-color: transparent">
+            <br><br><br><br>
         </div>
     </div>
-    <br>
-    <div class="row">
-        <div class="col-sm-6">
-            <form  action="{{ url_for('andrew_vickers_half_marathon') }}" method="post" role="form">
-                {{ form.csrf }}
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label for="race_length">The Andrew Vicker's Half Marathon predictor works solely off a half marathon time.</label>
 
-                            <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
-                                <option value="" disabled hidden>Select your distance.</option>
-                                <option value="Marathon" disabled onclick="getRace()">Marathon</option>
-                                <option value="Half" selected onclick="getRace()">Half Marathon</option>
-                                <option value="10 Miler" disabled onclick="getRace()">10 Miles</option>
-                                <option value="10 Kilometre" disabled onclick="getRace()">10K</option>
-                                <option value="5 Miler" disabled onclick="getRace()">5 Miles</option>
-                                <option value="5 Kilometre" disabled onclick="getRace()">5K</option>
-                                <option value="3 Kilometre" disabled onclick="getRace()">3K</option>
-                                <option value="Miler" disabled onclick="getRace()">1 Mile</option>
-                                <option value="1500 Metre" disabled onclick="getRace()">1500 Meters</option>
-                            </select>
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h2>Andrew Vicker's Half Marathon</h2>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-sm-6">
+                <form  action="{{ url_for('andrew_vickers_half_marathon') }}" method="post" role="form">
+                    {{ form.csrf }}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="race_length">The Andrew Vicker's Half Marathon predictor works solely off a half marathon time.</label>
+
+                                <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
+                                    <option value="" disabled hidden>Select your distance.</option>
+                                    <option value="Marathon" disabled onclick="getRace()">Marathon</option>
+                                    <option value="Half" selected onclick="getRace()">Half Marathon</option>
+                                    <option value="10 Miler" disabled onclick="getRace()">10 Miles</option>
+                                    <option value="10 Kilometre" disabled onclick="getRace()">10K</option>
+                                    <option value="5 Miler" disabled onclick="getRace()">5 Miles</option>
+                                    <option value="5 Kilometre" disabled onclick="getRace()">5K</option>
+                                    <option value="3 Kilometre" disabled onclick="getRace()">3K</option>
+                                    <option value="Miler" disabled onclick="getRace()">1 Mile</option>
+                                    <option value="1500 Metre" disabled onclick="getRace()">1500 Meters</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div id="race_length_head1" class="row">
-                    <div id="race_length_head2" class="col-sm-12">
-                        <label id="id1">
-                            What time did you complete your previous Half Marathon in?
-                        </label>
+                    <div id="race_length_head1" class="row">
+                        <div id="race_length_head2" class="col-sm-12">
+                            <label id="id1">
+                                What time did you complete your previous Half Marathon in?
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4 form-group has-success has-feedback">
-                        <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    <div class="row">
+                        <div class="col-sm-4 form-group has-success has-feedback">
+                            <input type="number" class="form-control" id="race_time_hours" name="race_time_hours"
+                                   min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        </div>
+                        <div class="col-sm-4 form-group has-warning has-feedback">
+                            <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes"
+                                   min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        </div>
+                        <div class="col-sm-4 form-group has-error has-feedback">
+                            <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds"
+                                   min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        </div>
                     </div>
-                    <div class="col-sm-4 form-group has-warning has-feedback">
-                        <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-success">Get Your Time!</button>
+                        </div>
                     </div>
-                    <div class="col-sm-4 form-group has-error has-feedback">
-                        <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
-                    </div>
-                </div>
+                </form>
+
                 <br>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <button type="submit" class="btn btn-success">Get Your Time!</button>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+
+                        {% for message in messages %}
+                            {% if "Error" not in message[1] %}
+                                <div class="alert alert-info">
+                                    <strong>Success! </strong> {{ message[1] }}
+                                </div>
+                            {% endif %}
+
+                            {% if "Error" in message[1] %}
+                                <div class="alert alert-warning">
+                                    {{ message[1] }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <br>
+
+                {% if predicted_marathon_time != 0 %}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            Your expected marathon finishing time is {{ predicted_marathon_time }}
+                        </div>
                     </div>
-                </div>
-            </form>
-
-            <br>
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-
-                    {% for message in messages %}
-                        {% if "Error" not in message[1] %}
-                            <div class="alert alert-info">
-                                <strong>Success! </strong> {{ message[1] }}
-                            </div>
-                        {% endif %}
-
-                        {% if "Error" in message[1] %}
-                            <div class="alert alert-warning">
-                                {{ message[1] }}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
+                {% else %}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            Your expected marathon finishing time will be displayed here.
+                        </div>
+                    </div>
                 {% endif %}
-            {% endwith %}
+            </div>
 
-            <br>
+            <div class="col-sm-6">
 
-            {% if predicted_marathon_time != 0 %}
-                <div class="row">
-                    <div class="col-sm-12">
-                        Your expected marathon finishing time is {{ predicted_marathon_time }}
-                    </div>
-                </div>
-            {% else %}
-                <div class="row">
-                    <div class="col-sm-12">
-                        Your expected marathon finishing time will be displayed here.
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="col-sm-6">
-
-            <div class="panel panel-danger">
-                <div class="panel-heading">Andrew Vicker's Half Marathon Prediction Algorithm</div>
-                <div class="panel-body">
-                    <p>
-                        blah blah blah
-                    </p>
-                    <p>
-                        The formula is..
-                    </p>
-
-                    <div style="font-size: medium; font-family: 'Cambria Math'; text-align: center" >
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Andrew Vicker's Half Marathon Prediction Algorithm</div>
+                    <div class="panel-body">
                         <p>
-                            \[ T2 = T1(\frac{D2}{D1})⋅1.06 \]
+                            Andrew Vicker's performed an abundance of research on marathon predictions. He discovered
+                            that although the Peter Reigel formula is accurate up to and including the half marathon,
+                            it is quite inaccurate for predicting marathon times. He thought this needed to be addressed.
                         </p>
+                        <p>
+                            In his research, he concluded that a better basis to work of was off the following equation:
+                        </p>
+
+                        <div style="font-size: medium; font-family: 'Cambria Math'; text-align: center" >
+                            <p>
+                                \[ Marathon Time = Half Marathon * 2.19\]
+                            </p>
+                        </div>
+
                     </div>
-
-                    <p>
-                        Where..
-                    </p>
-                    <p style="padding-left: 5em">
-                        x = x<br>
-                        y = y<br>
-                        z = z<br>
-                        w = w<br>
-
-                    </p>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<br><br>
-</body>
+    <br><br>
+    </body>
 {% endblock %}

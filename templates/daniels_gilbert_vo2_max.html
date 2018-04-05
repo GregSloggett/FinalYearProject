@@ -1,260 +1,349 @@
 {% extends "page_layout.html" %}
 {% block body %}
 
-<body style="padding-top: 50px;">
+    <body style="padding-top: 50px;">
 
 
-<div class="runner">
-    <div class="jumbotron" style="background-color: transparent">
-        <br><br><br><br>
-    </div>
-</div>
-
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="page-header">
-                <h2>Daniel's & Gilbert VO2 Max Estimate</h2>
-            </div>
+    <div class="runner">
+        <div class="jumbotron" style="background-color: transparent">
+            <br><br><br><br>
         </div>
     </div>
-    <br>
-    <div class="row">
-        <div class="col-sm-6">
-            <form  action="{{ url_for('daniels_gilbert_vo2_max') }}" method="post" role="form">
-                {{ form.csrf }}
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label for="race_length">What's a race that you've recently run?</label>
 
-                            <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
-                                <option value="" disabled selected hidden>Select your distance.</option>
-                                <option value="Marathon" onclick="getRace()">Marathon</option>
-                                <option value="Half" onclick="getRace()">Half Marathon</option>
-                                <option value="10 Miler" onclick="getRace()">10 Miles</option>
-                                <option value="10 Kilometre" onclick="getRace()">10K</option>
-                                <option value="5 Miler" onclick="getRace()">5 Miles</option>
-                                <option value="5 Kilometre" onclick="getRace()">5K</option>
-                                <option value="3 Kilometre" onclick="getRace()">3K</option>
-                                <option value="Miler" onclick="getRace()">1 Mile</option>
-                                <option value="1500 Metre" onclick="getRace()">1500 Meters</option>
-                            </select>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h2>Daniel's & Gilbert VO2 Max Estimate</h2>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-sm-6">
+                <form  action="{{ url_for('daniels_gilbert_vo2_max') }}" method="post" role="form">
+                    {{ form.csrf }}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="race_length">What's a race that you've recently run?</label>
+
+                                <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
+                                    <option value="" disabled selected hidden>Select your distance.</option>
+                                    <option value="Marathon" onclick="getRace()">Marathon</option>
+                                    <option value="Half" onclick="getRace()">Half Marathon</option>
+                                    <option value="10 Miler" onclick="getRace()">10 Miles</option>
+                                    <option value="10 Kilometre" onclick="getRace()">10K</option>
+                                    <option value="5 Miler" onclick="getRace()">5 Miles</option>
+                                    <option value="5 Kilometre" onclick="getRace()">5K</option>
+                                    <option value="3 Kilometre" onclick="getRace()">3K</option>
+                                    <option value="Miler" onclick="getRace()">1 Mile</option>
+                                    <option value="1500 Metre" onclick="getRace()">1500 Meters</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <script>
-                    function getRace() {
-                        var race_length = document.getElementById("race_length").value;
-                        document.getElementById("id1").innerHTML = "What time did you complete that " + race_length + " in?";
-                    }
-                </script>
+                    <script>
+                        function getRace() {
+                            var race_length = document.getElementById("race_length").value;
+                            document.getElementById("id1").innerHTML = "What time did you complete that " + race_length + " in?";
+                        }
+                    </script>
 
-                <div id="race_length_head1" class="row">
-                    <div id="race_length_head2" class="col-sm-12">
-                        <label id="id1">
-                            Duration:
-                        </label>
+                    <div id="race_length_head1" class="row">
+                        <div id="race_length_head2" class="col-sm-12">
+                            <label id="id1">
+                                Duration:
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4 form-group has-success has-feedback">
-                        <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0"
-                               max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    <div class="row">
+                        <div class="col-sm-4 form-group has-success has-feedback">
+                            <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0"
+                                   max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        </div>
+                        <div class="col-sm-4 form-group has-warning has-feedback">
+                            <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0"
+                                   max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        </div>
+                        <div class="col-sm-4 form-group has-error has-feedback">
+                            <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0"
+                                   max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        </div>
                     </div>
-                    <div class="col-sm-4 form-group has-warning has-feedback">
-                        <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0"
-                               max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-success">Get Your Time!</button>
+                        </div>
                     </div>
-                    <div class="col-sm-4 form-group has-error has-feedback">
-                        <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0"
-                               max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
-                    </div>
-                </div>
+                </form>
+
                 <br>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <button type="submit" class="btn btn-success">Get Your Time!</button>
-                    </div>
-                </div>
-            </form>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
 
-            <br>
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
+                        {% for message in messages %}
+                            {% if "Error" not in message[1] %}
+                                <div class="alert alert-info">
+                                    <strong>Success! </strong> {{ message[1] }}
+                                </div>
+                            {% endif %}
 
-                    {% for message in messages %}
-                        {% if "Error" not in message[1] %}
-                            <div class="alert alert-info">
-                                <strong>Success! </strong> {{ message[1] }}
-                            </div>
-                        {% endif %}
+                            {% if "Error" in message[1] %}
+                                <div class="alert alert-warning">
+                                    {{ message[1] }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
 
-                        {% if "Error" in message[1] %}
-                            <div class="alert alert-warning">
-                                {{ message[1] }}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+                <br>
 
-            <br>
-
-            {% if predicted_marathon_time != 0 %}
-                <div class="row">
-                    <div class="col-sm-12">
-                        Your estimated VO2Max score is {{ vo2max }}
-                    </div>
-                </div>
-            {% else %}
-                <div class="row">
-                    <div class="col-sm-12">
-                        <i>Your predicted VO2Max score will be displayed here.</i>
-                    </div>
-                </div>
-            {% endif %}
-
-            <br>
-        </div>
-
-        <div class="col-sm-6">
-
-            <div class="panel panel-success">
-                <div class="panel-heading">VO2 Max Algorithm</div>
-                <div class="panel-body">
-                    <p>
-                        One of the preferred methods estimating race time is based on VO2 max. A runner's VO2 max level is more or less
-                        constant over short periods of time, and it can be estimated from the results of a previous race using the
-                        Daniels and Gilbert equation. Thus, given the values of VO2 max and the distance of new race to be run, a
-                        runner can predict his time to finish the new race.
-                    </p>
-                    <p style="padding-left: 8em;">
-                        Given..
-                    </p>
-                    <p style="padding-left: 10em;">
-                        - a race length of <b><span style="font-family: 'Cambria Math'; font-style: italic;">d </span></b>  meters <br>
-                        - a time of <b><span style="font-family: 'Cambria Math'; font-style: italic;">t </span></b>  minutes <br>
-                        - a running speed of <b><span style="font-family: 'Cambria Math'; font-style: italic;">v = d/t </span></b>  meters per minute <br>
-                    </p>
-                    <p>
-                        Daniels and Gilbert model estimates VO₂ max with the equation: <br>
-                    </p>
-
-                    <div class="post">
-                        <div class="postcontent" style="font-size: medium; font-family: 'Cambria Math'" >
-                            <p>
-                                \[ VO^2 MAX= \frac{0.000104⋅v^2 + 0.182258(v) − 4.6}{0.2989558⋅e^{−0.1932605⋅t} + 0.1894393⋅e^{−0.012778⋅t} + 0.8}\]
-                            </p>
-
+                {% if predicted_marathon_time != 0 %}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            Your estimated VO2Max score is {{ vo2max }}
                         </div>
                     </div>
+                {% else %}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <i>Your predicted VO2Max score will be displayed here.</i>
+                        </div>
+                    </div>
+                {% endif %}
 
-                    <p>
-                        The numerator is a rational function of t, while the denominator is an exponential function of t, thus it is not
-                        possible to solve for t using simple algebra. The calculator thus solves this equation numerically rounding down to the nearest whole second.
-                    </p>
+                <br>
+            </div>
+
+            <div class="col-sm-6">
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">VO2 Max Algorithm</div>
+                    <div class="panel-body">
+                        <p>
+                            One of the preferred methods estimating race time is based on VO2 max. A runner's VO2 max level is more or less
+                            constant over short periods of time, and it can be estimated from the results of a previous race using the
+                            Daniels and Gilbert equation. Thus, given the values of VO2 max and the distance of new race to be run, a
+                            runner can predict his time to finish the new race.
+                        </p>
+                        <p style="padding-left: 8em;">
+                            Given..
+                        </p>
+                        <p style="padding-left: 10em;">
+                            - a race length of <b><span style="font-family: 'Cambria Math'; font-style: italic;">d </span></b>  meters <br>
+                            - a time of <b><span style="font-family: 'Cambria Math'; font-style: italic;">t </span></b>  minutes <br>
+                            - a running speed of <b><span style="font-family: 'Cambria Math'; font-style: italic;">v = d/t </span></b>  meters per minute <br>
+                        </p>
+                        <p>
+                            Daniels and Gilbert model estimates VO₂ max with the equation: <br>
+                        </p>
+
+                        <div class="post">
+                            <div class="postcontent" style="font-size: medium; font-family: 'Cambria Math'" >
+                                <p>
+                                    \[ VO^2 MAX= \frac{0.000104⋅v^2 + 0.182258(v) − 4.6}{0.2989558⋅e^{−0.1932605⋅t} + 0.1894393⋅e^{−0.012778⋅t} + 0.8}\]
+                                </p>
+
+                            </div>
+                        </div>
+
+                        <p>
+                            The numerator is a rational function of t, while the denominator is an exponential function of t, thus it is not
+                            possible to solve for t using simple algebra. The calculator thus solves this equation numerically rounding down to the nearest whole second.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <p><strong>VO2 Max Values for Popular Race Distances</strong></p>
+            <table class="table table-striped table-bordered table-hover">
+                <tbody>
+
+                <tr>
+                    <th>VDOT</th><th>1500m</th><th>Mile</th><th>3,000m</th><th>2-mile</th><th>5,000m</th><th>10,000m</th>
+                    <th>15K</th><th>Half Marathon</th><th>Marathon</th><th>VDOT</th>
+                </tr>
+                <tr>
+                    <td>30</td><td>8:30</td><td>9:11</td><td>17:56</td><td>19:19</td><td>30:40</td><td>63:46</td><td>98:14</td>
+                    <td>2:21:04</td><td>4:49:17</td><td><strong>30</strong></td>
+                </tr>
+                <tr>
+                    <td>31</td><td>8:15</td><td>8:55</td>
+                    <td>17:27</td><td>18:48</td><td>29:51</td><td>62:03</td><td>95:36</td><td>2:17:21</td><td>4:41:57</td><td>
+                    <strong>31</strong></td>
+                </tr>
+                <tr>
+                    <td>32</td><td>8:02</td><td>8:41</td><td>16:59</td><td>18:18</td>
+                    <td>29:05</td><td>60:26</td><td>93:07</td><td>2:13:49</td><td>4:34:59</td><td><strong>32</strong></td>
+                </tr>
+                <tr>
+                    <td>33</td><td>7:49</td><td>8:27</td><td>16:33</td><td>17:50</td><td>28:21</td><td>58:54</td><td>90:45</td>
+                    <td>2:10:27</td><td>4:28:22</td><td><strong>33</strong></td>
+                </tr>
+                <tr>
+                    <td>34</td><td>7:37</td><td>8:14</td>
+                    <td>16:09</td><td>17:24</td><td>27:39</td><td>57:26</td><td>88:30</td><td>2:07:16</td><td>4:22:03</td><td>
+                    <strong>34</strong></td>
+                </tr>
+                <tr>
+                    <td>35</td><td>7:25</td><td>8:01</td><td>15:45</td><td>16:58</td><td>27:00</td><td>56:03</td><td>86:22</td>
+                    <td>2:04:13</td><td>4:16:03</td><td><strong>35</strong></td>
+                </tr>
+                <tr>
+                    <td>36</td><td>7:14</td><td>7:49</td><td>15:23</td><td>16:34</td><td>26:22</td><td>54:44</td>
+                    <td>84:20</td><td>2:01:19</td><td>4:10:19</td><td><strong>36</strong></td>
+                </tr>
+                <tr>
+                    <td>37</td><td>7:04</td><td>7:38</td><td>15:01</td><td>16:11</td><td>25:46</td><td>53:29</td>
+                    <td>82:24</td><td>1:58:34</td><td>4:04:50</td><td><strong>37</strong></td>
+                </tr>
+                <tr>
+                    <td>38</td>
+                    <td>6:54</td><td>7:27</td><td>14:41</td><td>15:49</td><td>25:12</td><td>52:17</td><td>80:33</td>
+                    <td>1:55:55</td><td>3:59:35</td><td><strong>38</strong></td>
+                </tr>
+                <tr>
+                    <td>39</td><td>6:44</td><td>7:17</td><td>14:21</td><td>15:29</td><td>24:39</td><td>51:09</td><td>78:47</td>
+                    <td>1:53:24</td><td>3:54:34</td><td><strong>39</strong></td>
+                </tr>
+                <tr>
+                    <td>40</td><td>6:35</td><td>7:07</td><td>14:03</td><td>15:08</td><td>24:08</td><td>50:03</td><td>77:06</td>
+                    <td>1:50:59</td><td>3:49:45</td><td><strong>40</strong></td>
+                </tr>
+                <tr>
+                    <td>41</td><td>6:27</td><td>6:58</td><td>13:45</td><td>14:49</td><td>23:38</td><td>49:01</td><td>75:29</td>
+                    <td>1:48:40</td><td>3:45:09</td><td><strong>41</strong></td>
+                </tr>
+                <tr>
+                    <td>42</td><td>6:19</td><td>6:49</td><td>13:28</td><td>14:31</td><td>23:09</td><td>48:01</td><td>73:56</td>
+                    <td>1:46:27</td><td>3:40:43</td><td><strong>42</strong></td>
+                </tr>
+                <tr>
+                    <td>43</td><td>6:11</td><td>6:41</td>
+                    <td>13:11</td><td>14:13</td><td>22:41</td><td>47:04</td><td>72:27</td><td>1:44:20</td><td>3:36:28</td><td>
+                    <strong>43</strong></td>
+                </tr>
+                <tr>
+                    <td>44</td><td>6:03</td><td>6:32</td><td>12:55</td><td>13:56</td>
+                    <td>22:15</td><td>46:09</td><td>71:02</td><td>1:42:17</td><td>3:32:23</td><td><strong>44</strong></td>
+                </tr>
+                <tr>
+                    <td>45</td><td>5:56</td><td>6:25</td><td>12:40</td><td>13:40</td><td>21:50</td><td>45:16</td><td>69:40</td>
+                    <td>1:40:20</td><td>3:28:26</td><td><strong>45</strong></td>
+                </tr>
+                <tr>
+                    <td>46</td><td>5:49</td><td>6:17</td>
+                    <td>12:26</td><td>13:25</td><td>21:25</td><td>44:25</td><td>68:22</td><td>1:38:27</td><td>3:24:39</td><td>
+                    <strong>46</strong></td>
+                </tr>
+                <tr>
+                    <td>47</td><td>5:42</td><td>6:10</td><td>12:12</td><td>13:10</td>
+                    <td>21:02</td><td>43:36</td><td>67:06</td><td>1:36:38</td><td>3:21:00</td><td><strong>47</strong></td>
+                </tr>
+                <tr>
+                    <td>48</td><td>5:36</td><td>6:03</td><td>11:58</td><td>12:55</td><td>20:39</td><td>42:50</td><td>65:53</td>
+                    <td>1:34:53</td><td>3:17:29</td><td><strong>48</strong></td>
+                </tr>
+                <tr>
+                    <td>49</td><td>5:30</td><td>5:56</td>
+                    <td>11:45</td><td>12:41</td><td>20:18</td><td>42:04</td><td>64:44</td><td>1:33:12</td><td>3:14:06</td><td>
+                    <strong>49</strong></td>
+                </tr>
+                <tr>
+                    <td>50</td><td>5:24</td><td>5:50</td><td>11:33</td><td>12:28</td><td>19:57</td><td>41:21</td><td>63:36</td>
+                    <td>1:31:35</td><td>3:10:49</td><td><strong>50</strong></td>
+                </tr>
+                <tr>
+                    <td>51</td><td>5:18</td><td>5:44</td><td>11:21</td><td>12:15</td><td>19:36</td><td>40:39</td><td>62:31</td>
+                    <td>1:30:02</td><td>3:07:39</td><td><strong>51</strong></td>
+                </tr>
+                <tr>
+                    <td>52</td><td>5:13</td><td>5:38</td><td>11:09</td><td>12:02</td><td>19:17</td><td>39:59</td><td>61:29</td>
+                    <td>1:28:31</td><td>3:04:36</td><td><strong>52</strong></td>
+                </tr>
+                <tr>
+                    <td>53</td><td>5:07</td><td>5:32</td><td>10:58</td><td>11:50</td><td>18:58</td><td>39:20</td><td>60:28</td>
+                    <td>1:27:04</td><td>3:01:39</td><td><strong>53</strong></td>
+                </tr>
+                <tr>
+                    <td>54</td><td>5:02</td><td>5:27</td><td>10:47</td><td>11:39</td><td>18:40</td><td>38:42</td><td>59:30</td>
+                    <td>1:25:40</td><td>2:58:47</td><td><strong>54</strong></td>
+                </tr>
+                <tr>
+                    <td>55</td><td>4:57</td><td>5:21</td><td>10:37</td><td>11:28</td><td>18:22</td><td>38:06</td><td>58:33</td>
+                    <td>1:24:18</td><td>2:56:01</td><td><strong>55</strong></td>
+                </tr>
+                <tr>
+                    <td>56</td><td>4:53</td><td>5:16</td><td>10:27</td><td>11:17</td><td>18:05</td><td>37:31</td><td>57:39</td>
+                    <td>1:23:00</td><td>2:53:20</td><td><strong>56</strong></td>
+                </tr>
+                <tr>
+                    <td>57</td><td>4:48</td><td>5:11</td><td>10:17</td><td>11:06</td><td>17:49</td><td>36:57</td><td>56:46</td>
+                    <td>1:21:43</td><td>2:50:45</td><td><strong>57</strong></td>
+                </tr>
+                <tr>
+                    <td>58</td><td>4:44</td><td>5:06</td><td>10:08</td><td>10:56</td><td>17:33</td><td>36:24</td><td>55:55</td>
+                    <td>1:20:30</td><td>2:48:14</td><td><strong>58</strong></td>
+                </tr>
+                <tr>
+                    <td>59</td><td>4:39</td><td>5:02</td><td>9:58</td><td>10:46</td><td>17:17</td><td>35:52</td><td>55:06</td>
+                    <td>1:19:18</td><td>2:45:47</td><td><strong>59</strong></td>
+                </tr>
+                <tr>
+                    <td>60</td><td>4:35</td><td>4:57</td><td>9:50</td><td>10:37</td><td>17:03</td><td>35:22</td><td>54:18</td>
+                    <td>1:18:09</td><td>2:43:25</td><td><strong>60</strong></td>
+                </tr>
+                <tr>
+                    <td>61</td><td>4:31</td><td>4:53</td><td>9:41</td><td>10:27</td><td>16:48</td><td>34:52</td><td>53:32</td>
+                    <td>1:17:02</td><td>2:41:08</td><td><strong>61</strong></td>
+                </tr>
+                <tr>
+                    <td>62</td><td>4:27</td><td>4:49</td><td>9:33</td><td>10:18</td><td>16:34</td><td>34:23</td><td>52:47</td>
+                    <td>1:15:57</td><td>2:38:54</td><td><strong>62</strong></td>
+                </tr>
+                <tr>
+                    <td>63</td><td>4:24</td><td>4:45</td><td>9:25</td><td>10:10</td><td>16:20</td><td>33:55</td><td>52:03</td>
+                    <td>1:14:54</td><td>2:36:44</td><td><strong>63</strong></td>
+                </tr>
+                <tr>
+                    <td>64</td><td>4:20</td><td>4:41</td><td>9:17</td><td>10:01</td><td>16:07</td><td>33:28</td><td>51:21</td>
+                    <td>1:13:53</td><td>2:34:38</td><td><strong>64</strong></td>
+                </tr>
+                <tr>
+                    <td>65</td><td>4:16</td><td>4:37</td><td>9:09</td><td>9:53</td><td>15:54</td><td>33:01</td><td>50:40</td>
+                    <td>1:12:53</td><td>2:32:35</td><td><strong>65</strong></td>
+                </tr>
+                <tr>
+                    <td>66</td><td>4:13</td><td>4:33</td><td>9:02</td><td>9:45</td><td>15:42</td><td>32:35</td><td>50:00</td>
+                    <td>1:11:56</td><td>2:30:36</td><td><strong>66</strong></td>
+                </tr>
+                <tr>
+                    <td>67</td><td>4:10</td><td>4:30</td><td>8:55</td><td>9:37</td><td>15:29</td><td>32:11</td><td>49:22</td>
+                    <td>1:11:00</td><td>2:28:40</td><td><strong>67</strong></td>
+                </tr>
+                <tr>
+                    <td>68</td><td>4:06</td><td>4:26</td><td>8:48</td><td>9:30</td><td>15:18</td><td>31:46</td><td>48:44</td>
+                    <td>1:10:05</td><td>2:26:47</td><td><strong>68</strong></td>
+                </tr>
+                <tr>
+                    <td>69</td><td>4:03</td><td>4:23</td><td>8:41</td><td>9:23</td><td>15:06</td><td>31:23</td><td>48:08</td>
+                    <td>1:09:12</td><td>2:24:57</td><td><strong>69</strong></td>
+                </tr>
+                <tr>
+                    <td>70</td><td>4:00</td><td>4:19</td><td>8:34</td><td>9:16</td><td>14:55</td><td>31:00</td>
+                    <td>47:32</td><td>1:08:21</td><td>2:23:10</td><td><strong>70</strong></td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+
     </div>
 
-    <div class="row">
-        <p><strong>VDOT Values Associated with Times Raced over Popular Distances</strong></p>
-        <table class="table table-striped table-bordered table-hover">
-            <tbody>
-            <tr><th>VDOT</th><th>1500m</th><th>Mile</th><th>3,000m</th><th>2-mile</th><th>5,000m</th><th>10,000m</th>
-                <th>15K</th><th>Half Marathon</th><th>Marathon</th><th>VDOT</th></tr>
-            <tr><td>30</td><td>8:30</td><td>9:11</td><td>17:56</td><td>19:19</td><td>30:40</td><td>63:46</td><td>98:14</td>
-                <td>2:21:04</td><td>4:49:17</td><td><strong>30</strong></td></tr>
-            <tr><td>31</td><td>8:15</td><td>8:55</td>
-                <td>17:27</td><td>18:48</td><td>29:51</td><td>62:03</td><td>95:36</td><td>2:17:21</td><td>4:41:57</td><td>
-                    <strong>31</strong></td></tr>
-            <tr><td>32</td><td>8:02</td><td>8:41</td><td>16:59</td><td>18:18</td>
-                <td>29:05</td><td>60:26</td><td>93:07</td><td>2:13:49</td><td>4:34:59</td><td><strong>32</strong></td></tr>
-            <tr><td>33</td><td>7:49</td><td>8:27</td><td>16:33</td><td>17:50</td><td>28:21</td><td>58:54</td><td>90:45</td>
-                <td>2:10:27</td><td>4:28:22</td><td><strong>33</strong></td></tr>
-            <tr><td>34</td><td>7:37</td><td>8:14</td>
-                <td>16:09</td><td>17:24</td><td>27:39</td><td>57:26</td><td>88:30</td><td>2:07:16</td><td>4:22:03</td><td>
-                    <strong>34</strong></td></tr>
-            <tr><td>35</td><td>7:25</td><td>8:01</td><td>15:45</td><td>16:58</td><td>27:00</td><td>56:03</td><td>86:22</td>
-                <td>2:04:13</td><td>4:16:03</td><td><strong>35</strong></td></tr>
-            <tr><td>36</td><td>7:14</td><td>7:49</td><td>15:23</td><td>16:34</td><td>26:22</td><td>54:44</td>
-                <td>84:20</td><td>2:01:19</td><td>4:10:19</td><td><strong>36</strong></td></tr>
-            <tr><td>37</td><td>7:04</td><td>7:38</td><td>15:01</td><td>16:11</td><td>25:46</td><td>53:29</td>
-                <td>82:24</td><td>1:58:34</td><td>4:04:50</td><td><strong>37</strong></td></tr><tr><td>38</td>
-                <td>6:54</td><td>7:27</td><td>14:41</td><td>15:49</td><td>25:12</td><td>52:17</td><td>80:33</td>
-                <td>1:55:55</td><td>3:59:35</td><td><strong>38</strong></td></tr>
-            <tr><td>39</td><td>6:44</td><td>7:17</td><td>14:21</td><td>15:29</td><td>24:39</td><td>51:09</td><td>78:47</td>
-                <td>1:53:24</td><td>3:54:34</td><td><strong>39</strong></td></tr>
-            <tr><td>40</td><td>6:35</td><td>7:07</td><td>14:03</td><td>15:08</td><td>24:08</td><td>50:03</td><td>77:06</td>
-                <td>1:50:59</td><td>3:49:45</td><td><strong>40</strong></td></tr>
-            <tr><td>41</td><td>6:27</td><td>6:58</td><td>13:45</td><td>14:49</td><td>23:38</td><td>49:01</td><td>75:29</td>
-                <td>1:48:40</td><td>3:45:09</td><td><strong>41</strong></td></tr>
-            <tr><td>42</td><td>6:19</td><td>6:49</td><td>13:28</td><td>14:31</td><td>23:09</td><td>48:01</td><td>73:56</td>
-                <td>1:46:27</td><td>3:40:43</td><td><strong>42</strong></td></tr><tr><td>43</td><td>6:11</td><td>6:41</td>
-                <td>13:11</td><td>14:13</td><td>22:41</td><td>47:04</td><td>72:27</td><td>1:44:20</td><td>3:36:28</td><td>
-                    <strong>43</strong></td></tr>
-            <tr><td>44</td><td>6:03</td><td>6:32</td><td>12:55</td><td>13:56</td>
-                <td>22:15</td><td>46:09</td><td>71:02</td><td>1:42:17</td><td>3:32:23</td><td><strong>44</strong></td></tr>
-            <tr><td>45</td><td>5:56</td><td>6:25</td><td>12:40</td><td>13:40</td><td>21:50</td><td>45:16</td><td>69:40</td>
-                <td>1:40:20</td><td>3:28:26</td><td><strong>45</strong></td></tr>
-            <tr><td>46</td><td>5:49</td><td>6:17</td>
-                <td>12:26</td><td>13:25</td><td>21:25</td><td>44:25</td><td>68:22</td><td>1:38:27</td><td>3:24:39</td><td>
-                    <strong>46</strong></td></tr>
-            <tr><td>47</td><td>5:42</td><td>6:10</td><td>12:12</td><td>13:10</td>
-                <td>21:02</td><td>43:36</td><td>67:06</td><td>1:36:38</td><td>3:21:00</td><td><strong>47</strong></td></tr>
-            <tr><td>48</td><td>5:36</td><td>6:03</td><td>11:58</td><td>12:55</td><td>20:39</td><td>42:50</td><td>65:53</td>
-                <td>1:34:53</td><td>3:17:29</td><td><strong>48</strong></td></tr>
-            <tr><td>49</td><td>5:30</td><td>5:56</td>
-                <td>11:45</td><td>12:41</td><td>20:18</td><td>42:04</td><td>64:44</td><td>1:33:12</td><td>3:14:06</td><td>
-                    <strong>49</strong></td></tr>
-            <tr><td>50</td><td>5:24</td><td>5:50</td><td>11:33</td><td>12:28</td><td>19:57</td><td>41:21</td><td>63:36</td>
-                <td>1:31:35</td><td>3:10:49</td><td><strong>50</strong></td></tr>
-            <tr><td>51</td><td>5:18</td><td>5:44</td><td>11:21</td><td>12:15</td><td>19:36</td><td>40:39</td><td>62:31</td>
-                <td>1:30:02</td><td>3:07:39</td><td><strong>51</strong></td></tr>
-            <tr><td>52</td><td>5:13</td><td>5:38</td><td>11:09</td><td>12:02</td><td>19:17</td><td>39:59</td><td>61:29</td>
-                <td>1:28:31</td><td>3:04:36</td><td><strong>52</strong></td></tr>
-            <tr><td>53</td><td>5:07</td><td>5:32</td><td>10:58</td><td>11:50</td><td>18:58</td><td>39:20</td><td>60:28</td>
-                <td>1:27:04</td><td>3:01:39</td><td><strong>53</strong></td></tr>
-            <tr><td>54</td><td>5:02</td><td>5:27</td><td>10:47</td><td>11:39</td><td>18:40</td><td>38:42</td><td>59:30</td>
-                <td>1:25:40</td><td>2:58:47</td><td><strong>54</strong></td></tr>
-            <tr><td>55</td><td>4:57</td><td>5:21</td><td>10:37</td><td>11:28</td><td>18:22</td><td>38:06</td><td>58:33</td>
-                <td>1:24:18</td><td>2:56:01</td><td><strong>55</strong></td></tr>
-            <tr><td>56</td><td>4:53</td><td>5:16</td><td>10:27</td><td>11:17</td><td>18:05</td><td>37:31</td><td>57:39</td>
-                <td>1:23:00</td><td>2:53:20</td><td><strong>56</strong></td></tr>
-            <tr><td>57</td><td>4:48</td><td>5:11</td><td>10:17</td><td>11:06</td><td>17:49</td><td>36:57</td><td>56:46</td>
-                <td>1:21:43</td><td>2:50:45</td><td><strong>57</strong></td></tr>
-            <tr><td>58</td><td>4:44</td><td>5:06</td><td>10:08</td><td>10:56</td><td>17:33</td><td>36:24</td><td>55:55</td>
-                <td>1:20:30</td><td>2:48:14</td><td><strong>58</strong></td></tr>
-            <tr><td>59</td><td>4:39</td><td>5:02</td><td>9:58</td><td>10:46</td><td>17:17</td><td>35:52</td><td>55:06</td>
-                <td>1:19:18</td><td>2:45:47</td><td><strong>59</strong></td></tr>
-            <tr><td>60</td><td>4:35</td><td>4:57</td><td>9:50</td><td>10:37</td><td>17:03</td><td>35:22</td><td>54:18</td>
-                <td>1:18:09</td><td>2:43:25</td><td><strong>60</strong></td></tr>
-            <tr><td>61</td><td>4:31</td><td>4:53</td><td>9:41</td><td>10:27</td><td>16:48</td><td>34:52</td><td>53:32</td>
-                <td>1:17:02</td><td>2:41:08</td><td><strong>61</strong></td></tr>
-            <tr><td>62</td><td>4:27</td><td>4:49</td><td>9:33</td><td>10:18</td><td>16:34</td><td>34:23</td><td>52:47</td>
-                <td>1:15:57</td><td>2:38:54</td><td><strong>62</strong></td></tr>
-            <tr><td>63</td><td>4:24</td><td>4:45</td><td>9:25</td><td>10:10</td><td>16:20</td><td>33:55</td><td>52:03</td>
-                <td>1:14:54</td><td>2:36:44</td><td><strong>63</strong></td></tr>
-            <tr><td>64</td><td>4:20</td><td>4:41</td><td>9:17</td><td>10:01</td><td>16:07</td><td>33:28</td><td>51:21</td>
-                <td>1:13:53</td><td>2:34:38</td><td><strong>64</strong></td></tr>
-            <tr><td>65</td><td>4:16</td><td>4:37</td><td>9:09</td><td>9:53</td><td>15:54</td><td>33:01</td><td>50:40</td>
-                <td>1:12:53</td><td>2:32:35</td><td><strong>65</strong></td></tr>
-            <tr><td>66</td><td>4:13</td><td>4:33</td><td>9:02</td><td>9:45</td><td>15:42</td><td>32:35</td><td>50:00</td>
-                <td>1:11:56</td><td>2:30:36</td><td><strong>66</strong></td></tr>
-            <tr><td>67</td><td>4:10</td><td>4:30</td><td>8:55</td><td>9:37</td><td>15:29</td><td>32:11</td><td>49:22</td>
-                <td>1:11:00</td><td>2:28:40</td><td><strong>67</strong></td></tr>
-            <tr><td>68</td><td>4:06</td><td>4:26</td><td>8:48</td><td>9:30</td><td>15:18</td><td>31:46</td><td>48:44</td>
-                <td>1:10:05</td><td>2:26:47</td><td><strong>68</strong></td></tr>
-            <tr><td>69</td><td>4:03</td><td>4:23</td><td>8:41</td><td>9:23</td><td>15:06</td><td>31:23</td><td>48:08</td>
-                <td>1:09:12</td><td>2:24:57</td><td><strong>69</strong></td></tr>
-            <tr><td>70</td><td>4:00</td><td>4:19</td><td>8:34</td><td>9:16</td><td>14:55</td><td>31:00</td>
-                <td>47:32</td><td>1:08:21</td><td>2:23:10</td><td><strong>70</strong></td></tr></tbody></table>
-
-    </div>
-
-</div>
-
-</body>
+    </body>
 {% endblock %}

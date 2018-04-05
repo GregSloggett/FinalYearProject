@@ -1,188 +1,191 @@
 {% extends "page_layout.html" %}
 {% block body %}
 
-<body style="padding-top: 80px;">
+    <body style="padding-top: 80px;">
 
-<br>
-<div class="container">
-    <div class="main">
-        <h3>{{ activity_data.name }}</h3>
-        <hr>
-    </div>
-    <div class="row">
-        <div class="col-sm-8">
-            <br>
-            <table class="table table-dark table-striped table-hover table-bordered">
-                <thead class="thead-dark">
-                </thead>
-
-                <tbody>
-                <tr>
-                    <th>Ride ID</th>
-                    <td scope="row">{{ activity_data.id }}</td>
-                </tr>
-                <tr>
-                    <th>Ride Name</th>
-                    <td>{{ activity_data.name }}</td>
-                </tr>
-                <tr>
-                    <th>Ride Description</th>
-                    <td> {{ activity_data.description }}</td>
-                </tr>
-                <tr>
-                    <th>Distance Covered</th>
-                    <td>{{ activity_data.distance }}</td>
-                </tr>
-                <tr>
-                    <th>Moving Time</th>
-                    <td>{{ activity_data.moving_time }}</td>
-                </tr>
-                <tr>
-                    <th>Elapsed Time</th>
-                    <td>{{ activity_data.elapsed_time }}</td>
-                </tr>
-                <th>Total Elavation Gain</th>
-                <td>{{ activity_data.total_elevation_gain }}</td>
-                </tr>
-                <tr>
-                    <th>Highest Elevation</th>
-                    <td>{{ activity_data.elev_high }}</td>
-                </tr>
-                <tr>
-                    <th>Lowest Elevation</th>
-                    <td>{{ activity_data.elev_low }}</td>
-                </tr>
-                <tr>
-                    <th>Start Latitude/Longitude</th>
-                    <td>{{ activity_data.start_latlng }}</td>
-                </tr>
-                <tr>
-                    <th>End Latitude/Longitude</th>
-                    <td>{{ activity_data.end_latlng }}</td>
-                </tr>
-                <tr>
-                    <th>Achievement Count</th>
-                    <td>{{  activity_data.achievement_count }}</td>
-                </tr>
-                <tr>
-                    <th>Personal Records Count</th>
-                    <td>{{  activity_data.pr_count }}</td>
-                </tr>
-                <tr>
-                    <th>Average Speed</th>
-                    <td>{{ activity_data.average_speed }}</td>
-                </tr>
-                <tr>
-                    <th>Max Speed</th>
-                    <td>{{ activity_data.max_speed }}</td>
-                </tr>
-                <tr>
-                    <th>Calories</th>
-                    <td>{{ activity_data.calories }}</td>
-                </tr>
-
-                <tr>
-                </tr>
-
-                </tbody>
-            </table>
+    <br>
+    <div class="container">
+        <div class="main">
+            <h3>{{ activity_data.name }}</h3>
+            <hr>
         </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <br>
+                <table class="table table-dark table-striped table-hover table-bordered">
+                    <thead class="thead-dark">
+                    </thead>
 
-        <div class="col-sm-4">
-            <br>
-            <!-- Add icon library -->
-            <link rel="stylesheet" href="/static/personal_card.css">
+                    <tbody>
+                    <tr>
+                        <th>Ride ID</th>
+                        <td scope="row">{{ activity_data.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Ride Name</th>
+                        <td>{{ activity_data.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Ride Description</th>
+                        <td> {{ activity_data.description }}</td>
+                    </tr>
+                    <tr>
+                        <th>Distance Covered</th>
+                        <td>{{ activity_data.distance }}</td>
+                    </tr>
+                    <tr>
+                        <th>Moving Time</th>
+                        <td>{{ activity_data.moving_time }}</td>
+                    </tr>
+                    <tr>
+                        <th>Elapsed Time</th>
+                        <td>{{ activity_data.elapsed_time }}</td>
+                    </tr>
+                        <th>Total Elavation Gain</th>
+                        <td>{{ activity_data.total_elevation_gain }}</td>
+                    </tr>
+                    <tr>
+                        <th>Highest Elevation</th>
+                        <td>{{ activity_data.elev_high }}</td>
+                    </tr>
+                    <tr>
+                        <th>Lowest Elevation</th>
+                        <td>{{ activity_data.elev_low }}</td>
+                    </tr>
+                    <tr>
+                        <th>Start Latitude/Longitude</th>
+                        <td>{{ activity_data.start_latlng }}</td>
+                    </tr>
+                    <tr>
+                        <th>End Latitude/Longitude</th>
+                        <td>{{ activity_data.end_latlng }}</td>
+                    </tr>
+                    <tr>
+                        <th>Achievement Count</th>
+                        <td>{{  activity_data.achievement_count }}</td>
+                    </tr>
+                    <tr>
+                        <th>Personal Records Count</th>
+                        <td>{{  activity_data.pr_count }}</td>
+                    </tr>
+                    <tr>
+                        <th>Average Speed</th>
+                        <td>{{ activity_data.average_speed }}</td>
+                    </tr>
+                    <tr>
+                        <th>Max Speed</th>
+                        <td>{{ activity_data.max_speed }}</td>
+                    </tr>
+                    <tr>
+                        <th>Calories</th>
+                        <td>{{ activity_data.calories }}</td>
+                    </tr>
 
-            <div class="card">
-                <img src="{{ athlete_profiler }}" style="width:100%">
-                <h1>{{ athlete.firstname}}  {{athlete.lastname }}</h1>
-                <p class="title">Athlete ID: {{ athlete.id }}</p>
-                <p>{{ athlete.city }}, {{ athlete.country }}</p>
-                <p>Strava friends:{{ athlete.friend_count }}</p>
-                <p>Strava followers: {{ athlete.follower_count }}</p>
-                <p>Longest Distance: {{ athlete_stats.biggest_ride_distance }}</p>
-                <a href="#"><i class="fa fa-dribbble"></i></a>
-                <a href="#"><i class="fa fa-twitter"></i></a>
-                <a href="#"><i class="fa fa-linkedin"></i></a>
-                <a href="#"><i class="fa fa-facebook"></i></a>
-                <p><button>Contact</button></p>
+                    <tr>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-sm-4">
+                <br>
+                <link rel="stylesheet" href="/static/personal_card.css">
+
+                <div class="card">
+                    <img src="{{ athlete_profiler }}" style="width:100%">
+                    <h1>{{ athlete.firstname}}  {{athlete.lastname }}</h1>
+                    <p class="title">Athlete ID: {{ athlete.id }}</p>
+                    <p>{{ athlete.city }}, {{ athlete.country }}</p>
+                    <p>Strava friends:{{ athlete.friend_count }}</p>
+                    <p>Strava followers: {{ athlete.follower_count }}</p>
+                    <p>Longest Distance: {{ athlete_stats.biggest_ride_distance }}</p>
+                    <a href="#"><i class="fa fa-dribbble"></i></a>
+                    <a href="#"><i class="fa fa-twitter"></i></a>
+                    <a href="#"><i class="fa fa-linkedin"></i></a>
+                    <a href="#"><i class="fa fa-facebook"></i></a>
+                    <p><button>Contact</button></p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-sm-12">
-            <svg width="1100" height="500"></svg>
-            <script src="https://d3js.org/d3.v4.min.js"></script>
-            <script>
+        <div class="row">
+            <div class="col-sm-12">
+                <svg width="1100" height="500"></svg>
+                <script src="https://d3js.org/d3.v4.min.js"></script>
+                <script>
 
-                var svg = d3.select("svg"),
-                    margin = {top: 20, right: 20, bottom: 30, left: 50},
-                    width = +svg.attr("width") - margin.left - margin.right,
-                    height = +svg.attr("height") - margin.top - margin.bottom,
-                    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                    var svg = d3.select("svg"),
+                        margin = {top: 25, right: 25, bottom: 35, left: 55},
+                        width = +svg.attr("width") - margin.left - margin.right,
+                        height = +svg.attr("height") - margin.top - margin.bottom,
+                        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                var x = d3.scaleLinear()
-                    .rangeRound([0, width]);
+                    var x = d3.scaleLinear()
+                        .rangeRound([0, width]);
 
-                var y = d3.scaleLinear()
-                    .rangeRound([height, 0]);
+                    var y = d3.scaleLinear()
+                        .rangeRound([height, 0]);
 
-                var line = d3.line()
-                    .x(function(d) { return x(d.distance); })
-                    .y(function(d) { return y(d.altitude); });
+                    var line = d3.line()
+                        .x(function(d) {
+                            return x(d.distance);
+                        })
+                        .y(function(d) {
+                            return y(d.altitude);
+                        });
 
-                d3.csv("/static/altitude.csv" + '?' + Math.floor(Math.random() * 1000), function(d) {
-                    d.distance = +d.distance;
-                    d.altitude = +d.altitude;
-                    return d;
-                }, function(error, data) {
-                    if (error) throw error;
+                    d3.csv("/static/csv_files/altitude.csv" + '?' + Math.floor(Math.random() * 1000), function(d) {
+                        d.distance = +d.distance;
+                        d.altitude = +d.altitude;
+                        return d;
+                    }, function(error, data) {
+                        if (error) throw error;
 
-                    x.domain(d3.extent(data, function(d) { return d.distance; }));
-                    y.domain(d3.extent(data, function(d) { return d.altitude; }));
+                        x.domain(d3.extent(data, function(d) { return d.distance; }));
+                        y.domain(d3.extent(data, function(d) { return d.altitude; }));
 
-                    g.append("g")
-                        .attr("transform", "translate(0," + height + ")")
-                        .call(d3.axisBottom(x))
-                        .select(".domain")
-                        .remove();
+                        g.append("g")
+                            .attr("transform", "translate(0," + height + ")")
+                            .call(d3.axisBottom(x))
+                            .select(".domain")
+                            .remove();
 
-                    g.append("g")
-                        .call(d3.axisLeft(y))
-                        .append("text")
-                        .attr("fill", "#000")
-                        .attr("transform", "rotate(-90)")
-                        .attr("y", 6)
-                        .attr("dy", "0.71em")
-                        .attr("text-anchor", "end")
-                        .text("Altitude (m)");
+                        g.append("g")
+                            .call(d3.axisLeft(y))
+                            .append("text")
+                            .attr("fill", "#000")
+                            .attr("transform", "rotate(-90)")
+                            .attr("y", 6)
+                            .attr("dy", "0.71em")
+                            .attr("text-anchor", "end")
+                            .text("Altitude (m)");
 
-                    g.append("path")
-                        .datum(data)
-                        .attr("fill", "none")
-                        .attr("stroke", "steelblue")
-                        .attr("stroke-linejoin", "round")
-                        .attr("stroke-linecap", "round")
-                        .attr("stroke-width", 1.5)
-                        .attr("d", line)
-                        .text("Distance (m)");
-                });
+                        g.append("path")
+                            .datum(data)
+                            .attr("fill", "none")
+                            .attr("stroke", "steelblue")
+                            .attr("stroke-linejoin", "round")
+                            .attr("stroke-linecap", "round")
+                            .attr("stroke-width", 1.5)
+                            .attr("d", line)
+                            .text("Distance (m)");
+                    });
 
-            </script>
+                </script>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <br><br>
+                <button type="button" class="btn btn-primary">
+                    <a href="/activity/{{ activity_data.id }}/{{ activity_data.start_latlng }}">See map for activity: {{ activity_data.name }}</a>
+                </button>
+            </div>
         </div>
 
+        <br><br>
     </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <br><br>
-            <button type="button" class="btn btn-primary">
-                <a href="/activity/{{ activity_data.id }}/{{ activity_data.start_latlng }}">See map for activity: {{ activity_data.name }}</a>
-            </button>
-        </div>
-    </div>
-
-    <br><br>
-</div>
-</body>
+    </body>
 {% endblock %}

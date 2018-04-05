@@ -1,6 +1,6 @@
 .runner {
     /* The image used */
-    background-image: url('../static/MarathonLargePack.jpg');
+    background-image: url('images/MarathonLargePack.jpg');
 
 	width: 100%;
 	height: 100%;

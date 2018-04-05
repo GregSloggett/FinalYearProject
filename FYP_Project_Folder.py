@@ -3,22 +3,19 @@ import datetime
 from datetime import timedelta
 import math
 from decimal import getcontext, Decimal
-
-import pygal
 from flask import Flask, render_template, request, make_response, flash
 from flask_googlemaps import GoogleMaps
 from flask_sqlalchemy import SQLAlchemy
 from stravalib.client import Client
 from wtforms import Form, IntegerField, TextField, validators
+import pygal
 from pygal.style import RotateStyle
 
 app = Flask(__name__)
-# app.static_url_path='/static'
-# app.config['GOOGLEMAPS_KEY'] = "AIzaSyBUV6YEpG7xjxJ8s9ZjIZP8A56L4TxAK7k"
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyCiforLtPDvDY3WzkKeWc2ykgR_Aw9rYk0"
 GoogleMaps(app)
 
-# local db
+# # local db
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql2206541:yS3*wS7%@sql2.freemysqlhosting.net:3306/sql2206541'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -43,6 +40,14 @@ db = SQLAlchemy(app)
 
 
 class AccessTokens(db.Model):
+    """
+    Access Tokens Database that stores the access tokens generated in the first time user flow for
+    further use on user requests to the Strava API.
+    Three columns containing:
+    - Athlete ID (Primary Key)
+    - Access Token
+    - Email Address
+    """
     __tablename__ = "access_tokens"
     athlete_id = db.Column(db.String(11), primary_key=True)
     access_token = db.Column(db.String(40))
@@ -50,6 +55,10 @@ class AccessTokens(db.Model):
 
 
 class UserActivities(db.Model):
+    """
+    User Activities Database to store basic activity information when the user first accesses the summary page.
+    Stores the Athlete ID (primary key), activity ID, Actviity Type, Date, Distance, Moving Time, Max Speed & Average Speed.
+    """
     __tablename__ = "user_activities"
     athlete_id = db.Column(db.String(11), primary_key=True)
     activity_id = db.Column(db.Integer)
@@ -62,6 +71,11 @@ class UserActivities(db.Model):
 
 
 class ReusableForm(Form):
+    """
+    Reusable Form that is used by all marathon prediction algorithms.
+    The fields take in the length of a previously completed race (race_length) and the time it took
+    to complete that race (hours, minutes, seconds).
+    """
     race_length = TextField('Race Length:', validators=[validators.InputRequired()])
     hours = IntegerField('Hours:')
     minutes = IntegerField('Minutes:')
@@ -69,6 +83,9 @@ class ReusableForm(Form):
 
 
 class AboutForm(Form):
+    """
+    Simple About Form has fields that take in the users name email and password to process any queries a user may have
+    """
     name = TextField('Name:')
     email = TextField('Email:')
     password = TextField('Password:')
@@ -81,9 +98,12 @@ STR_LENGTH = 6
 client = Client()
 
 
-# Home page of my application.
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
+    """
+    Homepage of application that displays either a connect to Strava page if the user has not been recognised,
+    or the return user page if the user is recognised. Recognised by checking for a cookie.
+    """
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
@@ -92,7 +112,14 @@ def homepage():
                                last_activity_id=last_activity())
 
 
+
 def check_for_cookie():
+    """
+    Boolean function that checks to see has a cookie been written to the users browser.
+    If that cookie has been written and it is associated with an access token in the database,
+    then it returns true, otherwise returning false.
+    :return: Boolean if cookie is present or not
+    """
     check = request.cookies.get('athlete_id')
     if 'athlete_id' in request.cookies:
         check_access_tokens_database = AccessTokens.query.filter_by(athlete_id=check).first()
@@ -105,23 +132,22 @@ def check_for_cookie():
         return False
 
 
-# The response page for first time authorization.
 @app.route('/response_url/', methods=['GET', 'POST'])
 def response_url():
+    """ The response page for first time authorization.
+        - Produces a user access token using Client ID and Client SECRET
+        - Commits generated user access token to a database
+        - Stores a cookie on the users browser lasting 365 days
+        - Responds with a webpage (repsonse.html) displaying an array of choices to the user
+     """
     error = request.args.get('error')
     if error == 'access_denied':
         return render_template("access_denied.html", methods=['GET', 'POST'])
 
     code = request.args.get('code')
 
-    athlete_access_token = client.exchange_code_for_token\
-        (client_id=MY_CLIENT_ID,
-         client_secret=MY_CLIENT_SECRET,
-         code=code)
-
+    athlete_access_token = client.exchange_code_for_token(client_id=MY_CLIENT_ID, client_secret=MY_CLIENT_SECRET, code=code)
     client.access_token = athlete_access_token
-
-
 
     athlete = client.get_athlete()
     check_code = athlete_access_token
@@ -147,12 +173,12 @@ def response_url():
         return resp
 
 
-activity_routes = ['five_k', 'ten_k', 'three_k', 'one_five_k', 'four_k',
-                   'five_m', 'ten_m', 'half', 'marathon', 'activities']
-
-
 @app.route('/activities/<distance_name>', methods=['GET', 'POST'])
 def activities(distance_name):
+    """
+    Activities page(s) that displays a sortable table for any of the selected distances (from the dropdown bar), or all
+    distances. The table can be sorted by Activity ID, Name, Distance, Moving Time, Avg and Max Speed and Date.
+    """
     print(distance_name)
     activities_ = []
     all_runs = []
@@ -236,6 +262,14 @@ def activities(distance_name):
 
 @app.route('/summary/', methods=['GET', 'POST'])
 def summary():
+    """
+    Summary Page containing several features including:
+    - Pygal Weekly statistics and activites.
+    - Personal Profile card with basic user information.
+    - D3 chart displaying frequent and common race distances in an interactive chart.
+    - Latest ten activities.
+    - First activity.
+    """
     activities = []
     total_activity_distance = 0
     running_distance = 0
@@ -245,16 +279,12 @@ def summary():
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
-        week_runs = [0,0,0,0,0,0,0]
-        week_rides = [0,0,0,0,0,0,0]
-        week_other = [0,0,0,0,0,0,0]
+        week_runs = [0, 0, 0, 0, 0, 0, 0]
+        week_rides = [0, 0, 0, 0, 0, 0, 0]
+        week_other = [0, 0, 0, 0, 0, 0, 0]
         prev_day = 7  # not a valid day of the week as needs to be used to check against activity day
-        weekly_activities_total = 0
-        weekly_runs_total = 0
-        weekly_rides_total = 0
-        weekly_other_total = 0
-        distance_covered = 0
-        time_training = 0
+        weekly_activities_total, weekly_runs_total, weekly_rides_total, \
+        weekly_other_total, distance_covered, time_training = 0, 0, 0, 0, 0, 0
 
         for activity in client.get_activities(before=datetime.datetime.now(),
                                               after=datetime.datetime.now()-timedelta(days=7), limit=None):
@@ -288,9 +318,7 @@ def summary():
 
             distance_covered += convert_distance_to_integer(activity.distance.__str__())
             prev_day = day_of_week
-        print(week_runs, week_rides)
 
-    iteration = 0
     first_activity_val = 100000000000
     first_activity = ''
     for activity in client.get_activities(before=datetime.datetime.now(),
@@ -298,7 +326,7 @@ def summary():
         if int(activity.id) < int(first_activity_val):
             first_activity = activity
             first_activity_val = int(first_activity.id)
-        # iteration = 1
+
         activities.append(activity)
         total_activity_distance += convert_distance_to_integer(activity.distance.__str__())
 
@@ -327,20 +355,10 @@ def summary():
 
     UserActivities.query.filter_by(athlete_id=client.get_athlete().id)
 
-
-
     pie_chart = total_activities_pie_chart()
     distances_run = distances_ran(activities)
 
-    five_k = 0
-    ten_k = 0
-    three_k = 0
-    one_five_k = 0
-    four_k = 0
-    five_m = 0
-    ten_m = 0
-    half = 0
-    marathon = 0
+    five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon = 0, 0, 0, 0, 0, 0, 0, 0, 0
 
     for id, distance in distances_run.items():
         if distance == "5K":
@@ -364,44 +382,9 @@ def summary():
 
     write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon)
 
-    jan_run = 0
-    feb_run = 0
-    mar_run = 0
-    apr_run = 0
-    may_run = 0
-    jun_run = 0
-    jul_run = 0
-    aug_run = 0
-    sep_run = 0
-    oct_run = 0
-    nov_run = 0
-    dec_run = 0
-
-    jan_ride = 0
-    feb_ride = 0
-    mar_ride = 0
-    apr_ride = 0
-    may_ride = 0
-    jun_ride = 0
-    jul_ride = 0
-    aug_ride = 0
-    sep_ride = 0
-    oct_ride = 0
-    nov_ride = 0
-    dec_ride = 0
-
-    jan = 0
-    feb = 0
-    mar = 0
-    apr = 0
-    may = 0
-    jun = 0
-    jul = 0
-    aug = 0
-    sep = 0
-    oct = 0
-    nov = 0
-    dec = 0
+    monthly_runs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    monthly_rides = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    monthly_other = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     if check_for_cookie() is False:
         return render_template("homepage.html")
@@ -411,85 +394,18 @@ def summary():
             month_str = "%02d" % (month,)
             for activity in client.get_activities(before="2017-" + month_str + "-28T00:00:00Z",
                                                   after="2017-" + month_str + "-01T00:00:00Z", limit=None):
-                if (activity.type == 'Run'):
-                    if month == 1:
-                        jan_run += 1
-                    elif month == 2:
-                        feb_run += 1
-                    elif month == 3:
-                        mar_run += 1
-                    elif month == 4:
-                        apr_run += 1
-                    elif month == 5:
-                        may_run += 1
-                    elif month == 6:
-                        jun_run += 1
-                    elif month == 7:
-                        jul_run += 1
-                    elif month == 8:
-                        aug_run += 1
-                    elif month == 9:
-                        sep_run += 1
-                    elif month == 10:
-                        oct_run += 1
-                    elif month == 11:
-                        nov_run += 1
-                    elif month == 12:
-                        dec_run += 1
-                elif (activity.type == 'Ride'):
-                    if month == 1:
-                        jan_ride += 1
-                    elif month == 2:
-                        feb_ride += 1
-                    elif month == 3:
-                        mar_ride += 1
-                    elif month == 4:
-                        apr_ride += 1
-                    elif month == 5:
-                        may_ride += 1
-                    elif month == 6:
-                        jun_ride += 1
-                    elif month == 7:
-                        jul_ride += 1
-                    elif month == 8:
-                        aug_ride += 1
-                    elif month == 9:
-                        sep_ride += 1
-                    elif month == 10:
-                        oct_ride += 1
-                    elif month == 11:
-                        nov_ride += 1
-                    elif month == 12:
-                        dec_ride += 1
+                if activity.type == 'Run':
+                    monthly_runs[int(month_str)-1] += 1
+                elif activity.type == 'Ride':
+                    monthly_rides[int(month_str)-1] += 1
                 elif convert_distance_to_integer(activity.distance.__str__()) > 0:
-                    print('here')
-                    if month == 1:
-                        jan += 1
-                    elif month == 2:
-                        feb += 1
-                    elif month == 3:
-                        mar += 1
-                    elif month == 4:
-                        apr += 1
-                    elif month == 5:
-                        may += 1
-                    elif month == 6:
-                        jun += 1
-                    elif month == 7:
-                        jul += 1
-                    elif month == 8:
-                        aug += 1
-                    elif month == 9:
-                        sep += 1
-                    elif month == 10:
-                        oct += 1
-                    elif month == 11:
-                        nov += 1
-                    elif month == 12:
-                        dec += 1
+                    monthly_other[int(month_str)-1] += 1
 
             month += 1
-
+    print('here')
+    print(monthly_runs)
+    print(monthly_rides)
+    print(monthly_other)
 
     dark_rotate_style = RotateStyle('#9e6ffe')
     dark_rotate_style.background = 'white'
@@ -504,7 +420,6 @@ def summary():
     line_chart.add('Other Activities', week_other)
     line_chart = line_chart.render_data_uri()
 
-
     return render_template("summary.html", athlete=client.get_athlete(), athlete_stats=client.get_athlete_stats(),
                            last_ten_rides=last_ten_rides(), athlete_profiler=client.get_athlete().profile,
                            pie_chart=pie_chart, first_activity=first_activity, line_chart=line_chart,
@@ -515,26 +430,28 @@ def summary():
                            distance_covered=distance_covered, time_training=sec_to_time(time_training),
                            join_date=str(client.get_athlete().created_at)[0:4],
 
-                           jan=jan, feb=feb, mar=mar, apr=apr, may=may, jun=jun, jul=jul, aug=aug, sep=sep
-                           , oct=oct, nov=nov, dec=dec,
-                           jan_run=jan_run, feb_run=feb_run, mar_run=mar_run, apr_run=apr_run, may_run=may_run,
-                           jun_run=jun_run, jul_run=jul_run, aug_run=aug_run, sep_run=sep_run, oct_run=oct_run,
-                           nov_run=nov_run, dec_run=dec_run,
-                           jan_ride=jan_ride, feb_ride=feb_ride, mar_ride=mar_ride, apr_ride=apr_ride,
-                           may_ride=may_ride,
-                           jun_ride=jun_ride, jul_ride=jul_ride, aug_ride=aug_ride, sep_ride=sep_ride,
-                           oct_ride=oct_ride,
-                           nov_ride=nov_ride, dec_ride=dec_ride
-                           )
+                           monthly_runs=monthly_runs, monthly_rides=monthly_rides, monthly_other=monthly_other)
 
 
 def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_m, half, marathon):
-    with open("/home/GregorySloggett/FinalYearProject/static/distances.csv", 'w', newline='') as csvfile:
-    # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\distances.csv", 'w', newline='') as csvfile:
+    """
+    Function which writes the landmark distances into a csv file for use by the D3 and Pygal charts.
+    :param five_k:
+    :param ten_k:
+    :param three_k:
+    :param one_five_k:
+    :param four_k:
+    :param five_m:
+    :param ten_m:
+    :param half:
+    :param marathon:
+    :return: nothing
+    """
+    with open("/home/GregorySloggett/FinalYearProject/static/csv_files/distances.csv", 'w', newline='') as csvfile:
+    # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\csv_files\\distances.csv",'w', newline='') as csvfile:
+
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
-
-        # spamwriter.writerow(['{},{}'.format(i, pace)])
 
         spamwriter.writerow(['letter,frequency'])
         spamwriter.writerow(['{},{}'.format('1.5K', one_five_k)])
@@ -549,12 +466,22 @@ def write_distances_csv(five_k, ten_k, three_k, one_five_k, four_k, five_m, ten_
 
 
 def convert_distance_to_integer(string_distance):
+    """
+    Function to convert the distances (as selected by the client) into integer format to be used in calculations.
+    :param string_distance:
+    :return: integer distance
+    """
     dist, redundant = string_distance.split('.')
     integer_distance = int(dist)
     return integer_distance
 
 
 def distances_ran(activities):
+    """
+    Function to classify the distances run by a Strava Athlete
+    :param activities:
+    :return: dictionary of distance values using the activity id as the key
+    """
     distances = {}
     for activity in activities:
         if activity.type == 'Run':
@@ -581,6 +508,10 @@ def distances_ran(activities):
 
 
 def total_activities_pie_chart():
+    """
+    Function to display all activities used by a Strava Athlete on a pygal pie chart.
+    :return: the pie chart to be displayed
+    """
     total_rides = UserActivities.query.filter_by(activity_type='ride', athlete_id=client.get_athlete().id).count()
     total_runs = UserActivities.query.filter_by(activity_type='run', athlete_id=client.get_athlete().id).count()
     total_swims = UserActivities.query.filter_by(activity_type='swim', athlete_id=client.get_athlete().id).count()
@@ -595,9 +526,13 @@ def total_activities_pie_chart():
     return pie_chart
 
 
-# If the user has already authorized the application this is the page that will be returned (instead of response_url).
 @app.route('/return_user/', methods=['GET', 'POST'])
 def return_user():
+    """
+    Return user page that is displayed if a user has previously been to the application and a cookie is stored on their
+    browser. Offers the user a variety of avenues to take to analyze their statistics or predict a marathon time.
+    :return: return user web page
+    """
     if check_for_cookie() is False:
         return render_template("homepage.html")
     else:
@@ -609,6 +544,12 @@ def return_user():
 
 @app.route('/activity/<activity_id>', methods=['GET', 'POST'])
 def activity(activity_id):
+    """
+    Individual Activity page for each activity logged by the Strava athlete. Displaying statistics and charts for the
+    selected activity.
+    :param activity_id:
+    :return: activity web page
+    """
     types = ['time', 'latlng', 'altitude', 'heartrate', 'temp', 'distance', 'elevation']
 
     if check_for_cookie() is False:
@@ -617,8 +558,8 @@ def activity(activity_id):
         dist_alt = client.get_activity_streams(activity_id=activity_id, types=['distance', 'altitude'],
                                                resolution='high')
 
-        with open("/home/GregorySloggett/FinalYearProject/static/altitude.csv", 'w', newline='') as csvfile:
-        # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\altitude.csv", 'w', newline='') as csvfile:
+        with open("/home/GregorySloggett/FinalYearProject/static/csv_files/altitude.csv", 'w', newline='') as csvfile:
+        # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\csv_files\\altitude.csv", 'w', newline='') as csvfile:
             spamwriter = csv.writer(csvfile, delimiter=' ',
                                     quotechar='', quoting=csv.QUOTE_NONE)
 
@@ -640,6 +581,13 @@ def activity(activity_id):
 
 @app.route('/activity/<activity_id>/<activity_map>', methods=['GET', 'POST'])
 def map(activity_id, activity_map):
+    """
+    Map display of each individual activity, usign the Google Maps API to display the latitude and longitude data
+    streams that were attained from the Strava API.
+    :param activity_id:
+    :param activity_map:
+    :return: a google maps display with activity route showing
+    """
     types = ['time', 'latlng', 'altitude', 'heartrate', 'temp']
 
     if check_for_cookie() is False:
@@ -652,6 +600,11 @@ def map(activity_id, activity_map):
 
 @app.route('/marathon/', methods=['GET', 'POST'])
 def marathon():
+    """
+    Marathon Page that allows a user to estimate their own marathon time and displays their pacing times and charts
+    accrodingly.
+    :return: Marathon estimation page
+    """
     form = ReusableForm(request.form)
     predicted_marathon_time = 0
     # print(form.errors)
@@ -694,44 +647,66 @@ def marathon():
             kilometer__minute = get_kms_per_minute(distance_run, time_run)
             kilometres_per_minute = sec_to_time(get_sec(0, kilometer__minute, 0))
 
-            # line_chart = pygal.Line()  # Then create a bar graph object
-            # line_chart.add('Fibonacci', [kilometer, kilometer, kilometer, kilometer, kilometer, kilometer, kilometer,
-            #                              kilometer, kilometer, kilometer, kilometer])  # Add some values
-            # line_chart.x_labels = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2']
-            # line_chart = line_chart.render_data_uri()
-            #
-            # bar_chart = pygal.Bar()
-            # bar_chart.add('Fibonacci', [kilometer, kilometer, kilometer, kilometer, kilometer, kilometer, kilometer,
-            #                             kilometer, kilometer, kilometer, kilometer])  # Add some values
-            # bar_chart.x_labels = '0', '5', '10', '15', '20', '25', '30', '35', '40', '42.2'
-            # bar_chart = bar_chart.render_data_uri()
+            line_chart = pygal.Line()  # Then create a bar graph object
+            line_chart.add('Landmark Splits', [kilometer__minute*0, kilometer__minute*3, kilometer__minute*5, kilometer__minute*8, kilometer__minute*10,
+                                               kilometer__minute*15, kilometer__minute*20, kilometer__minute*30, kilometer__minute*40,
+                                               kilometer__minute*42])
+            line_chart.x_labels = ['0', '3', '5', '8', '10', '15', '20', '30', '40', '42.2']
+            line_chart = line_chart.render_data_uri()
+
+            bar_chart = pygal.Bar()
+            bar_chart.add('Landmark Splits', [kilometer__minute*3, kilometer__minute*2, kilometer__minute*3, kilometer__minute*2,
+                                              kilometer__minute*5, kilometer__minute*5, kilometer__minute*10, kilometer__minute*10,
+                                              kilometer__minute*2])
+            bar_chart.x_labels = ['3', '5', '8', '10', '15', '20', '30', '40', '42.2']
+            bar_chart = bar_chart.render_data_uri()
 
         else:
             flash('Error: You are required to enter a distance. ')
 
         return render_template("marathon.html", bar_chart=bar_chart, line_chart=line_chart, form=form, hours=hours,
                                minutes=minutes, seconds=seconds, pace=pace, kilometres_per_minute=kilometres_per_minute,
-                               kilometer__minute=kilometer__minute)
+                               kilometer__minute=kilometer__minute, threek=kilometer__minute*3, fivek=kilometer__minute*2,
+                               eightk=kilometer__minute*3, tenk=kilometer__minute*2, fifteenk=kilometer__minute*5,
+                               twentyk=kilometer__minute*5, thirtyk=kilometer__minute*10, fortyk=kilometer__minute*10,
+                               fortytwok=kilometer__minute*2)
     else:
         return render_template("marathon.html", bar_chart=bar_chart, line_chart=line_chart, form=form)
 
 
 def get_kms_per_minute(distance, time):
+    """
+    Function that uses the distance and time entered by a user to calculate the speed they travelled in
+    kilometres per minute.
+    :param distance:
+    :param time:
+    :return: kilomtres per minute
+    """
     kilometer = (distance / (time / 60))
     kms_per_minute = Decimal(1) / Decimal(kilometer)
     return kms_per_minute
 
 
 def get_running_speed(distance, time):
+    """
+    Get the pace of an athlete given the distance and time
+    :param distance:
+    :param time:
+    :return: pace
+    """
     pace = (distance * 1000) / (time)
     return pace
 
 
 @app.route('/marathon/peter_reigel_predictor/', methods=['GET', 'POST'])
 def peter_reigel_predictor():
+    """
+    Marathon prediction page that uses the Peter Riegel marathon prediction formula to predict a users
+    marathon time, based on a previous run distance and the corresponding time.
+    :return: Peter Riegel prediction page
+    """
     form = ReusableForm(request.form)
     predicted_marathon_time = 0
-    # print(form.errors)
 
     if request.method == 'POST':
         if form.validate():
@@ -748,7 +723,6 @@ def peter_reigel_predictor():
 
             print(race_type, " ", float(hours), " ", float(minutes), " ", float(seconds))
 
-            # Save the comment here.
             flash('Your expected Marathon time based on your ' + race_type + ' time is shown below.')
             predicted_marathon_time = sec_to_time(peter_reigel_formula(race_type, hours, minutes, seconds))
         else:
@@ -758,10 +732,22 @@ def peter_reigel_predictor():
 
 
 def get_sec(hours, minutes, seconds):
+    """
+    Function to convert hours, minutes and seconds into seconds.
+    :param hours:
+    :param minutes:
+    :param seconds:
+    :return: total seconds
+    """
     return float(hours) * 3600.000 + float(minutes) * 60.000 + float(seconds)
 
 
 def sec_to_time(seconds):
+    """
+    Function to convert seconds into a time string.
+    :param seconds:
+    :return: time string
+    """
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
     str = "%d:%02d:%02d" % (h, m, s)
@@ -769,6 +755,11 @@ def sec_to_time(seconds):
 
 
 def race_distances(race_type):
+    """
+    Function to convert the race distances from string format to numerical format
+    :param race_type:
+    :return: race distances (float)
+    """
     if race_type == "Marathon":
         numerical_distance = 42.195
     elif race_type == "Half":
@@ -793,9 +784,13 @@ def race_distances(race_type):
 
 @app.route('/marathon/andrew_vickers_half_marathon/', methods=['GET', 'POST'])
 def andrew_vickers_half_marathon():
+    """
+    Web page that displays a prediction algorithm based on the andrew vickers half marathon method.
+    Takes in half marathon time and computes a marathon time based on it for the athlete.
+    :return: Marathon prediction page on vickers' formula
+    """
     form = ReusableForm(request.form)
     predicted_marathon_time = 0
-    # print(form.errors)
 
     if request.method == 'POST':
         if form.validate():
@@ -822,6 +817,14 @@ def andrew_vickers_half_marathon():
 
 
 def peter_reigel_formula(race_type, hours, minutes, seconds):
+    """
+    Peter Reigel formula used on the Peter Reigel marathon prediction page.
+    :param race_type:
+    :param hours:
+    :param minutes:
+    :param seconds:
+    :return: predicted finishing time
+    """
     distance_run = race_distances(race_type)
     time_run = get_sec(hours, minutes, seconds)
     time = time_run * (42.195 / distance_run) ** 1.06
@@ -829,12 +832,28 @@ def peter_reigel_formula(race_type, hours, minutes, seconds):
 
 
 def andrew_vickers_formula(race_type, hours, minutes, seconds):
+    """
+    Andrew vickers half marathon formula to predict marathon race time.
+    :param race_type:
+    :param hours:
+    :param minutes:
+    :param seconds:
+    :return: predicted finishing time
+    """
     time_run = get_sec(hours, minutes, seconds)
     time = time_run * 2.19
     return time
 
 
 def dave_cameron_formula(race_type, hours, minutes, seconds):
+    """
+    Dave Cameron's formula to predict a marathon race time.
+    :param race_type:
+    :param hours:
+    :param minutes:
+    :param seconds:
+    :return: predicted finishing time
+    """
     distance_run = race_distances(race_type)
     distance_run = distance_run * 1000
     time_run = get_sec(hours, minutes, seconds)
@@ -846,6 +865,10 @@ def dave_cameron_formula(race_type, hours, minutes, seconds):
 
 @app.route('/marathon/multiple_marathon_predictor/', methods=['GET', 'POST'])
 def multiple_marathon_predictor():
+    """
+    Multiple marathon prediction time based on the average of the other prediction algorithms.
+    :return: page displaying prediction method
+    """
     form = ReusableForm(request.form)
     average = 0
     andrew_vickers = 0
@@ -854,8 +877,6 @@ def multiple_marathon_predictor():
     pace_str = 0
     getcontext().prec = 3
 
-    wasActivitySelected = False
-    activities_ = []
     activities_data = []
     data_one_five = []
     data_3k = []
@@ -949,18 +970,66 @@ def multiple_marathon_predictor():
 
                 average = sec_to_time(average)
 
-                with open("/home/GregorySloggett/FinalYearProject/static/data.csv", 'w', newline='') as csvfile:
-                # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\data.csv", 'w', newline='') as csvfile:
+                with open("/home/GregorySloggett/FinalYearProject/static/csv_files/data.csv", 'w', newline='') as csvfile:
+                # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\csv_files\\data.csv", 'w', newline='') as csvfile:
 
                     spamwriter = csv.writer(csvfile, delimiter=' ',
                                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                    landmark_pace = 0
                     i = 0
-                    while (i < 43):
-                        if (i == 0):
+                    while i < 43:
+                        landmark_pace += pace
+                        if i == 0:
                             spamwriter.writerow(['kilometre,pace'])
-                        else:
-                            spamwriter.writerow(['{},{}'.format(i, pace)])
+                            landmark_pace = 0
+                        elif i == 3:
+                            spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                            landmark_pace = 0
+                        elif i == 5:
+                            spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                            landmark_pace = 0
+                        elif i == 8:
+                            spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                            landmark_pace = 0
+                        elif i == 10:
+                            spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                            landmark_pace = 0
+                        elif i == 15:
+                            spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                            landmark_pace = 0
+                        elif i == 20:
+                            spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                            landmark_pace = 0
+                        elif i == 30:
+                            spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                            landmark_pace = 0
+                        elif i == 40:
+                            spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                            landmark_pace = 0
+                        elif i == 42:
+                            spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                            landmark_pace = 0
+
                         i += 1
+
+                        # with open("C:\\Users\\Greg Sloggett\\Dropbox\\FinalYearProject\\FYP_Project_Folder\\static\\landmarks.csv", 'w', newline='') as csvfile:
+                        #
+                        #     spamwriter = csv.writer(csvfile, delimiter=' ',
+                        #                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                        #     spamwriter.writerow(['kilometre,pace'])
+                        #
+                        #     landmark_pace = 0
+                        #     i = 0
+                        #     while i < 43:
+                        #         landmark_pace += pace
+                        #         print(landmark_pace)
+                        #         if i % 5 == 0 and i != 0:
+                        #             spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                        #             landmark_pace = 0
+                        #         elif i == 42:
+                        #             spamwriter.writerow(['{},{}'.format(i, landmark_pace)])
+                        #             landmark_pace = 0
+                        #         i += 1
 
             else:
                 flash('Error: You are required to enter a distance. ')
@@ -973,8 +1042,11 @@ def multiple_marathon_predictor():
 
 @app.route('/about/', methods=['GET', 'POST'])
 def about():
+    """
+    About page to display some information on the web application and allow user emails/responses
+    :return: web page displaying website information
+    """
     form = AboutForm(request.form)
-    # print(form.errors)
 
     if request.method == 'POST':
         name = request.form['name']
@@ -993,6 +1065,10 @@ def about():
 
 @app.route('/marathon/dave_cameron_predictor/', methods=['GET', 'POST'])
 def dave_cameron_predictor():
+    """
+    Web page to display the dave cameron prediction algorithm for marathons.
+    :return: prediction formula page
+    """
     form = ReusableForm(request.form)
     predicted_marathon_time = 0
     # print(form.errors)
@@ -1025,9 +1101,12 @@ def dave_cameron_predictor():
 
 @app.route('/marathon/daniels_gilbert_vo2_max/', methods=['GET', 'POST'])
 def daniels_gilbert_vo2_max():
+    """
+    Web page to display Daniels and Gilbert's unique vo2 max estimate prediction method with vo2 max table
+    :return: display VO2 max table
+    """
     form = ReusableForm(request.form)
     vo2max = 0
-    # print(form.errors)
 
     if request.method == 'POST':
         if form.validate():
@@ -1063,6 +1142,10 @@ def daniels_gilbert_vo2_max():
 
 
 def activities_2018():
+    """
+    Retrieve all clients activities for the year of 2018
+    :return: activities for 2018
+    """
     activities_from_2018 = {}
     for activity in client.get_activities(before="2019-01-01T00:00:00Z",
                                           after="2018-01-01T00:00:00Z", limit=None):
@@ -1078,6 +1161,10 @@ def activities_2018():
 
 
 def activities_2017():
+    """
+    Retrieve all a clients activities from the year 2017
+    :return: activities for 2017
+    """
     activities_from_2017 = {}
     i = 0
     for activity in client.get_activities(before="2018-01-01T00:00:00Z",
@@ -1096,6 +1183,10 @@ def activities_2017():
 
 # This displays some details on the summary page of the users last ten rides (ID, Name, Distance)
 def last_ten_rides():
+    """
+    Retrieve the last 10 activities for the client.
+    :return: last ten activities
+    """
     activity_list = []
     i = 0
     for activity in client.get_activities(limit=10):
@@ -1110,6 +1201,10 @@ def last_ten_rides():
 
 # This displays some details on the summary page of the users last ten rides (ID, Name, Distance)
 def last_activity():
+    """
+    Retrieve the very first activity of the user from the Strava API.
+    :return: first activity
+    """
     for activity in client.get_activities(before=datetime.datetime.now(),
                                           after=client.get_athlete().created_at, limit=1):
         return activity.id

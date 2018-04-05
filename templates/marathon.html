@@ -1,111 +1,193 @@
 {% extends "page_layout.html" %}
 {% block body %}
 
-<body style="padding-top: 50px;">
+    <body style="padding-top: 50px;">
 
-<div class="runner">
-    <div class="jumbotron" style="background-color: transparent">
-        <br><br><br><br>
-    </div>
-</div>
-
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="page-header">
-                <h2>Estimate your own Marathon time</h2>
-            </div>
+    <div class="runner" style="background-image: url('/static/images/MarathonLargePack.jpg')">
+        <div class="jumbotron" style="background-color: transparent">
+            <br><br><br><br>
         </div>
     </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="chart-wrapper">
-                <div class="chart-title">
 
-                    <form  action="{{ url_for('marathon') }}" method="post" role="form">
-                        {{ form.csrf }}
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="form-group">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h2>Estimate your own Marathon time</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="chart-wrapper">
+                    <div class="chart-title">
 
-                                    <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
-                                        <option value="" disabled hidden>Select your distance.</option>
-                                        <option value="Marathon" selected onclick="getRace()">Marathon</option>
-                                        <option value="Half Marathon" disabled onclick="getRace()">Half Marathon</option>
-                                        <option value="10 Miler" disabled onclick="getRace()">10 Miles</option>
-                                        <option value="10 Kilometre" disabled onclick="getRace()">10K</option>
-                                        <option value="5 Miler" disabled onclick="getRace()">5 Miles</option>
-                                        <option value="5 Kilometre" disabled onclick="getRace()">5K</option>
-                                        <option value="3 Kilometre" disabled onclick="getRace()">3K</option>
-                                        <option value="Miler" disabled onclick="getRace()">1 Mile</option>
-                                        <option value="1500 Metre" disabled onclick="getRace()">1500 Meters</option>
-                                    </select>
+                        <form  action="{{ url_for('marathon') }}" method="post" role="form">
+                            {{ form.csrf }}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+
+                                        <select id="race_length" class="form-control" name="race_length" onclick="getRace()">
+                                            <option value="" disabled hidden>Select your distance.</option>
+                                            <option value="Marathon" selected onclick="getRace()">Marathon</option>
+                                            <option value="Half Marathon" disabled onclick="getRace()">Half Marathon</option>
+                                            <option value="10 Miler" disabled onclick="getRace()">10 Miles</option>
+                                            <option value="10 Kilometre" disabled onclick="getRace()">10K</option>
+                                            <option value="5 Miler" disabled onclick="getRace()">5 Miles</option>
+                                            <option value="5 Kilometre" disabled onclick="getRace()">5K</option>
+                                            <option value="3 Kilometre" disabled onclick="getRace()">3K</option>
+                                            <option value="Miler" disabled onclick="getRace()">1 Mile</option>
+                                            <option value="1500 Metre" disabled onclick="getRace()">1500 Meters</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div id="race_length_head1" class="row">
-                            <div id="race_length_head2" class="col-sm-12">
-                                <label id="id1">
-                                    What time do you expect to complete your upcoming Marathon in?
-                                </label>
+                            <div id="race_length_head1" class="row">
+                                <div id="race_length_head2" class="col-sm-12">
+                                    <label id="id1">
+                                        What time do you expect to complete your upcoming Marathon in?
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-4 form-group has-success has-feedback">
-                                <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                            <div class="row">
+                                <div class="col-sm-4 form-group has-success has-feedback">
+                                    <input type="number" class="form-control" id="race_time_hours" name="race_time_hours" min="0" max="10" placeholder="Enter Hours:" onchange="clearMsg();" onkeydown="clearMsg();">
+                                </div>
+                                <div class="col-sm-4 form-group has-warning has-feedback">
+                                    <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                                </div>
+                                <div class="col-sm-4 form-group has-error has-feedback">
+                                    <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
+                                </div>
                             </div>
-                            <div class="col-sm-4 form-group has-warning has-feedback">
-                                <input type="number" class="form-control" id="race_time_minutes" name="race_time_minutes" min="0" max="60" placeholder="Enter Minutes:" onchange="clearMsg();" onkeydown="clearMsg();">
+                            <br>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <button type="submit" class="btn btn-success">View your pacing chart!</button>
+                                </div>
                             </div>
-                            <div class="col-sm-4 form-group has-error has-feedback">
-                                <input type="number" class="form-control" id="race_time_seconds" name="race_time_seconds" min="0" max="60" placeholder="Enter Seconds:" onchange="clearMsg();" onkeydown="clearMsg();">
+                        </form>
+
+
+                        {% if request.method == 'POST' %}
+                            <br><br>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    Expected marathon time: {{ hours }} hours, {{ minutes }} minutes & {{ seconds }} seconds. <br>
+                                    Pace: {{ pace }} metres/sec, taking {{ kilometres_per_minute }} minutes to complete each kilometre.
+                                </div>
                             </div>
-                        </div>
-                        <br>
-                        <div class="row">
+                            <br><br>
+
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="page-header">
+                                        <h3>Pacing Times</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
                             <div class="col-sm-12">
-                                <button type="submit" class="btn btn-success">View your pacing chart!</button>
+                                <div class="table-responsive">
+                                    <table id='myTable' class="table table-striped table-bordered table-hover">
+
+                                        <thead>
+                                        <tr>
+                                            <th>Pace Mark</th>
+                                            <th>Three Kilometres</th>
+                                            <th>Five Kilometres</th>
+                                            <th>Eight Kilometres</th>
+                                            <th>Ten Kilometres</th>
+                                            <th>Fifteen Kilometres</th>
+                                            <th>Twenty Kilometres</th>
+                                            <th>Thirty Kilometres</th>
+                                            <th>Forty Kilometres</th>
+                                            <th>Forty Two Kilometres</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        <tr>
+                                            <th>Total Time</th>
+                                            <td>{{ threek }} mins</td>
+                                            <td>{{ fivek }} mins</td>
+                                            <td>{{ eightk }} mins</td>
+                                            <td>{{ tenk }} mins</td>
+                                            <td>{{ fifteenk }} mins</td>
+                                            <td>{{ twentyk }} mins</td>
+                                            <td>{{ thirtyk }} mins</td>
+                                            <td>{{ fortyk }} mins</td>
+                                            <td>{{ fortytwok }} mins</td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Split Time</th>
+                                            <td>{{ kilometer__minute*3 }} mins</td>
+                                            <td>{{ kilometer__minute*5 }} mins</td>
+                                            <td>{{ kilometer__minute*8 }} mins</td>
+                                            <td>{{ kilometer__minute*10 }} mins</td>
+                                            <td>{{ kilometer__minute*15 }} mins</td>
+                                            <td>{{ kilometer__minute*20 }} mins</td>
+                                            <td>{{ kilometer__minute*30 }} mins</td>
+                                            <td>{{ kilometer__minute*40 }} mins</td>
+                                            <td>{{ kilometer__minute*42 }} mins</td>
+                                        </tr>
+
+
+                                        </tbody>
+                                    </table>
+                                    <br>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                            <br><br>
 
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="page-header">
+                                        <h3>Pacing Charts</h3>
+                                    </div>
+                                </div>
+                            </div>
 
-                    {% if request.method == 'POST' %}
+                            <br>
+                            <div class="col-sm-6">
+                                <div id="chart">
+                                    <embed type="image/svg+xml" src= {{ line_chart|safe }} />
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div id="chart">
+                                    <embed type="image/svg+xml" src= {{ bar_chart|safe }} />
+                                </div>
+                            </div>
+
+                            <br><br>
+
+                        {% else %}
+                            <br><br>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <i>Your predicted marathon finishing time will be displayed here.</i>
+                                </div>
+                            </div>
+                        {% endif %}
+
                         <br><br>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                Expected marathon time: {{ hours }} hours, {{ minutes }} minutes & {{ seconds }} seconds. <br>
-                                Pace: {{ pace }} metres/sec, taking {{ kilometres_per_minute }} minutes to complete each kilometre.
-                            </div>
+
                         </div>
 
                         <br><br>
-                        <div class="col-sm-6">
-                            <div id="chart">
-                                <embed type="image/svg+xml" src= {{ line_chart|safe }} />
-                            </div>
-                        </div>
 
-                        <div class="col-sm-6">
-                            <div id="chart">
-                                <embed type="image/svg+xml" src= {{ bar_chart|safe }} />
-                            </div>
-                        </div>
-
-                    {% else %}
-                        <br><br>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <i>Your predicted marathon finishing time will be displayed here.</i>
-                            </div>
-                        </div>
-                    {% endif %}
-
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-</body>
+    </body>
 {% endblock %}
