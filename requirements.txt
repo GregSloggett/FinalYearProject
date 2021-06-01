@@ -23,7 +23,7 @@ SQLAlchemy==1.1.15
 stravalib==0.6.6
 sympy==1.1.1
 units==0.7
-urllib3==1.22
+urllib3==1.26.5
 Werkzeug==0.12.2
 WTForms==2.1
 wtforms-html5==0.2.2
